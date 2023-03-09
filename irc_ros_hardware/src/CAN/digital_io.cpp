@@ -9,7 +9,7 @@ DIO::DIO(std::string name, std::shared_ptr<CAN::CanInterface> can_interface, int
   // TODO: Once these get dynamically set from the irc_ros_can.cpp/on_init() function set the
   // log level to warning and set the sizes dynamically.
   if (digital_out_double_.size() != digital_out_.size()) {
-    RCLCPP_INFO(
+    RCLCPP_DEBUG(
       rclcpp::get_logger("iRC_ROS"),
       "Module 0x%02x: digital_out bitset and double vectors have different sizes of %li and %li. "
       "Therefore only %li outputs are available.",
@@ -90,7 +90,7 @@ void DIO::position_cmd()
   int32_t set_pos_tics = 0;
 
   // TODO: Remove this conversion once a better way of using bitsets as in/out of StateInterface/CommandInterface is found
-  // digital_out_double_ -> digital_out
+  // digital_out_double_ -> digital_out_
   for (int i = 0; i < std::min(digital_out_double_.size(), digital_out_.size()); i++) {
     digital_out_[i] = digital_out_double_[i] > 0.5;
   }
@@ -108,7 +108,7 @@ void DIO::position_cmd()
 
 /**
  * @brief Only calls the output function.
-*/
+ */
 void DIO::write_can()
 {
   RCLCPP_DEBUG(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Creating can message", can_id_);
