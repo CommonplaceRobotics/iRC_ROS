@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro"
+       name="igus_rebel_6dof" >
+
+  <!-- (Internal) hardware selection  -->
+  <xacro:arg name="rebel_version" default="00" />
+  <!-- Gripper selection -->
+  <xacro:arg name="gripper" default="ext_dio_gripper" />
+
+  <!-- TODO -->
+  <xacro:arg name="root_link" default="false" />
+
+  <xacro:include filename="$(find irc_ros_description)/urdf/igus_rebel_6dof_$(arg rebel_version).xacro" />
+
+  <xacro:include filename="$(find irc_ros_description)/urdf/igus_rebel_6dof_$(arg rebel_version).ros2_control.xacro" />
+
+
+  <xacro:if value="$(arg root_link)">
+    <link name="world" />
+
+    <joint name="world_joint" type="fixed">
+      <parent link="world" />
+      <child link = "base_link" />
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+    </joint>
+  </xacro:if>
+
+  <!-- Grippers -->
+
+  <joint name="hand_to_gripper" type="fixed">
+    <parent link="hand" />
+    <child link = "gripper_mount" />
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 ${-pi/2} 0.0" />
+  </joint>
+
+  <xacro:include filename="$(find irc_ros_description)/urdf/gripper_$(arg gripper).urdf.xacro" />
+
+</robot>

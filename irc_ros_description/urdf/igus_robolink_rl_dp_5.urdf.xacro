@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro"
+       name="igus_robolink_rl_dp_5" >
+
+  <!-- Gripper selection -->
+  <xacro:arg name="use_gripper" default="false" />
+  <xacro:arg name="gripper" default="schmalz_ecbpmi" />
+
+  <xacro:include filename="$(find irc_ros_description)/urdf/igus_robolink_rl_dp_5.xacro" />
+  <xacro:include filename="$(find irc_ros_description)/urdf/igus_robolink_rl_dp_5.ros2_control.xacro" />
+  
+  <link name="world" />
+
+  <joint name="world_joint" type="fixed">
+    <parent link="world" />
+    <child link = "base_link" />
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </joint>
+
+  <!-- Grippers -->
+  <xacro:if value="$(arg use_gripper)">
+    <joint name="hand_to_gripper" type="fixed">
+      <parent link="hand" />
+      <child link = "gripper_mount" />
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 ${-pi/2} 0.0" />
+    </joint>
+
+    <xacro:include filename="$(find irc_ros_description)/urdf/gripper_$(arg gripper).urdf.xacro" />
+  </xacro:if>
+
+
+</robot>

@@ -1,0 +1,9 @@
+<library path="irc_ros_controllers">
+  <class name="irc_ros_controllers/DashboardController"
+         type="irc_ros_controllers::DashboardController"
+         base_class_type="controller_interface::ControllerInterface">
+    <description>
+        Controller for interfacing with the hardware over external tools, such as the TUI Dashboard. Offers most module/joint/dio states, as well as the option to send commands.
+    </description>
+  </class>
+</library>

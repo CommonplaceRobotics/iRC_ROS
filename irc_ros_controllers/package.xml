@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>irc_ros_controllers</name>
+  <version>0.1.0</version>
+  <description>The irc_ros_controllers package</description>
+
+  <maintainer email="fer@cpr-robots.com">Felix Reuter</maintainer>
+  <license>Apache-2.0</license>
+  <url type="website">cpr-robots.com</url>
+  <url type="repository">https://github.com/CommonplaceRobotics/SW_ROS2-Nodes</url>
+  <author email="fer@cpr-robots.com">Felix Reuter</author>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+
+  <depend>ros2_control</depend>
+  <depend>controller_interface</depend>
+  <depend>lifecycle_node</depend>
+  <depend>example_interfaces</depend>
+  <depend>irc_ros_msgs</depend>
+  <depend>irc_ros_hardware</depend>
+
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

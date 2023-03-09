@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+    <asset>
+        <contributor>
+            <authoring_tool>ctmconv</authoring_tool>
+            <comments></comments>
+        </contributor>
+        <created>2023-01-10T16:34:00</created>
+        <modified>2023-01-10T16:34:00</modified>
+    </asset>
+    <library_geometries>
+        <geometry id="Mesh-1" name="Mesh-1">
+            <mesh>
+                <source id="Mesh-1-positions" name="position">
+                    <float_array id="Mesh-1-positions-array" count="60">-0 -0.0735 -0.0887221 0 0 0 0 0.0735 -0.0887221 0 0 0 0 0 0 0.0768356 -0.0735 -0.044361 -0.0768356 -0.0735 -0.044361 0.0768356 0.0735 -0.044361 -0.0768356 0.0735 -0.044361 0 0 0 0.0623027 -0.0735 0.38597 -0.0623027 -0.0735 0.38597 0.0623027 0.0735 0.38597 -0.0623027 0.0735 0.38597 0 0 0 0 -0.0735 0.421941 0 0 0 0 0 0 0 0.0735 0.421941 0 0 0 </float_array>
+                    <technique_common>
+                        <accessor count="20" offset="0" source="#Mesh-1-positions-array" stride="3">
+                            <param name="X" type="float" />
+                            <param name="Y" type="float" />
+                            <param name="Z" type="float" />
+                        </accessor>
+                    </technique_common>
+                </source>
+                <source id="Mesh-1-normals" name="normal">
+                    <float_array id="Mesh-1-normals-array" count="60">-0 -2.09439 -2.7207 0 0 0 0 2.09439 -2.7207 0 0 0 0 0 0 2.3553 -2.06064 -1.30733 -2.3553 -2.06064 -1.30733 2.3553 2.06064 -1.30733 -2.3553 2.06064 -1.30733 0 0 0 2.3553 -2.12815 1.41337 -2.3553 -2.12815 1.41337 2.3553 2.12815 1.41337 -2.3553 2.12815 1.41337 0 0 0 0 -2.09439 2.7207 0 0 0 0 0 0 0 2.09439 2.7207 0 0 0 </float_array>
+                    <technique_common>
+                        <accessor count="20" offset="0" source="#Mesh-1-normals-array" stride="3">
+                            <param name="X" type="float" />
+                            <param name="Y" type="float" />
+                            <param name="Z" type="float" />
+                        </accessor>
+                    </technique_common>
+                </source>
+                <vertices id="Mesh-1-vertices">
+                    <input semantic="POSITION" source="#Mesh-1-positions" />
+                </vertices>
+                <triangles count="20">
+                    <input offset="0" semantic="VERTEX" source="#Mesh-1-vertices" />
+                    <input offset="1" semantic="NORMAL" source="#Mesh-1-normals" />
+                    <p>6 6 8 8 0 0 8 8 2 2 0 0 5 5 10 10 0 0 11 11 6 6 0 0 10 10 11 11 0 0 2 2 5 5 0 0 8 8 13 13 2 2 13 13 12 12 2 2 12 12 7 7 2 2 7 7 5 5 2 2 7 7 10 10 5 5 11 11 13 13 6 6 13 13 8 8 6 6 12 12 10 10 7 7 15 15 11 11 10 10 12 12 15 15 10 10 15 15 18 18 11 11 18 18 13 13 11 11 13 13 18 18 12 12 18 18 15 15 12 12 </p>
+                </triangles>
+            </mesh>
+        </geometry>
+    </library_geometries>
+    <library_visual_scenes>
+        <visual_scene id="Scene-1" name="Scene-1">
+            <node id="Object-1" name="Object-1">
+                <instance_geometry url="#Mesh-1" />
+            </node>
+        </visual_scene>
+    </library_visual_scenes>
+    <scene>
+        <instance_visual_scene url="#Scene-1" />
+    </scene>
+</COLLADA>

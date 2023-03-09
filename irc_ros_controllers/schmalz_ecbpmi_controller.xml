@@ -1,0 +1,9 @@
+<library path="irc_ros_controllers">
+  <class name="irc_ros_controllers/EcbpmiController"
+         type="irc_ros_controllers::EcbpmiController"
+         base_class_type="controller_interface::ControllerInterface">
+    <description>
+        Controller for the Schmalz ECBPMI vacuum gripper. Supports gripping and the default feedback signal.
+    </description>
+  </class>
+</library>

@@ -1,0 +1,17 @@
+repositories:
+  ira_laser_tools:
+    type: git
+    url: https://github.com/nakai-omer/ira_laser_tools.git
+    version: humble
+  joint_state_publisher:
+    type: git
+    url: https://github.com/ros/joint_state_publisher.git
+    version: ros2
+  rqt_robot_steering:
+    type: git
+    url: https://github.com/cpr-fer/rqt_robot_steering.git
+    version: twiststamped
+  sicks300_2:
+    type: git
+    url: https://github.com/ajtudela/sicks300_2.git
+    version: humble

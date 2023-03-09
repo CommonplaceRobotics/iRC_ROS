@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro"
+       name="cpr_platform_medium" >
+
+  <xacro:include filename="$(find irc_ros_description)/urdf/cpr_platform_medium.xacro" />
+  <xacro:include filename="$(find irc_ros_description)/urdf/cpr_platform_medium.ros2_control.xacro" />
+
+</robot>

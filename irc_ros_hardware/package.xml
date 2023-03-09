@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>irc_ros_hardware</name>
+  <version>0.1.0</version>
+  <description>ROS package to control an igus ReBeL cobot.</description>
+
+  <maintainer email="fer@cpr-robots.com">Felix Reuter</maintainer>
+  <license>Apache-2.0</license>
+  <url type="website">cpr-robots.com</url>
+  <url type="repository">https://github.com/CommonplaceRobotics/SW_ROS2-Nodes</url>
+  <author email="schenke@truphysics.com">Björn Schenke</author>
+  <author email="fer@cpr-robots.com">Felix Reuter</author>
+    
+  <depend>rclcpp</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>control_msgs</depend>
+  <depend>controller_manager</depend>
+  <depend>controller_manager_msgs</depend>
+  <depend>controller_interface</depend>
+  <depend>hardware_interface</depend>
+  <depend>rclcpp_lifecyle</depend>
+  <depend>rviz</depend>
+  <depend>ros2_control</depend>
+  <depend>pluginlib</depend>
+  <depend>irc_ros_msgs</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+
+  <!-- this recursively depends on a set of common linters -->
+  <test_depend>ament_lint_common</test_depend>
+
+  <exec_depend>ros2_controllers_test_nodes</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

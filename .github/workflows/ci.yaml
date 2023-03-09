@@ -1,0 +1,39 @@
+name: CI
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  pre-commit:
+    name: pre-commit
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ros-tooling/setup-ros@v0.6
+      - run: sudo apt-get install -y ros-humble-ament-clang-format ros-humble-ament-flake8 ros-humble-ament-xmllint ros-humble-ament-lint
+      - uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: --hook-stage manual
+      - uses: pre-commit-ci/lite-action@v1.0.1
+        if: always()
+      - uses: ros-tooling/action-ros-ci@v0.2
+        with:
+          package-name: |
+            irc_ros_bringup
+            irc_ros_controllers
+            irc_ros_dashboard
+            irc_ros_description
+            irc_ros_examples
+            irc_ros_hardware
+            irc_ros_moveit_config
+            irc_ros_msgs
+            irc_ros_navigation2
+
+          import-token: ${{ secrets.GITHUB_TOKEN }}
+          target-ros2-distro: humble # TODO: Add iron once released
+          skip-tests: true
+          # TODO: Change to raw github link so it is runnable with act once the repository is set to public?
+          vcs-repo-file-url: "${{ github.workspace }}/igus_robot_control_ros2.repos" 

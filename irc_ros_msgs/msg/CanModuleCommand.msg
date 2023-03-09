@@ -1,0 +1,13 @@
+string name
+
+uint8 TYPE_NONE = 0	
+uint8 TYPE_PING = 1
+uint8 TYPE_ERROR_RESET = 1
+uint8 TYPE_ENABLE_MOTOR = 2
+uint8 TYPE_DISABLE_MOTOR = 3
+uint8 TYPE_REFERENCE = 4
+uint8 TYPE_SET_POS_TO_ZERO = 5
+
+uint8 type
+
+

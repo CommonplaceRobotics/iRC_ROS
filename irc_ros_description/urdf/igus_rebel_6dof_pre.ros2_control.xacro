@@ -1,0 +1,99 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <ros2_control name="Rebel" type="system">
+    <xacro:property name="gear_scale_1_to_4" value="1031.11"/>
+    <!-- <xacro:property name="gear_scale_1_to_4" value="1443.55"/> -->
+    <hardware>
+      <class>temp</class>
+      <plugin>irc_hardware/IrcRosCan</plugin>
+      <!-- <plugin>irc_hardware/IrcRosCri</plugin> -->
+      <param name="can_socket">can0</param>
+    </hardware>
+    <joint name="joint1">
+      <command_interface name="position">
+        <param name="min">${-pi*179/180}</param>
+        <param name="max">${pi*179/180}</param>
+      </command_interface>
+      <command_interface name="velocity">
+        <param name="min">-2.16</param>
+        <param name="max">2.16</param>
+      </command_interface>
+      <!-- <command_interface name="torque"/> -->
+      <state_interface name="position"/>
+      <param name="gear_scale">${gear_scale_1_to_4}</param>
+      <param name="controller_type">closed_loop</param>
+    </joint>
+    <joint name="joint2">
+      <command_interface name="position">
+        <param name="min">${-pi*4/9}</param>
+        <param name="max">${pi*7/9}</param>
+      </command_interface>
+      <command_interface name="velocity">
+        <param name="min">-2.16</param>
+        <param name="max">2.16</param>
+      </command_interface>
+      <!-- <command_interface name="torque"/> -->
+      <state_interface name="position"/>
+      <param name="gear_scale">${gear_scale_1_to_4}</param>
+      <param name="controller_type">closed_loop</param>
+    </joint>
+    <joint name="joint3">
+      <command_interface name="position">
+        <param name="min">${-pi*4/9}</param>
+        <param name="max">${pi*7/9}</param>
+      </command_interface>
+      <command_interface name="velocity">
+        <param name="min">-2.16</param>
+        <param name="max">2.16</param>
+      </command_interface>
+      <!-- <command_interface name="torque"/> -->
+      <state_interface name="position"/>
+      <param name="gear_scale">${gear_scale_1_to_4}</param>
+      <param name="controller_type">closed_loop</param>
+    </joint>
+    <joint name="joint4">
+      <command_interface name="position">
+        <param name="min">${-pi*179/180}</param>
+        <param name="max">${pi*179/180}</param>
+      </command_interface>
+      <command_interface name="velocity">
+        <param name="min">-2.16</param>
+        <param name="max">2.16</param>
+      </command_interface>
+      <!-- <command_interface name="torque"/> -->
+      <state_interface name="position"/>
+      <param name="gear_scale">${-1 *gear_scale_1_to_4}</param>
+      <param name="controller_type">closed_loop</param>
+    </joint>
+    <joint name="joint5">
+      <command_interface name="position">
+        <param name="min">${-pi*19/36}</param>
+        <param name="max">${pi*19/36}</param>
+      </command_interface>
+      <command_interface name="velocity">
+        <param name="min">-2.16</param>
+        <param name="max">2.16</param>
+      </command_interface>
+      <!-- <command_interface name="torque"/> -->
+      <state_interface name="position"/>
+      <param name="gear_scale">1031.11</param>
+      <param name="controller_type">closed_loop</param>
+    </joint>
+    <joint name="joint6">
+      <command_interface name="position">
+        <!-- While the last axis can turn continuously, it is limited here in case a tool with wiring is mounted.
+        If you are certain that no wiring issues can arise you may change this do a continuous joint -->
+        <param name="min">${-pi*179/180}</param>
+        <param name="max">${pi*179/180}</param>
+      </command_interface>
+      <command_interface name="velocity">
+        <param name="min">-2.16</param>
+        <param name="max">2.16</param>
+      </command_interface>
+      <!-- <command_interface name="torque"/> -->
+      <state_interface name="position"/>
+      <param name="gear_scale">-1031.11</param>
+      <param name="controller_type">closed_loop</param>
+    </joint>
+  </ros2_control>
+</robot>

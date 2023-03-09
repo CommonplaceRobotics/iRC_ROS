@@ -1,0 +1,16 @@
+<library path="irc_ros_hardware">
+  <class name="irc_hardware/IrcRosCri"
+         type="irc_hardware::IrcRosCri"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+         Interfacing over CRI. For more information about this see `irc_ros_hardware/README.md` and the CRI code in that folder.
+    </description>
+  </class>
+  <class name="irc_hardware/IrcRosCan"
+         type="irc_hardware::IrcRosCan"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+         Interfacing over CAN. For more information about this see `irc_ros_hardware/README.md` and the CAN code in that folder.
+    </description>
+  </class>
+</library>

@@ -1,0 +1,60 @@
+# Based on https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver/blob/main/.pre-commit-config.yaml
+# Lint cpp, py, xml, cmake
+
+repos:
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v1.25.0
+    hooks:
+    -   id: pyupgrade
+        args: [--py36-plus]
+
+  - repo: https://github.com/psf/black
+    rev: 23.1.0
+    hooks:
+      - id: black
+
+  - repo: local
+    hooks:
+      - id: ament_clang_format
+        name: ament_clang_format
+        stages: [commit]
+        entry: ament_clang_format
+        language: system
+        files: \.(c|cc|cxx|cpp|frag|glsl|h|hpp|hxx|ih|ispc|ipp|java|js|m|proto|vert)$
+        args: ["--reformat"]
+
+  - repo: local
+    hooks:
+      - id: ament_flake8
+        name: ament_flake8
+        stages: [commit]
+        entry: ament_flake8
+        language: system
+        files: \.py$
+
+  - repo: local
+    hooks:
+      - id: ament_xmllint
+        name: ament_xmllint
+        stages: [commit]
+        entry: ament_xmllint
+        language: system
+        files: \.xml$
+
+  - repo: local
+    hooks:
+      - id: ament_lint_cmake
+        name: ament_lint_cmake
+        stages: [commit]
+        entry: ament_lint_cmake
+        language: system
+        files: CMakeLists.txt$
+
+  # Spellcheck in comments and docs
+  # skipping of *.svg files is not working...
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.0.0
+    hooks:
+      - id: codespell
+        args: ['--write-changes -q4 -L dout,DOUT']
+        exclude: \.(svg|pyc|drawio|txt)$

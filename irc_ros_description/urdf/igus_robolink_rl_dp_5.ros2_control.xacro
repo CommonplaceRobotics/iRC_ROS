@@ -1,0 +1,90 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <ros2_control name="Robolink-RL-DP" type="system">
+    <hardware>
+      <class>temp</class>
+      <plugin>irc_hardware/IrcRosCan</plugin>
+      <!-- <plugin>irc_hardware/IrcRosCri</plugin> -->
+      <param name="can_socket">can0</param>
+    </hardware>
+    <joint name="joint1">
+      <command_interface name="position">
+        <param name="min">{-pi*7/9}</param>
+        <param name="max">{pi*7/9}</param>
+      </command_interface>
+      <command_interface name="velocity">
+        <param name="min">-2.16</param>
+        <param name="max">2.16</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <!--
+      The gear_scale is positive in the iRC files,
+      but for the positive direction it needs to be inverted
+      -->
+      <param name="gear_scale">-266.67</param>
+      <param name="controller_type">open_loop</param>
+      <param name="referencing_required">true</param>
+      <param name="referencing_priority">5</param>
+    </joint>
+    <joint name="joint2">
+      <command_interface name="position">
+        <param name="min">{-pi*5/18}</param>
+        <param name="max">{pi/2}</param>
+      </command_interface>
+      <command_interface name="velocity">
+        <param name="min">-2.16</param>
+        <param name="max">2.16</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <param name="gear_scale">266.67</param>
+      <param name="controller_type">open_loop</param>
+      <param name="referencing_required">true</param>
+      <param name="referencing_priority">2</param>
+    </joint>
+    <joint name="joint3">
+      <command_interface name="position">
+        <param name="min">{-pi*41/36}</param>
+        <param name="max">{pi*5/36}</param>
+      </command_interface>
+      <command_interface name="velocity">
+        <param name="min">-2.16</param>
+        <param name="max">2.16</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <param name="gear_scale">277.78</param>
+      <param name="controller_type">open_loop</param>
+      <param name="referencing_required">true</param>
+      <param name="referencing_priority">1</param>
+    </joint>
+    <joint name="joint4">
+      <command_interface name="position">
+        <param name="min">{-pi*5/9}</param>
+        <param name="max">{pi*5/9}</param>
+      </command_interface>
+      <command_interface name="velocity">
+        <param name="min">-2.16</param>
+        <param name="max">2.16</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <param name="gear_scale">211.11</param>
+      <param name="controller_type">open_loop</param>
+      <param name="referencing_required">true</param>
+      <param name="referencing_priority">3</param>
+    </joint>
+    <joint name="joint5">
+      <command_interface name="position">
+        <param name="min">{-pi*179/180}</param>
+        <param name="max">{pi*179/180}</param>
+      </command_interface>
+      <command_interface name="velocity">
+        <param name="min">-2.16</param>
+        <param name="max">2.16</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <param name="gear_scale">-155.56</param>
+      <param name="controller_type">open_loop</param>
+      <param name="referencing_required">true</param>
+      <param name="referencing_priority">4</param>
+    </joint>
+  </ros2_control>
+</robot>

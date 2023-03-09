@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<ros2_control name="cpr_platform_medium" type="system">
+  <hardware>
+    <class>temp</class>
+    <!-- CAN -->
+    <plugin>irc_hardware/IrcRosCan</plugin>
+    <param name="can_socket">can0</param> 
+
+    <!-- CRI -->
+    <!-- <plugin>irc_hardware/IrcRosCri</plugin> -->
+    <!-- <param name="ip">192.168.3.11</param> -->
+  </hardware>
+  <joint name="joint_wheel_1">
+    <command_interface name="velocity">
+      <param name="min">-2.16</param>
+      <param name="max">2.16</param>
+    </command_interface>
+    <state_interface name="position"/>
+    <param name="gear_scale">33.33</param>
+    <param name="controller_type">open_loop</param>
+    <param name="can_id">0x18</param>
+  </joint>
+  <joint name="joint_wheel_2">
+    <command_interface name="velocity">
+      <param name="min">-2.16</param>
+      <param name="max">2.16</param>
+    </command_interface>
+    <state_interface name="position"/>
+    <param name="gear_scale">-33.33</param>
+    <param name="controller_type">open_loop</param>
+    <param name="can_id">0x28</param>
+  </joint>
+</ros2_control>
+</robot>

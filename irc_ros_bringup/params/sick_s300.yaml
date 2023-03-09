@@ -1,0 +1,39 @@
+# Front laser
+laserscanner_front:
+  ros__parameters:
+    port: /dev/ttyUSB0
+    baud: 500000
+    scan_duration: 0.025 # No info about that in SICK-docu, but 0.025 is believable and looks good in rviz
+    scan_cycle_time: 0.040 # SICK-docu says S300 scans every 40ms
+    inverted: false
+    scan_id: 7
+    frame_id: laser_front
+    scan_topic: scan_front
+    debug: false
+    fields:
+      '1':
+        scale: 0.01
+
+        # Laser scanners are configured to only send 180°
+        # If we set another value here it stretches the points.
+        # Reconfigure the laser scanners when changing this
+        start_angle: -1.57 # -2.36
+        stop_angle: 1.57 #2.36
+
+# Back laser
+laserscanner_back:
+  ros__parameters:
+    port: /dev/ttyUSB1
+    baud: 500000
+    scan_duration: 0.025 # No info about that in SICK-docu, but 0.025 is believable and looks good in rviz
+    scan_cycle_time: 0.040 # SICK-docu says S300 scans every 40ms
+    inverted: false
+    scan_id: 7
+    frame_id: laser_back
+    scan_topic: scan_back
+    debug: false
+    fields:
+      '1':
+        scale: 0.01
+        start_angle: -1.57
+        stop_angle: 1.57

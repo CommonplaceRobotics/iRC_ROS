@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro"
+       name="rebel_on_platform" >
+
+  <xacro:include filename="$(find irc_ros_description)/urdf/igus_rebel_6dof.urdf.xacro"/>
+
+  <xacro:include filename="$(find irc_ros_description)/urdf/cpr_platform_medium.urdf.xacro"/>
+
+  <joint name="platform_to_rebel" type="fixed">
+    <parent link="chassis" />
+    <child link = "base_link" />
+    <origin xyz="0.0 0.0 ${0.7-0.1}" rpy="0.0 0.0 ${-pi/6}" />
+  </joint>
+</robot>
+

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>irc_ros_bringup</name>
+  <version>0.1.0</version>
+  <description>The irc_ros_bringup package</description>
+
+  <maintainer email="fer@cpr-robots.com">Felix Reuter</maintainer>
+  <license>Apache-2.0</license>
+  <url type="website">cpr-robots.com</url>
+  <url type="repository">https://github.com/CommonplaceRobotics/SW_ROS2-Nodes</url>
+  <author email="schenke@truphysics.com">Björn Schenke</author>
+  <author email="fer@cpr-robots.com">Felix Reuter</author>
+ 
+  <depend>rclcpp</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>control_msgs</depend>
+  <depend>controller_manager</depend>
+  <depend>controller_manager_msgs</depend>
+  <depend>controller_interface</depend>
+  <depend>hardware_interface</depend>
+  <depend>rclcpp_lifecyle</depend>
+  <depend>rviz</depend>
+  <depend>ros2_control</depend>
+  <depend>ira_laser_tools</depend>
+
+  <exec_depend>ros2_controllers_test_nodes</exec_depend>
+  <exec_depend>irc_ros_hardware</exec_depend>
+  <exec_depend>irc_ros_description</exec_depend>
+
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

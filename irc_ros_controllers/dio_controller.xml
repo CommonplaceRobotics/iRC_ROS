@@ -1,0 +1,9 @@
+<library path="irc_ros_controllers">
+  <class name="irc_ros_controllers/DIOController"
+         type="irc_ros_controllers::DIOController"
+         base_class_type="controller_interface::ControllerInterface">
+    <description>
+        Controller for interacting with digital IOs.
+    </description>
+  </class>
+</library>
