@@ -334,7 +334,7 @@ std::vector<hardware_interface::StateInterface> IrcRosCan::export_state_interfac
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       joint.name, hardware_interface::HW_IF_POSITION, &(modules_[joint.name]->pos_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
-      joint.name, hardware_interface::HW_IF_VELOCITY, &(modules_[joint.name]->vel)));
+      joint.name, hardware_interface::HW_IF_VELOCITY, &(modules_[joint.name]->vel_)));
 
     //Dashboard specific states (same for gpios and joints)
     state_interfaces.emplace_back(hardware_interface::StateInterface(

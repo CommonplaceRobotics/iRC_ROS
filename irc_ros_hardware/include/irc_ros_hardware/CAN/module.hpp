@@ -109,7 +109,7 @@ public:
   // Standard ROS2 Control controller variables
   double pos_ = std::numeric_limits<double>::quiet_NaN();
   double set_pos_ = std::numeric_limits<double>::quiet_NaN();
-  double vel = std::numeric_limits<double>::quiet_NaN();
+  double vel_ = std::numeric_limits<double>::quiet_NaN();
   double set_vel_ = std::numeric_limits<double>::quiet_NaN();
   double set_torque_ = std::numeric_limits<double>::quiet_NaN();
 

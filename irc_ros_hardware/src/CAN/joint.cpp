@@ -7,6 +7,30 @@ namespace irc_hardware
 Joint::Joint(std::string name, std::shared_ptr<CAN::CanInterface> can_interface, int can_id)
 : Module::Module(name, can_interface, can_id)
 {
+  double divider = 0.0;
+  for (int i = 0; i < max_velocity_buffer_size_; i++) {
+    divider += i + 1;
+  }
+
+  for (int i = 0; i < max_velocity_buffer_size_; i++) {
+    velocity_buffer_weights_[i] = i + 1;
+    velocity_buffer_weights_[i] /= divider;
+
+    RCLCPP_ERROR(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Weight %d is %lf", can_id_, i,
+      velocity_buffer_weights_[i]);
+
+    // Fill the deque until it reaches its max size.
+    // Otherwise the queue size would need to be handled dynamically.
+    velocity_buffer_.push_front(0.0);
+  }
+
+  // TODO: Remove this after testing
+  double sum = 0.0;
+  for (int i = 0; i < max_velocity_buffer_size_; i++) {
+    sum += velocity_buffer_weights_[i];
+  }
+  RCLCPP_ERROR(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Weights sum is %lf", can_id_, sum);
 }
 
 Joint::~Joint()
@@ -256,16 +280,25 @@ void Joint::read_can()
     double new_pos = (static_cast<double>(position) / (tics_over_degree_)) * (M_PI / 180.0);
 
     // Calculate the velocity
-    // TODO: Ringbuffer or similar structure for a moving average filter?
     std::chrono::duration<double> diff = message.timestamp - last_stamp_;
     double delay = diff.count();
 
     // Ignore wraparounds and div by 0
     if (delay > 0.0) {
-      vel = (new_pos - pos_) / delay;
+      double new_vel = (new_pos - pos_) / delay;
 
       // TODO: Velocity is of by factor 10, why?
-      vel *= 10.0;
+      new_vel *= 10.0;
+
+      velocity_buffer_.pop_back();
+      velocity_buffer_.push_front(new_vel);
+
+      double sum = 0.0;
+      for (int i = 0; i < max_velocity_buffer_size_; i++) {
+        sum += velocity_buffer_[i] * velocity_buffer_weights_[i];
+      }
+
+      vel_ = sum;
     }
 
     // Write the new position and save the last timestamp
