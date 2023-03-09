@@ -90,8 +90,5 @@ Parameters are not all implemented yet, this is for future reference!
   - `controller_cpr_platform_medium.yaml` implements velocity control via a DiffDriveController. While the position commands are more precise for repeatability, the use of velocity commands causes smoother and straighter driving.
 
 ## TODO
- - Cleanup launch files
-   - Add remaining parameters
- - Add missing descriptions to launch arguments in this file
  - CRI specific controller which only sends the goal position without interpolation et al.?
    - Alternatively wait for a new EmbeddedControl software update to support continuous goal sending

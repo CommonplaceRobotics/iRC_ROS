@@ -84,10 +84,3 @@ Turn the following process into a Nav2 compatible BT
 ### Links
  - https://navigation.ros.org/plugin_tutorials/docs/writing_new_bt_plugin.html
  - https://navigation.ros.org/tutorials/docs/using_groot.html
-
-## TODO
- - Make exiting the files not require a KILL signal to quit
- - Use multiple TFs for vacuum example
- - Fix launch files causing jerky movement on startup
- - Improve nav2_simple_commander_example and add a video
- - Implement BaristaBot

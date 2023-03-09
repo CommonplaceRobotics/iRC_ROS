@@ -12,4 +12,3 @@ It is possible to manually send position goals via RVIZ. Another option with the
 ## TODO
  - Add IMU and sensor fusion with [robot_localisation](http://docs.ros.org/en/noetic/api/robot_localization/html/index.html)?
  - Cleanup launch file
- - More mapping, combine entire office area into one big map for more difficult localisation tests.

@@ -13,10 +13,3 @@ Define which modules to plot in the controllers .yaml configuration. The dashboa
 Information is provided by DashboardController, DioController, JointStates and standard ros2_control controllers:
 
 ![The dataflow to and from the dashboard](doc/dashboard.png)
-
-## TODO
- - Dont refill the entire table for each update as it loses the focus. (See if solution gets posted e.g. [here](https://github.com/Textualize/textual/discussions/1826))
- - Show more information about the selected interface, e.g. board temperature
- - Dynamically show/hide set_ variables
- - Implement commands such as error resets by clicking on their status cell.
-   - For positions/velocities/... a slider in the "more information tab" might be useful (Feature coming to textual [in the future](https://github.com/Textualize/textual/discussions/1878))

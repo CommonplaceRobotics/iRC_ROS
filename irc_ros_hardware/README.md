@@ -110,31 +110,20 @@ Checking the approximate timing with `candump can0,010:FFF -td` (010 is for the 
 
 ## TODO
   - CRI and CAN: Make grippers controllable via MoveIt Gripper Action?
-  - CAN: Add support for linear movements instead of only calculating with radians
-    - Either a gantry or a 7th axis may be good examples for this
   - CAN: Update state machine transitions being all over the place
-  - CAN: Set DIO output vector dynamically
-  - CAN: One error in any axis should disable all axes! This is a must fix before deploying the code
-    - Could be done via lifecycle state change
-  - Depending on the module error handle it with a reset (MNE, COM), restart the module (LAG, ...) or finalize the node (ESTOP, OC)
-  - CAN: Velocity calculation is not very smooth yet, if this is used as is a (weighted moving average?) filter should be added ![](doc/velocity.png)
   - CAN: Remove double copies of status variables once ros2_control supports bool or int variables for interfaces (currently only double is supported)
     - https://github.com/ros-controls/ros2_control/pull/490
     - https://github.com/ros-controls/ros2_control/pull/714
     - ...
-  - CAN: Switch from bitset to uint8 or int/bool vector for DIOs?
   - CAN: Module discovery over status infos?
     - It is not possible to detect all necessary information for setting up axes that way, but a notification that other devices which are not inside of the configuration are sending messages might be useful for debugging purposes.
-  - CAN: can the CAN Message queues overflow/lag behind to much? Maybe limit the size of the queues
-  - CAN: Module not responding (e.g. not powered) should cause a warning/error
-    - Error frames do not seem to handle this for all CAN controllers
-    - Add timeout to ping message, if no reply in n seconds module set to inactive
   - CRI Protocol
     - Big cleanup
     - Add DIO commands
     - Make sure protocol is up to date
     - Compare urdf with prj/robot file set in TinyCtrl?
     - Test if the whole functionality of the project works with it or if some parts are currently CAN only
+    - Add dashboard support?
   - CRI and CAN
     - Clean up logging, use advanced logging macros, e.g. throttled
     - Threads -> ROS executor?

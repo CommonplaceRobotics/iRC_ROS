@@ -141,9 +141,6 @@ header:
 grasped: false
 ```
 
-## TODO:
- - Add dashboard support for CRI
-
 ## See:
  - [ROS2_Control: Writing a new controller](https://control.ros.org/master/doc/ros2_controllers/doc/writing_new_controller.html)
  - [UR GPIO Controller](https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver/blob/main/ur_controllers/include/ur_controllers/gpio_controller.hpp)
