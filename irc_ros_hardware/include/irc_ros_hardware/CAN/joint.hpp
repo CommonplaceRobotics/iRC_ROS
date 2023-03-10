@@ -52,8 +52,8 @@ private:
 
   // Used to filter the velocities
   std::deque<double> velocity_buffer_;
-  static constexpr size_t max_velocity_buffer_size_ = 10;
-  std::array<double, max_velocity_buffer_size_> velocity_buffer_weights_;
+  static constexpr size_t velocity_buffer_size_ = 10;
+  std::array<double, velocity_buffer_size_> velocity_buffer_weights_;
 };
 
 }  // namespace irc_hardware
