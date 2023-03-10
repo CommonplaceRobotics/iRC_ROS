@@ -19,12 +19,17 @@ public:
     gripper_publisher = move_group_node->create_publisher<irc_ros_msgs::msg::DioCommand>(
       "external_dio_controller/outputs", rclcpp::SystemDefaultsQoS());
 
-    // Run the process as long as possible
+    // Start the process loop in a new thread
     process_thread = std::thread([this]() {
+      // Wait a bit before sending commands so the initialisation can finish
+      std::this_thread::sleep_for(std::chrono::seconds(2));
+
+      // Run the process as long as possible
       while (rclcpp::ok()) {
         pick_and_place();
       }
     });
+
     process_thread.detach();
   }
 
