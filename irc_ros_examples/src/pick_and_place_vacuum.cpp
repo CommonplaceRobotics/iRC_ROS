@@ -56,13 +56,14 @@ public:
 
     auto result = gripper_client->async_send_request(request);
 
+    // TODO: Fix this in a seperate issue
     // Wait for the result.
-    if (
-      rclcpp::spin_until_future_complete(
-        this->get_node_base_interface(), result, std::chrono::seconds(1)) ==
-      rclcpp::FutureReturnCode::SUCCESS) {
-      return (result.get()->gripped == state);
-    }
+    // if (
+    //   rclcpp::spin_until_future_complete(
+    //     this->get_node_base_interface(), result, std::chrono::seconds(1)) ==
+    //   rclcpp::FutureReturnCode::SUCCESS) {
+    //   return (result.get()->gripped == state);
+    // }
 
     RCLCPP_ERROR(LOGGER, "Failed to call gripper service");
     return false;
@@ -74,16 +75,16 @@ public:
     const double box_offset = 0.105;    // y offset between the two trays
     const double slot_offset = 0.035;   // x and y offset between different slots in the tray
 
-    // Number of objects to grip
+    // Number of objects to grip, assumes that both trays are identical
     const int objects_y = 3;
     const int objects_x = 5;
 
     // Hardcoded start position over the first element to grip
     geometry_msgs::msg::PoseStamped posestamped;
-    posestamped.header.frame_id = "base_link";
-    posestamped.pose.position.x = 0.209;
-    posestamped.pose.position.y = -0.090;
-    posestamped.pose.position.z = 0.3180 + height_offset;
+    posestamped.header.frame_id = "tray_1";
+    posestamped.pose.position.x = 0;
+    posestamped.pose.position.y = 0;
+    posestamped.pose.position.z = height_offset;
 
     // Always point downwards for all movements
     posestamped.pose.orientation.w = 0;
@@ -107,7 +108,7 @@ public:
     lin(posestamped);
 
     // Move to two edges of second tray
-    posestamped.pose.position.y += box_offset;
+    posestamped.header.frame_id = "tray_2";
     lin(posestamped);
 
     posestamped.pose.position.x -= slot_offset * (objects_x - 1);
@@ -115,7 +116,7 @@ public:
     lin(posestamped);
 
     // Move back to the start position
-    posestamped.pose.position.y -= box_offset;
+    posestamped.header.frame_id = "tray_1";
     lin(posestamped);
 
     // Transfer components from first to second tray
@@ -133,7 +134,7 @@ public:
         lin(posestamped);
 
         // Move to the second tray
-        posestamped.pose.position.y += box_offset;
+        posestamped.header.frame_id = "tray_2";
         lin(posestamped);
 
         posestamped.pose.position.z -= height_offset;
@@ -156,7 +157,7 @@ public:
         lin(posestamped);
 
         // Move to the next spot on the first tray
-        posestamped.pose.position.y -= box_offset;
+        posestamped.header.frame_id = "tray_1";
         posestamped.pose.position.y += slot_offset;
       }
 
@@ -167,7 +168,7 @@ public:
 
     // Move to the first object of the second tray
     posestamped = start_pose;
-    posestamped.pose.position.y += box_offset;
+    posestamped.header.frame_id = "tray_2";
     lin(posestamped);
 
     // Transfer components back to the first tray
@@ -185,7 +186,7 @@ public:
         lin(posestamped);
 
         // Move to the first tray
-        posestamped.pose.position.y -= box_offset;
+        posestamped.header.frame_id = "tray_1";
         lin(posestamped);
 
         posestamped.pose.position.z -= height_offset;
@@ -198,7 +199,7 @@ public:
         lin(posestamped);
 
         // Move to the next spot
-        posestamped.pose.position.y += box_offset;
+        posestamped.header.frame_id = "tray_2";
         posestamped.pose.position.y += slot_offset;
       }
 

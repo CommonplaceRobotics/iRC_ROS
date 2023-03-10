@@ -21,6 +21,21 @@ def generate_launch_description():
         }.items(),
     )
 
+    # Publish tray frames
+    tray1_tf_node = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name='tray_1_static_broadcaster',
+        arguments=['0.209', '-0.090', '0.318', '0', '0', '0', 'base_link', 'tray_1'],
+    )
+
+    tray2_tf_node = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name='tray_2_static_broadcaster',
+        arguments=['0.209', '-0.015', '0.318', '0', '0', '0', 'base_link', 'tray_2'],
+    )
+
     pick_and_place_node = Node(
         package="irc_ros_examples",
         executable="pick_and_place_vacuum",
@@ -29,6 +44,8 @@ def generate_launch_description():
 
     ld = LaunchDescription()
     ld.add_entity(moveit_node)
+    ld.add_entity(tray1_tf_node)
+    ld.add_entity(tray2_tf_node)
     ld.add_entity(pick_and_place_node)
 
     return ld
