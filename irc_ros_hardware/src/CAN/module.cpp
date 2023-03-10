@@ -23,7 +23,8 @@ Module::Module(std::string name, std::shared_ptr<CAN::CanInterface> can_interfac
  */
 void Module::reset_error(bool force)
 {
-  if (!errorState.any_fatal() || force) {
+  force = true;
+  if (!errorState.any_fatal() || force ) {
     // Only sent reset if not already send recently
     if (resetState != ResetState::reset && resetState != ResetState::resetting) {
       RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Resetting", can_id_);
@@ -115,13 +116,15 @@ void Module::prepare_movement()
       RCLCPP_INFO(
         rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Errors%s detected, resetting", can_id_,
         errorState.str().c_str());
-      // reset_error();
+        reset_error();
     } else {
       RCLCPP_ERROR(
         rclcpp::get_logger("iRC_ROS"),
         "Module 0x%02x: Fatal error among errors%s, please coldstart", can_id_,
         errorState.str().c_str());
-      reset_error();
+
+      // Resetting here won't help without force=true
+      // reset_error();
     }
   }
 
