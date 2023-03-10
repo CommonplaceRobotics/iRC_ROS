@@ -74,21 +74,6 @@ The platform should drive over the four corners of a square and end where it sta
  - Nav2 Behaviour Trees
  - Web interface for ordering
 
-### Process
-Turn the following process into a Nav2 compatible BT
- - Battery low?
- - Is coffee machine (cm) ready?
-   - Notify assistant to refill, empty machine
- - Coffee ordered? (Via web ui?)
- - Grab empty cup
-   - No empty cups left? Notify assistant
- - Bring empty cup in position
- - Start selected CM program
- - Wait for CM
- - Grab cup again
- - Drive slowly to counter
- - Place cup there
- - Drive back to waiting position
 
 #### Questions
  - Can the CM fail during the process?

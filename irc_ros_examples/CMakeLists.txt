@@ -61,6 +61,7 @@ ament_python_install_package(${PROJECT_NAME})
 # Install Python executables
 install(PROGRAMS
   scripts/nav2_simple_commander_example.py
+  scripts/baristabot.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
