@@ -23,22 +23,26 @@ public:
 
     while (!gripper_client->wait_for_service(std::chrono::seconds(1))) {
       if (!rclcpp::ok()) {
-        RCLCPP_ERROR(LOGGER, "client interrupted while waiting for service to appear.");
+        RCLCPP_ERROR(LOGGER, "Client interrupted while waiting for service to appear.");
         return;
       }
-      RCLCPP_INFO(LOGGER, "waiting for service to appear...");
+      RCLCPP_INFO(LOGGER, "Waiting for ECBPMI gripper service to appear...");
     }
 
     RCLCPP_INFO(LOGGER, "Starting the pick and place process");
 
-
-    // Run the process as long as possible
+   // Start the process loop in a new thread
     process_thread = std::thread([this]() {
+      // Wait a bit before sending commands so the initialisation can finish
+      // TODO: Replace this with waiting for MoveIt/ros2_control to finish their inits
+      std::this_thread::sleep_for(std::chrono::seconds(2));
+
+      // Run the process as long as possible
       while (rclcpp::ok()) {
         pick_and_place_vacuum();
       }
     });
-    process_thread.detach();
+
   }
 
   /**
