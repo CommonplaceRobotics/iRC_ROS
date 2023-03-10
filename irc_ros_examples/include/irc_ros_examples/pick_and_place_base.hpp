@@ -43,7 +43,6 @@ public:
     print_pose(move_group->getCurrentPose().pose);
   }
 
-  // TODO: Does not exit cleanly with CTRL+C, requires a SIGKILL
   ~PickAndPlaceBase()
   {
     if (process_thread.joinable()) {

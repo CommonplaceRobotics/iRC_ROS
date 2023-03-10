@@ -2,22 +2,27 @@
 
 This package showcases how to implement Igus Robot Control ROS2 for different usecases.
 
-**Note: Starting the examples directly over the launch files in this package is not recommended as of now. The launch file does not wait for the moveit+ros2_control stack to be finished initialising, which causes jerky motions at startup**
 
 ## Pick&Place (MoveIt)
 ![](doc/pick_and_place.gif)
 
 This simple example showcases point-to-point, linear and axis movements, as well as how to interact with the gripper via its controller's service.
 
+The process runs in an infinite loop.
+
 For further MoveIt commands see [here](https://moveit.picknik.ai/humble/doc/examples/examples.html#using-moveit-directly-through-the-c-api).
 
 ### Usage
+There are two ways to start this example:
 
 ``` bash
-# Start moveit with the right gripper parameter
-$ LC_NUMERIC=en_US.UTF-8 ros2 launch irc_ros_moveit_config demo.launch.py gripper:="ext_dio_gripper"
+# Start MoveIt and the example node together
+$ LC_NUMERIC=en_US.UTF-8 ros2 launch irc_ros_examples pick_and_place.launch.py
 
-# Once the startup is complete run
+# Alternativly first start moveit with the right gripper parameter
+$ LC_NUMERIC=en_US.UTF-8 ros2 launch irc_ros_moveit_config rebel.launch.py gripper:="ext_dio_gripper"
+
+# Then, once the startup is complete, run:
 $ ros2 run irc_ros_examples pick_and_place
 ```
 
@@ -26,15 +31,20 @@ $ ros2 run irc_ros_examples pick_and_place
 
 Uses the Schmalz ECBPMI vacuum gripper for a vertical pick and place application. This showcases using the ECBPMI Controller, specifically how to use the service calls. It is also planned to use different coordinate systems for the different trays in the future.
 
+The process runs in an infinite loop.
+
 ### Usage
+There are two ways to start this example:
 
 ``` bash
-# Start moveit with the right gripper parameter
-$ LC_NUMERIC=en_US.UTF-8 ros2 launch irc_ros_moveit_config demo.launch.py gripper:="schmalz_ecbpmi"
+# Start MoveIt and the example node together
+$ LC_NUMERIC=en_US.UTF-8 ros2 launch irc_ros_examples pick_and_place_vacuum.launch.py
 
-# Once the startup is complete run:
+# Alternativly first start moveit with the right gripper parameter
+$ LC_NUMERIC=en_US.UTF-8 ros2 launch irc_ros_moveit_config rebel.launch.py gripper:="schmalz_ecbpmi"
+
+# Then, once the startup is complete, run:
 $ ros2 run irc_ros_examples pick_and_place_vacuum
-# This will run the process in an infinite loop
 ```
 
 ## Basic Navigation (Nav2 Simple Commander)
