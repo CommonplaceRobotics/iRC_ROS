@@ -33,7 +33,7 @@ def generate_launch_description():
         ]
     )
     default_platform_controller_filename_arg = DeclareLaunchArgument(
-        "default_robot_controller_filename",
+        "default_platform_controller_filename",
         default_value=["controller_", LaunchConfiguration("platform_name"), ".yaml"],
     )
     default_platform_controller_file = PathJoinSubstitution(
