@@ -31,10 +31,14 @@ public:
 
     RCLCPP_INFO(LOGGER, "Starting the pick and place process");
 
+
     // Run the process as long as possible
-    while (rclcpp::ok()) {
-      pick_and_place_vacuum();
-    }
+    process_thread = std::thread([this]() {
+      while (rclcpp::ok()) {
+        pick_and_place_vacuum();
+      }
+    });
+    process_thread.detach();
   }
 
   /**

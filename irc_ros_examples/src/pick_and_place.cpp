@@ -20,9 +20,12 @@ public:
       "external_dio_controller/outputs", rclcpp::SystemDefaultsQoS());
 
     // Run the process as long as possible
-    while (rclcpp::ok()) {
-      pick_and_place();
-    }
+    process_thread = std::thread([this]() {
+      while (rclcpp::ok()) {
+        pick_and_place();
+      }
+    });
+    process_thread.detach();
   }
 
   /**

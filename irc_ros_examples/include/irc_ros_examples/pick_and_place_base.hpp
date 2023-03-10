@@ -33,11 +33,11 @@ public:
     move_group = std::make_shared<moveit::planning_interface::MoveGroupInterface>(
       move_group_node, PLANNING_GROUP);
 
-    // Set sane default values
+    // Set default values
     move_group->setPoseReferenceFrame("base_link");
     move_group->setPlanningTime(10);
     move_group->setNumPlanningAttempts(3);
-    move_group->setMaxVelocityScalingFactor(0.2);
+    move_group->setMaxVelocityScalingFactor(0.1);
 
     RCLCPP_INFO(LOGGER, "Starting pose:");
     print_pose(move_group->getCurrentPose().pose);
@@ -46,6 +46,10 @@ public:
   // TODO: Does not exit cleanly with CTRL+C, requires a SIGKILL
   ~PickAndPlaceBase()
   {
+    if (process_thread.joinable()) {
+      process_thread.join();
+    }
+
     executor.cancel();
 
     if (move_group_thread.joinable()) {
@@ -100,6 +104,7 @@ protected:
   const std::string PLANNING_GROUP = "rebel_6dof";
   std::shared_ptr<rclcpp::Node> move_group_node;
   rclcpp::executors::SingleThreadedExecutor executor;
+  std::thread process_thread;
   std::thread move_group_thread;
   std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group;
   moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
