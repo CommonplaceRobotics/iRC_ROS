@@ -63,11 +63,14 @@ public:
     auto result = gripper_client->async_send_request(request);
 
     // Wait for the result
-    if (
-      rclcpp::spin_until_future_complete(
-        this->get_node_base_interface(), result, std::chrono::seconds(1)) ==
-      rclcpp::FutureReturnCode::SUCCESS) {
-      return (result.get()->gripped == state);
+    std::chrono::time_point<std::chrono::steady_clock> start = std::chrono::steady_clock::now();
+    const std::chrono::duration<int64_t, std::milli> timeout = std::chrono::milliseconds(1000);
+
+    while (std::chrono::steady_clock::now() - start < timeout) {
+      if (result.future.valid()){ //  == rclcpp::FutureReturnCode::SUCCESS) {
+        return (result.get()->gripped == state);
+      }
+      std::this_thread::yield();
     }
 
     RCLCPP_ERROR(LOGGER, "Failed to call gripper service");
@@ -99,11 +102,11 @@ public:
     target_pose= buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
 
-    posestamped.pose.position.x = objects_x * slot_offset_;
+    posestamped.pose.position.x = (objects_x - 1) * slot_offset_;
     target_pose= buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
  
-    posestamped.pose.position.y = objects_y * slot_offset_;
+    posestamped.pose.position.y = (objects_y - 1) * slot_offset_;
     target_pose= buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
 
@@ -141,9 +144,6 @@ public:
     target_pose= buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
 
-    // TODO: Slow down for pick movement
-    // move_group->setMaxVelocityScalingFactor(0.05);
-
     posestamped.pose.position.z -= height_offsetheight_offset_;
     target_pose= buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
@@ -180,13 +180,14 @@ public:
 
     lin(target_pose);
 
-    // TODO: Slow down for place movement
-
     posestamped.pose.position.z -= height_offsetheight_offset_;
     target_pose= buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
 
     set_gripper(false);
+    // While the set_gripper fn blocks until the vacuum is gone or a timeout occurs
+    // it takes a little longer than the vacuum gone signal for the object to disconnect
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
     posestamped.pose.position.z += height_offsetheight_offset_;
     target_pose= buffer_->transform(posestamped, planning_frame_);
@@ -202,8 +203,6 @@ public:
 
     //Make sure the gripper is empty
     set_gripper(false);
-
-    // TODO: Set speed to slower setting
 
     // Move over the outlines of the trays to make sure they are at the right position
     outline_tray("tray_1", objects_x, objects_y);
