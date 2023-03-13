@@ -8,6 +8,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
+find_package(irc_ros_msgs REQUIRED)
 find_package(moveit_core REQUIRED)
 find_package(moveit_msgs REQUIRED)
 find_package(moveit_ros_move_group REQUIRED)
@@ -15,8 +16,8 @@ find_package(moveit_ros_planning REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
-find_package(example_interfaces REQUIRED)
-find_package(irc_ros_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 include_directories(include)
 
@@ -36,7 +37,6 @@ ament_target_dependencies(
   pick_and_place
   "moveit_ros_planning_interface"
   "rclcpp"
-  example_interfaces
   irc_ros_msgs
 )
 
@@ -44,8 +44,9 @@ ament_target_dependencies(
   pick_and_place_vacuum
   "moveit_ros_planning_interface"
   "rclcpp"
-  example_interfaces
   irc_ros_msgs
+  tf2_ros
+  tf2_geometry_msgs
 )
 
 # Install C++ executables

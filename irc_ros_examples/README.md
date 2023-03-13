@@ -29,7 +29,10 @@ $ ros2 run irc_ros_examples pick_and_place
 ## Pick&Place-Vacuum (MoveIt)
 ![](doc/pick_and_place_vacuum.gif)
 
-Uses the Schmalz ECBPMI vacuum gripper for a vertical pick and place application. This showcases using the ECBPMI Controller, specifically how to use the service calls. It is also planned to use different coordinate systems for the different trays in the future.
+Uses the Schmalz ECBPMI vacuum gripper for a vertical pick and place application.
+The example showcases how to use the ECBPMI Controller with service calls.
+The process picks up small objects out of a tray with uniform distances between the different slots and places them in an identical tray at another position.
+Each tray is defined by their own coordinate frame, which requires a tf2 transform as MoveIt only works with the frame_id set via poseReferenceFrame in the pick_and_place_base.hpp.
 
 The process runs in an infinite loop.
 

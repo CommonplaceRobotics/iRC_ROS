@@ -3,12 +3,15 @@
 #include <thread>
 #include <vector>
 
-#include "Eigen/Geometry"
 #include "geometry_msgs/msg/pose.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "irc_ros_examples/pick_and_place_base.hpp"
 #include "irc_ros_msgs/srv/gripper_command.hpp"
 #include "moveit/move_group_interface/move_group_interface.h"
 #include "moveit/planning_scene_interface/planning_scene_interface.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
+#include "tf2_ros/buffer.h"
+#include "tf2_ros/transform_listener.h"
 
 class PickAndPlaceVacuum : public PickAndPlaceBase
 {
@@ -29,9 +32,12 @@ public:
       RCLCPP_INFO(LOGGER, "Waiting for ECBPMI gripper service to appear...");
     }
 
+    buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+    listener_ = std::make_shared<tf2_ros::TransformListener>(*buffer_);
+
     RCLCPP_INFO(LOGGER, "Starting the pick and place process");
 
-   // Start the process loop in a new thread
+    // Start the process loop in a new thread
     process_thread = std::thread([this]() {
       // Wait a bit before sending commands so the initialisation can finish
       // TODO: Replace this with waiting for MoveIt/ros2_control to finish their inits
@@ -56,7 +62,7 @@ public:
 
     auto result = gripper_client->async_send_request(request);
 
-    // Wait for the result.
+    // Wait for the result
     if (
       rclcpp::spin_until_future_complete(
         this->get_node_base_interface(), result, std::chrono::seconds(1)) ==
@@ -68,143 +74,165 @@ public:
     return false;
   }
 
-  void pick_and_place_vacuum()
+  /**
+   * @brief Moves along the outlines of a tray
+   * @param frame_id The base frame of the tray
+   * @param objects_x Number of objects in x direction 
+   * @param objects_y Number of objects in y direction 
+   */
+  void outline_tray (std::string frame_id, int objects_x, int objects_y)
   {
-    const double height_offset = 0.03;  // z offset of how much to lift the objects out of the trays
-    const double box_offset = 0.105;    // y offset between the two trays
-    const double slot_offset = 0.035;   // x and y offset between different slots in the tray
-
-    // Number of objects to grip
-    const int objects_y = 3;
-    const int objects_x = 5;
-
-    // Hardcoded start position over the first element to grip
     geometry_msgs::msg::PoseStamped posestamped;
-    posestamped.header.frame_id = "base_link";
-    posestamped.pose.position.x = 0.209;
-    posestamped.pose.position.y = -0.090;
-    posestamped.pose.position.z = 0.3180 + height_offset;
+    posestamped.header.frame_id = frame_id;
+    posestamped.pose.position.x = 0 * slot_offset_;
+    posestamped.pose.position.y = 0 * slot_offset_;
+    posestamped.pose.position.z = height_offsetheight_offset_;
 
     // Always point downwards for all movements
     posestamped.pose.orientation.w = 0;
     posestamped.pose.orientation.x = 0;
     posestamped.pose.orientation.y = 1;
-    posestamped.pose.orientation.z = 0;
+    posestamped.pose.orientation.z = 0;   
 
-    // Save startpose to return to lateron without the need to backtrace all movements
-    auto start_pose = posestamped;
+    geometry_msgs::msg::PoseStamped target_pose;
 
-    // Move to start pos
-    move_group->setPoseTarget(posestamped, "hand");
-    move_group->move();
+    target_pose= buffer_->transform(posestamped, planning_frame_);
+    lin(target_pose);
+
+    posestamped.pose.position.x = objects_x * slot_offset_;
+    target_pose= buffer_->transform(posestamped, planning_frame_);
+    lin(target_pose);
+ 
+    posestamped.pose.position.y = objects_y * slot_offset_;
+    target_pose= buffer_->transform(posestamped, planning_frame_);
+    lin(target_pose);
+
+    posestamped.pose.position.x = 0;
+    target_pose= buffer_->transform(posestamped, planning_frame_);
+    lin(target_pose);
+ 
+    posestamped.pose.position.y = 0;
+    target_pose= buffer_->transform(posestamped, planning_frame_);
+    lin(target_pose);
+  } 
+
+  /**
+   * @brief Picks up an object from the given position
+   * @param frame_id The base frame of the tray
+   * @param x The slot number in x direction 
+   * @param y The slot number in y direction 
+   */
+  void pick(std::string frame_id, int x, int y)
+  {
+    geometry_msgs::msg::PoseStamped posestamped;
+    posestamped.header.frame_id = frame_id;
+    posestamped.pose.position.x = x * slot_offset_;
+    posestamped.pose.position.y = y * slot_offset_;
+    posestamped.pose.position.z = height_offsetheight_offset_;
+
+    // Always point downwards for all movements
+    posestamped.pose.orientation.w = 0;
+    posestamped.pose.orientation.x = 0;
+    posestamped.pose.orientation.y = 1;
+    posestamped.pose.orientation.z = 0;   
+
+    geometry_msgs::msg::PoseStamped target_pose;
+
+    target_pose= buffer_->transform(posestamped, planning_frame_);
+    lin(target_pose);
+
+    // TODO: Slow down for pick movement
+    // move_group->setMaxVelocityScalingFactor(0.05);
+
+    posestamped.pose.position.z -= height_offsetheight_offset_;
+    target_pose= buffer_->transform(posestamped, planning_frame_);
+    lin(target_pose);
+
+    set_gripper(true);
+
+    posestamped.pose.position.z += height_offsetheight_offset_;
+    target_pose= buffer_->transform(posestamped, planning_frame_);
+    lin(target_pose);
+  } 
+
+  /**
+   * @brief Places an object in the given position
+   * @param frame_id The base frame of the tray
+   * @param x The slot number in x direction 
+   * @param y The slot number in y direction 
+   */
+  void place(std::string frame_id, int x, int y)
+  {
+    geometry_msgs::msg::PoseStamped posestamped;
+    posestamped.header.frame_id = frame_id;
+    posestamped.pose.position.x = x * slot_offset_;
+    posestamped.pose.position.y = y * slot_offset_;
+    posestamped.pose.position.z = height_offsetheight_offset_;
+
+    // Always point downwards for all movements
+    posestamped.pose.orientation.w = 0;
+    posestamped.pose.orientation.x = 0;
+    posestamped.pose.orientation.y = 1;
+    posestamped.pose.orientation.z = 0;   
+    
+    geometry_msgs::msg::PoseStamped target_pose;
+    target_pose= buffer_->transform(posestamped, planning_frame_);
+
+    lin(target_pose);
+
+    // TODO: Slow down for place movement
+
+    posestamped.pose.position.z -= height_offsetheight_offset_;
+    target_pose= buffer_->transform(posestamped, planning_frame_);
+    lin(target_pose);
+
+    set_gripper(false);
+
+    posestamped.pose.position.z += height_offsetheight_offset_;
+    target_pose= buffer_->transform(posestamped, planning_frame_);
+    lin(target_pose);
+  } 
+
+  void pick_and_place_vacuum()
+  {
+
+    // Number of objects to grip, assumes that both trays are identical
+    const int objects_y = 3;
+    const int objects_x = 5;
 
     //Make sure the gripper is empty
     set_gripper(false);
 
-    // Move to second edge of first tray
-    posestamped.pose.position.x += slot_offset * (objects_x - 1);
-    posestamped.pose.position.y += slot_offset * (objects_y - 1);
-    lin(posestamped);
+    // TODO: Set speed to slower setting
 
-    // Move to two edges of second tray
-    posestamped.pose.position.y += box_offset;
-    lin(posestamped);
+    // Move over the outlines of the trays to make sure they are at the right position
+    outline_tray("tray_1", objects_x, objects_y);
+    outline_tray("tray_2", objects_x, objects_y);
 
-    posestamped.pose.position.x -= slot_offset * (objects_x - 1);
-    posestamped.pose.position.y -= slot_offset * (objects_y - 1);
-    lin(posestamped);
-
-    // Move back to the start position
-    posestamped.pose.position.y -= box_offset;
-    lin(posestamped);
+    // TODO: Reset speed limit
 
     // Transfer components from first to second tray
-    for (int i = 0; i < objects_x; i++) {
-      for (int j = 0; j < objects_y; j++) {
-        // Move set position from previous loop iteration
-        lin(posestamped);
+    for (int x = 0; x < objects_x; x++) {
+      for (int y = 0; y < objects_y; y++) {
+        pick("tray_1", x, y);
 
-        posestamped.pose.position.z -= height_offset;
-        lin(posestamped);
-
-        set_gripper(true);
-
-        posestamped.pose.position.z += height_offset;
-        lin(posestamped);
-
-        // Move to the second tray
-        posestamped.pose.position.y += box_offset;
-        lin(posestamped);
-
-        posestamped.pose.position.z -= height_offset;
-        posestamped.pose.position.z += 0.010;
-
-        lin(posestamped);
-
-        set_gripper(false);
-
-        // TODO: Setting the max velocity does no seem to work
-        move_group->setMaxVelocityScalingFactor(0.05);
+        place("tray_2", x, y);
 
         //Wait a bit to make sure the component is really not connected anymore
         std::this_thread::sleep_for(std::chrono::milliseconds(400));
-
-        move_group->setMaxVelocityScalingFactor(0.2);
-
-        posestamped.pose.position.z += height_offset;
-        posestamped.pose.position.z -= 0.010;
-        lin(posestamped);
-
-        // Move to the next spot on the first tray
-        posestamped.pose.position.y -= box_offset;
-        posestamped.pose.position.y += slot_offset;
       }
-
-      // Go to the first object of the next row
-      posestamped.pose.position.y -= slot_offset * (objects_y);
-      posestamped.pose.position.x += slot_offset;
     }
 
-    // Move to the first object of the second tray
-    posestamped = start_pose;
-    posestamped.pose.position.y += box_offset;
-    lin(posestamped);
-
     // Transfer components back to the first tray
-    for (int i = 0; i < objects_x; i++) {
-      for (int j = 0; j < objects_y; j++) {
-        // Move set position from previous loop iteration
-        lin(posestamped);
+    for (int x = 0; x < objects_x; x++) {
+      for (int y = 0; y < objects_y; y++) {
+        pick("tray_2", x, y);
 
-        posestamped.pose.position.z -= height_offset;
-        lin(posestamped);
+        place("tray_1", x, y);
 
-        set_gripper(true);
-
-        posestamped.pose.position.z += height_offset;
-        lin(posestamped);
-
-        // Move to the first tray
-        posestamped.pose.position.y -= box_offset;
-        lin(posestamped);
-
-        posestamped.pose.position.z -= height_offset;
-        lin(posestamped);
-
-        set_gripper(false);
+        //Wait a bit to make sure the component is really not connected anymore
         std::this_thread::sleep_for(std::chrono::milliseconds(400));
-
-        posestamped.pose.position.z += height_offset;
-        lin(posestamped);
-
-        // Move to the next spot
-        posestamped.pose.position.y += box_offset;
-        posestamped.pose.position.y += slot_offset;
       }
-
-      // Go to the first object of the next row
-      posestamped.pose.position.y -= slot_offset * (objects_y);
-      posestamped.pose.position.x += slot_offset;
     }
   }
 
@@ -213,6 +241,15 @@ private:
   std::shared_ptr<rclcpp::Client<irc_ros_msgs::srv::GripperCommand>> gripper_client;
   std::shared_ptr<irc_ros_msgs::srv::GripperCommand::Request> request =
     std::make_shared<irc_ros_msgs::srv::GripperCommand::Request>();
+   
+  // TF2 transform objects
+  std::shared_ptr<tf2_ros::Buffer> buffer_;
+  std::shared_ptr<tf2_ros::TransformListener> listener_;
+
+  // Scene parameters
+  const double height_offsetheight_offset_ = 0.03;  // z offset of how much to lift the objects out of the trays
+  const double slot_offset_ = 0.035;   // x and y offset between different slots in the tray
+
 };
 
 int main(int argc, char ** argv)
