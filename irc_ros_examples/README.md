@@ -46,6 +46,10 @@ $ LC_NUMERIC=en_US.UTF-8 ros2 launch irc_ros_examples pick_and_place_vacuum.laun
 # Alternativly first start moveit with the right gripper parameter
 $ LC_NUMERIC=en_US.UTF-8 ros2 launch irc_ros_moveit_config rebel.launch.py gripper:="schmalz_ecbpmi"
 
+# Publish the tfs to tray_1 and tray_2
+$ ros2 run tf2_ros static_transform_publisher [x] [y] [z] [r] [p] [y] base_link tray_1
+$ ros2 run tf2_ros static_transform_publisher [x] [y] [z] [r] [p] [y] base_link tray_2
+
 # Then, once the startup is complete, run:
 $ ros2 run irc_ros_examples pick_and_place_vacuum
 ```
