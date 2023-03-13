@@ -109,7 +109,7 @@ bool CanInterfaceSocketCAN::disconnect()
     std::this_thread::sleep_for(std::chrono::microseconds(500));
     close(socket_);
     socket_ = -1;
-    RCLCPP_INFO(rclcpp::get_logger("iRC_ROS::CAN"), "CAN interface SocketCAN dis_connected.");
+    RCLCPP_INFO(rclcpp::get_logger("iRC_ROS::CAN"), "CAN interface SocketCAN disconnected.");
   }
 
   return !is_socket_connected_;
