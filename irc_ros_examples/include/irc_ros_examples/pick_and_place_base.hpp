@@ -34,7 +34,7 @@ public:
       move_group_node, PLANNING_GROUP);
 
     // Set default values
-    move_group->setPoseReferenceFrame("base_link");
+    move_group->setPoseReferenceFrame(planning_frame_);
     move_group->setPlanningTime(10);
     move_group->setNumPlanningAttempts(3);
     move_group->setMaxVelocityScalingFactor(0.1);
@@ -100,6 +100,7 @@ public:
 
 protected:
   // MoveIt specifics
+  std::string planning_frame_ = "base_link";
   const std::string PLANNING_GROUP = "rebel_6dof";
   std::shared_ptr<rclcpp::Node> move_group_node;
   rclcpp::executors::SingleThreadedExecutor executor;
