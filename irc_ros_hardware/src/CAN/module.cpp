@@ -96,7 +96,7 @@ void Module::disable_motor()
 
 /**
  * @brief Sets the motor to a ready state. This means resetting any
- * non-fatal errors besides MNE and enabling the motors
+ * errors besides MNE and enabling the motors
  *
  * Contrary to its name it is also used to prepare the DIO modules, as it
  * contains the reset error calls.
@@ -106,26 +106,19 @@ void Module::disable_motor()
 void Module::prepare_movement()
 {
   // If we are in position mode save the current position as set_pos_,
-  // after reset enable it might have changed a bit.
+  // as after reset enable it might have changed a bit.
   if (commandMode == CommandMode::position) {
     set_pos_ = pos_;
   }
 
   if (errorState.any_except_mne()) {
-    if (!errorState.any_fatal()) {
-      RCLCPP_INFO(
-        rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Errors%s detected, resetting", can_id_,
-        errorState.str().c_str());
-        reset_error();
-    } else {
-      RCLCPP_ERROR(
-        rclcpp::get_logger("iRC_ROS"),
-        "Module 0x%02x: Fatal error among errors%s, please coldstart", can_id_,
-        errorState.str().c_str());
+    RCLCPP_INFO(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Errors%s detected, resetting", can_id_,
+      errorState.str().c_str());
 
-      // Resetting here won't help without force=true
-      reset_error(true);
-    }
+    // We need to reset all errors when this is called after a command mode switch, as this causes
+    // COM errors, which are normally considered to be fatal errors.
+    reset_error(true);
   }
 
   if (motorState != MotorState::enabled) {

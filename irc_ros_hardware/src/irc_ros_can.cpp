@@ -178,7 +178,7 @@ hardware_interface::CallbackReturn IrcRosCan::on_init(const hardware_interface::
 }
 
 /**
- * @brief Activates the CAN Interfaces
+ * @brief Activates the CAN Interfaces and tries to ping each module.
  */
 hardware_interface::CallbackReturn IrcRosCan::on_configure(
   const rclcpp_lifecycle::State & previous_state)
@@ -190,10 +190,8 @@ hardware_interface::CallbackReturn IrcRosCan::on_configure(
   for (auto & [module_name, module] : modules_) {
     // Ping modules to request startup message which contains module information
     module->ping();
-
   }
 
-  // TODO: Wait for successful reset and return SUCCESS only if all modules have no errors
   return result;
 }
 
@@ -204,25 +202,52 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
   const rclcpp_lifecycle::State & previous_state)
 {
   // Check if the interface is still alive
-  hardware_interface::CallbackReturn result = can_interface_->is_connected()
-                                                ? hardware_interface::CallbackReturn::SUCCESS
-                                                : hardware_interface::CallbackReturn::FAILURE;
+  if(!can_interface_->is_connected()){ 
+    return hardware_interface::CallbackReturn::FAILURE;
+  } 
 
+  std::chrono::time_point<std::chrono::steady_clock> start_point;
+
+  // TODO: Go through the modules in the order of referencing priority
   for (auto & [module_name, module] : modules_) {
-   while (module->errorState.any_except_mne()) {
-      // Reset all errors once on startup
+
+    // Reset all errors on startup
+    start_point = std::chrono::steady_clock::now();
+    while (!module->errorState.any_except_mne()) {
+      if (std::chrono::steady_clock::now() - start_point > reset_timeout_) {
+        return hardware_interface::CallbackReturn::FAILURE;
+      } 
+
       module->reset_error(true);
 
       module->read_can();
       module->write_can();
 
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      std::this_thread::yield(); //sleep_for(std::chrono::milliseconds(10));
     }
 
-    module->enable_motor();
+    // If referencing is required do that now
+    start_point = std::chrono::steady_clock::now();
+    while(module->referenceState == ReferenceState::unreferenced){
+      // Enable the motors for referencing
+      while(module->motorState != MotorState::enabled) {
+        if (std::chrono::steady_clock::now() - start_point > motor_enable_timeout_) {
+          return hardware_interface::CallbackReturn::FAILURE;
+        } 
+
+        module->enable_motor();
+
+        module->read_can();
+        module->write_can();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      } 
+
+      // TODO: start referencing
+    } 
   }
 
-  return result;
+  return hardware_interface::CallbackReturn::SUCCESS;
 }
 
 /**
@@ -263,7 +288,10 @@ hardware_interface::return_type IrcRosCan::prepare_command_mode_switch(
 }
 
 /**
- * @brief Changes the command mode (part 2)
+ * @brief Changes the command mode (part 2). This does not block, so the error reset and
+ * motor enable might fail.
+ * 
+ * TODO: dont return OK on failure
  */
 hardware_interface::return_type IrcRosCan::perform_command_mode_switch(
   const std::vector<std::string> & start_interfaces,
