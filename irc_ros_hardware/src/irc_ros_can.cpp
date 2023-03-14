@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -206,10 +207,17 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
     return hardware_interface::CallbackReturn::FAILURE;
   } 
 
+  // Insert all modules in a multimap with the priority being the key
+  std::multimap<int, Module::Ptr> referencing_priority_map;
+
+  for (auto & [module_name, module] : modules_) {
+    referencing_priority_map.insert(std::pair<int, Module::Ptr>(module->reference_priority_, module));
+  } 
+
   std::chrono::time_point<std::chrono::steady_clock> start_point;
 
-  // TODO: Go through the modules in the order of referencing priority
-  for (auto & [module_name, module] : modules_) {
+  // And go through the modules now sorted in the order of referencing priority
+  for (auto & [priority, module] : referencing_priority_map ){ 
 
     // Reset all errors on startup
     start_point = std::chrono::steady_clock::now();
@@ -243,7 +251,8 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
       } 
 
-      // TODO: start referencing
+      // Start referencing
+      module->referencing();
     } 
   }
 
