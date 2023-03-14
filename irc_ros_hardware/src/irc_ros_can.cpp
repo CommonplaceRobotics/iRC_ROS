@@ -1,8 +1,10 @@
 #include "irc_ros_hardware/irc_ros_can.hpp"
 
+#include <chrono>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <vector>
 
@@ -189,8 +191,20 @@ hardware_interface::CallbackReturn IrcRosCan::on_configure(
     // Ping modules to request startup message which contains module information
     module->ping();
 
-    // Reset all errors once on startup
-    module->reset_error(true);
+    while (true) {
+      // Reset all errors once on startup
+      module->reset_error(true);
+
+      module->read_can();
+
+      // TODO: errorState is set to no errors on init already, maybe change that to all errors
+      // occurred so only new messages may clear it.
+      if (!module->errorState.any()) {
+        break;
+      }
+
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
   }
 
   // TODO: Wait for successful reset and return SUCCESS only if all modules have no errors
@@ -203,7 +217,7 @@ hardware_interface::CallbackReturn IrcRosCan::on_configure(
 hardware_interface::CallbackReturn IrcRosCan::on_activate(
   const rclcpp_lifecycle::State & previous_state)
 {
-  // Check if the interface has not crashed immediately
+  // Check if the interface is still alive
   hardware_interface::CallbackReturn result = can_interface_->is_connected()
                                                 ? hardware_interface::CallbackReturn::SUCCESS
                                                 : hardware_interface::CallbackReturn::FAILURE;

@@ -82,6 +82,7 @@ public:
   MotorState motorState = MotorState::disabled;
   ReferenceState referenceState = ReferenceState::not_required;
   int reference_priority_ = std::numeric_limits<int>::max();
+  ErrorState errorState;
 
   // Public member variables which are accessed by controllers
   // DIO Controller variables
@@ -124,7 +125,6 @@ protected:
   std::array<uint8_t, 2> version_ = {0, 0};  // major, minor version
 
   // Internal states
-  ErrorState errorState;
   ErrorState lastErrorState;
   SetToZeroState setToZeroState = SetToZeroState::not_zeroed;
   RotorAlignmentState rotorAlignmentState = RotorAlignmentState::unaligned;
