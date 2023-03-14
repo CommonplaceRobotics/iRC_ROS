@@ -18,6 +18,33 @@ controller_interface::CallbackReturn DashboardController::on_init()
   return LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
+controller_interface::CallbackReturn DashboardController::on_configure(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
+  std::string name = get_node()->get_name();
+  get_node()->get_parameter("gpios", gpios);
+  get_node()->get_parameter("joints", joints);
+
+  dashboard_publisher = get_node()->create_publisher<irc_ros_msgs::msg::CanModuleStates>(
+    (name + "/states").c_str(), rclcpp::SystemDefaultsQoS());
+
+  can_module_service = get_node()->create_service<irc_ros_msgs::srv::CanModuleCommand>(
+    name + "/dashboard_command", std::bind(
+                                   &DashboardController::dashboard_command_callback, this,
+                                   std::placeholders::_1, std::placeholders::_2));
+
+  for (auto name : joints) {
+    module_interfaces.push_back(std::move(
+      std::make_unique<irc_ros_controllers::DashboardSCI>(name, "joint", module_state_interfaces)));
+  }
+
+  for (auto name : gpios) {
+    module_interfaces.push_back(std::move(
+      std::make_unique<irc_ros_controllers::DashboardSCI>(name, "dio", module_state_interfaces)));
+  }
+  return controller_interface::CallbackReturn::SUCCESS;
+}
+
 controller_interface::InterfaceConfiguration DashboardController::command_interface_configuration()
   const
 {
@@ -49,6 +76,27 @@ controller_interface::InterfaceConfiguration DashboardController::state_interfac
   }
 
   return config;
+}
+
+controller_interface::CallbackReturn DashboardController::on_activate(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
+  for (auto && module_interface : module_interfaces) {
+    // TODO: Currently assigns all state interfaces even if they dont belong to that module
+    module_interface->assign_loaned_state_interfaces(state_interfaces_);
+  }
+
+  return controller_interface::CallbackReturn::SUCCESS;
+}
+
+controller_interface::CallbackReturn DashboardController::on_deactivate(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
+  for (auto && module_interface : module_interfaces) {
+    module_interface->release_interfaces();
+  }
+
+  return controller_interface::CallbackReturn::SUCCESS;
 }
 
 controller_interface::return_type DashboardController::update(
@@ -115,54 +163,6 @@ void DashboardController::dashboard_command_callback(
 
   resp->success = reply_value == 0;
 };
-
-controller_interface::CallbackReturn DashboardController::on_configure(
-  const rclcpp_lifecycle::State & /*previous_state*/)
-{
-  std::string name = get_node()->get_name();
-  get_node()->get_parameter("gpios", gpios);
-  get_node()->get_parameter("joints", joints);
-
-  dashboard_publisher = get_node()->create_publisher<irc_ros_msgs::msg::CanModuleStates>(
-    (name + "/states").c_str(), rclcpp::SystemDefaultsQoS());
-
-  can_module_service = get_node()->create_service<irc_ros_msgs::srv::CanModuleCommand>(
-    name + "/dashboard_command", std::bind(
-                                   &DashboardController::dashboard_command_callback, this,
-                                   std::placeholders::_1, std::placeholders::_2));
-
-  for (auto name : joints) {
-    module_interfaces.push_back(std::move(
-      std::make_unique<irc_ros_controllers::DashboardSCI>(name, "joint", module_state_interfaces)));
-  }
-
-  for (auto name : gpios) {
-    module_interfaces.push_back(std::move(
-      std::make_unique<irc_ros_controllers::DashboardSCI>(name, "dio", module_state_interfaces)));
-  }
-  return controller_interface::CallbackReturn::SUCCESS;
-}
-
-controller_interface::CallbackReturn DashboardController::on_deactivate(
-  const rclcpp_lifecycle::State & /*previous_state*/)
-{
-  for (auto && module_interface : module_interfaces) {
-    module_interface->release_interfaces();
-  }
-
-  return controller_interface::CallbackReturn::SUCCESS;
-}
-
-controller_interface::CallbackReturn DashboardController::on_activate(
-  const rclcpp_lifecycle::State & /*previous_state*/)
-{
-  for (auto && module_interface : module_interfaces) {
-    // TODO: Currently assigns all state interfaces even if they dont belong to that module
-    module_interface->assign_loaned_state_interfaces(state_interfaces_);
-  }
-
-  return controller_interface::CallbackReturn::SUCCESS;
-}
 
 }  // namespace irc_ros_controllers
 

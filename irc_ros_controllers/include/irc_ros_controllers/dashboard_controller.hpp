@@ -16,32 +16,29 @@ namespace irc_ros_controllers
 class DashboardController : public controller_interface::ControllerInterface
 {
 public:
-  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
-
-  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
-
-  controller_interface::return_type update(
-    const rclcpp::Time & time, const rclcpp::Duration & period) override;
+  CallbackReturn on_init() override;
 
   CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state) override;
+
+  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
+  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
 
   CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
 
   CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 
-  CallbackReturn on_init() override;
+  controller_interface::return_type update(
+    const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
 private:
+  void publish();
+
   void dashboard_command_callback(
     irc_ros_msgs::srv::CanModuleCommand_Request::SharedPtr req,
     irc_ros_msgs::srv::CanModuleCommand_Response::SharedPtr resp);
 
-  void publish();
-
   // Service, Subscriber, Publisher for all in-/outputs
-
   rclcpp::Publisher<irc_ros_msgs::msg::CanModuleStates>::SharedPtr dashboard_publisher;
-
   rclcpp::Service<irc_ros_msgs::srv::CanModuleCommand>::SharedPtr can_module_service;
   std::vector<std::unique_ptr<irc_ros_controllers::DashboardSCI>> module_interfaces;
 
