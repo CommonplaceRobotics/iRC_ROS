@@ -454,12 +454,6 @@ void Joint::write_can()
       positioningReadyState != PositioningReadyState::not_ready) {
       // Ready to move
 
-      // Temporary workaround for not being able reference without the periodic signal
-      // TODO: Solve this better
-      if (referenceState == ReferenceState::unreferenced) {
-        referencing();
-      }
-
       if (commandMode == CommandMode::position && !std::isnan(set_pos_)) {
         position_cmd();
       } else if (commandMode == CommandMode::velocity && !std::isnan(set_vel_)) {

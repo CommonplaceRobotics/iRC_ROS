@@ -82,6 +82,7 @@ public:
   MotorState motorState = MotorState::disabled;
   ReferenceState referenceState = ReferenceState::not_required;
   int reference_priority_ = std::numeric_limits<int>::max();
+  ErrorState errorState;
 
   // Public member variables which are accessed by controllers
   // DIO Controller variables
@@ -124,7 +125,6 @@ protected:
   std::array<uint8_t, 2> version_ = {0, 0};  // major, minor version
 
   // Internal states
-  ErrorState errorState;
   ErrorState lastErrorState;
   SetToZeroState setToZeroState = SetToZeroState::not_zeroed;
   RotorAlignmentState rotorAlignmentState = RotorAlignmentState::unaligned;
@@ -135,8 +135,8 @@ protected:
   std::chrono::time_point<std::chrono::steady_clock> reset_time_point_;
 
   // Timeout times
-  const std::chrono::duration<int64_t> motor_state_timeout_ = std::chrono::seconds(1);
-  const std::chrono::duration<int64_t> reset_timeout_ = std::chrono::seconds(1);
+  const std::chrono::duration<double> motor_state_timeout_ = std::chrono::microseconds(100);
+  const std::chrono::duration<double> reset_timeout_ = std::chrono::milliseconds(100);
 
   u_int8_t msg_counter_ = 0;
   std::shared_ptr<CAN::CanInterface> can_interface_;

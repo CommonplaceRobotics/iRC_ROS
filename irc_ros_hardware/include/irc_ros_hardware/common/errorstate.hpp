@@ -11,20 +11,20 @@ public:
      * The temperature of the motor controller or the motor is above the defined
      * value in the parameters.
      */
-  bool temp = false;
+  bool temp = true;
 
   /**
      * @brief Emergency stop / no voltage
      * The voltage at the motor controller is below the set limit value. This
      * may indicate a defective fuse or emergency stop.
      */
-  bool estop = false;
+  bool estop = true;
 
   /**
      * @brief Motor not enabled
      * The movement of the motor is not enabled, it is not in control-
      */
-  bool mne = false;
+  bool mne = true;
 
   /**
      * @brief Communication Failure
@@ -32,7 +32,7 @@ public:
      * distance between the messages is too large or the messages do not
      * arrive, the motor controller stops the movement-
      */
-  bool com = false;
+  bool com = true;
 
   /**
      * @brief Following error
@@ -40,14 +40,14 @@ public:
      * than the value set in the parameters, the motor controller stops the
      * movement.
      */
-  bool lag = false;
+  bool lag = true;
 
   /**
      * @brief Encoder error
      * The motor controller has detected an encoder error. Errors can be
      * triggered by both the motor or the output encoder.
      */
-  bool enc = false;
+  bool enc = true;
 
   /**
      * @brief Driver error
@@ -56,14 +56,14 @@ public:
      * controllers, the error also occurs with problems with the initial rotor
      * position.
      */
-  bool drv = false;
+  bool drv = true;
 
   /**
      * @brief Over current
      * The RMS current in the motor controller was above the allowed value in
      * the parameters
      */
-  bool oc = false;
+  bool oc = true;
 
   ErrorState() {}
 
