@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 import rclpy
 from geometry_msgs.msg import PoseStamped
