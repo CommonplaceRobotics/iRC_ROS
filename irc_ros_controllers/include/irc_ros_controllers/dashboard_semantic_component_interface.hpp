@@ -21,7 +21,7 @@ public:
   explicit DashboardSCI(
     const std::string & name, const std::string module_type,
     std::vector<std::string> state_interfaces)
-  : SemanticComponentInterface(name, state_interface_suffixes.size()), module_type_(module_type)
+  : SemanticComponentInterface(name, state_interfaces.size()), module_type_(module_type)
   {
     for (auto si : state_interfaces) {
       interface_names_.emplace_back(name_ + "/" + si);
