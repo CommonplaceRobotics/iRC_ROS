@@ -45,7 +45,6 @@ private:
   std::vector<std::string> joints_;
   std::vector<std::string> gpios_;
 
-  // TODO: Move which interfaces to subscribe to to controller config yaml?
   std::vector<std::string> module_command_interfaces_ = {
     "dashboard_command",
   };
