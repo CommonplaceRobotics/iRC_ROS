@@ -50,8 +50,10 @@ private:
     "dashboard_command",
   };
   std::vector<std::string> module_state_interfaces_ = {
-    "can_id",      "temperature_board", "temperature_motor", "hardware_ident",
-    "error_state", "motor_state",       "reset_state",       "supply_voltage"};
+    "can_id",         "hardware_ident",    "version_major",
+    "version_minor",  "temperature_board", "temperature_motor",
+    "supply_voltage", "error_state",       "reset_state",
+    "motor_state",    "command_mode"};
 
   // How long to wait for the acknowledgement of commands by the hardware interface
   const std::chrono::duration<int64_t, std::milli> timeout_ = std::chrono::milliseconds(1000);

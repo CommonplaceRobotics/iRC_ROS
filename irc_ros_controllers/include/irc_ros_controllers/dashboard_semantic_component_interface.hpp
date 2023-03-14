@@ -47,20 +47,26 @@ public:
         std::stringstream ss;
         ss << "0x" << std::hex << static_cast<int>(si.get().get_value());
         message.can_id = ss.str().c_str();
+      } else if (name == (name_ + "/" + "hardware_ident")) {
+        message.hardware_ident = static_cast<int>(si.get().get_value());
+      } else if (name == (name_ + "/" + "version_major")) {
+        message.version_major = static_cast<int>(si.get().get_value());
+      } else if (name == (name_ + "/" + "version_minor")) {
+        message.version_minor = static_cast<int>(si.get().get_value());
       } else if (name == (name_ + "/" + "temperature_board")) {
         message.temperature_board = si.get().get_value();
       } else if (name == (name_ + "/" + "temperature_motor")) {
         message.temperature_motor = si.get().get_value();
-      } else if (name == (name_ + "/" + "hardware_ident")) {
-        message.hardware_ident = static_cast<int>(si.get().get_value());
-      } else if (name == (name_ + "/" + "error_state")) {
-        message.error_state = static_cast<int>(si.get().get_value());
-      } else if (name == (name_ + "/" + "motor_state")) {
-        message.motor_state = static_cast<int>(si.get().get_value());
-      } else if (name == (name_ + "/" + "reset_state")) {
-        message.reset_state = static_cast<int>(si.get().get_value());
       } else if (name == (name_ + "/" + "supply_voltage")) {
         message.supply_voltage = si.get().get_value();
+      } else if (name == (name_ + "/" + "error_state")) {
+        message.error_state = static_cast<int>(si.get().get_value());
+      } else if (name == (name_ + "/" + "reset_state")) {
+        message.reset_state = static_cast<int>(si.get().get_value());
+      } else if (name == (name_ + "/" + "motor_state")) {
+        message.motor_state = static_cast<int>(si.get().get_value());
+      } else if (name == (name_ + "/" + "command_mode")) {
+        message.command_mode = static_cast<int>(si.get().get_value());
       } else {
         // Unexpected StateInterface
         // TODO: Once only the fitting interfaces are assigned in the dashboard controller return
