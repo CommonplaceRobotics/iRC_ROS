@@ -141,15 +141,18 @@ public:
 
     geometry_msgs::msg::PoseStamped target_pose;
 
+    // Move over the object
     target_pose= buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
 
+    // Slowly touch the object
     posestamped.pose.position.z -= height_offsetheight_offset_;
     target_pose= buffer_->transform(posestamped, planning_frame_);
-    lin(target_pose);
+    lin(target_pose, 0.2, 0.2);
 
     set_gripper(true);
 
+    // Lift the object
     posestamped.pose.position.z += height_offsetheight_offset_;
     target_pose= buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
@@ -176,19 +179,22 @@ public:
     posestamped.pose.orientation.z = 0;   
     
     geometry_msgs::msg::PoseStamped target_pose;
-    target_pose= buffer_->transform(posestamped, planning_frame_);
 
+    // Move over the slot
+    target_pose= buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
 
+    // Slowly touch the object
     posestamped.pose.position.z -= height_offsetheight_offset_;
     target_pose= buffer_->transform(posestamped, planning_frame_);
-    lin(target_pose);
+    lin(target_pose, 0.2, 0.2);
 
     set_gripper(false);
     // While the set_gripper fn blocks until the vacuum is gone or a timeout occurs
     // it takes a little longer than the vacuum gone signal for the object to disconnect
     std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
+    //Move back up again
     posestamped.pose.position.z += height_offsetheight_offset_;
     target_pose= buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
