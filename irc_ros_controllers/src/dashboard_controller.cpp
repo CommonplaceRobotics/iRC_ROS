@@ -22,26 +22,27 @@ controller_interface::CallbackReturn DashboardController::on_configure(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   std::string name = get_node()->get_name();
-  get_node()->get_parameter("gpios", gpios);
-  get_node()->get_parameter("joints", joints);
+  get_node()->get_parameter("joints", joints_);
+  get_node()->get_parameter("gpios", gpios_);
 
-  dashboard_publisher = get_node()->create_publisher<irc_ros_msgs::msg::CanModuleStates>(
+  dashboard_publisher_ = get_node()->create_publisher<irc_ros_msgs::msg::CanModuleStates>(
     (name + "/states").c_str(), rclcpp::SystemDefaultsQoS());
 
-  can_module_service = get_node()->create_service<irc_ros_msgs::srv::CanModuleCommand>(
+  can_module_service_ = get_node()->create_service<irc_ros_msgs::srv::CanModuleCommand>(
     name + "/dashboard_command", std::bind(
                                    &DashboardController::dashboard_command_callback, this,
                                    std::placeholders::_1, std::placeholders::_2));
 
-  for (auto name : joints) {
-    module_interfaces.push_back(std::move(
-      std::make_unique<irc_ros_controllers::DashboardSCI>(name, "joint", module_state_interfaces)));
+  for (auto name : joints_) {
+    module_interfaces_.push_back(std::move(std::make_unique<irc_ros_controllers::DashboardSCI>(
+      name, "joint", module_state_interfaces_)));
   }
 
-  for (auto name : gpios) {
-    module_interfaces.push_back(std::move(
-      std::make_unique<irc_ros_controllers::DashboardSCI>(name, "dio", module_state_interfaces)));
+  for (auto name : gpios_) {
+    module_interfaces_.push_back(std::move(
+      std::make_unique<irc_ros_controllers::DashboardSCI>(name, "dio", module_state_interfaces_)));
   }
+
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
@@ -52,10 +53,10 @@ controller_interface::InterfaceConfiguration DashboardController::command_interf
 
   config.type = controller_interface::interface_configuration_type::INDIVIDUAL;
 
-  for (auto name : joints) {
+  for (auto name : joints_) {
     config.names.emplace_back(name + "/dashboard_command");
   }
-  for (auto name : gpios) {
+  for (auto name : gpios_) {
     config.names.emplace_back(name + "/dashboard_command");
   }
 
@@ -70,7 +71,7 @@ controller_interface::InterfaceConfiguration DashboardController::state_interfac
   config.type = controller_interface::interface_configuration_type::INDIVIDUAL;
 
   // Configure the state interfaces required for DashboardSCI
-  for (auto && module_interface : module_interfaces) {
+  for (auto && module_interface : module_interfaces_) {
     auto module_names = module_interface->get_state_interface_names();
     config.names.insert(std::end(config.names), std::begin(module_names), std::end(module_names));
   }
@@ -81,7 +82,7 @@ controller_interface::InterfaceConfiguration DashboardController::state_interfac
 controller_interface::CallbackReturn DashboardController::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  for (auto && module_interface : module_interfaces) {
+  for (auto && module_interface : module_interfaces_) {
     // TODO: Currently assigns all state interfaces even if they dont belong to that module
     module_interface->assign_loaned_state_interfaces(state_interfaces_);
   }
@@ -92,7 +93,7 @@ controller_interface::CallbackReturn DashboardController::on_activate(
 controller_interface::CallbackReturn DashboardController::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  for (auto && module_interface : module_interfaces) {
+  for (auto && module_interface : module_interfaces_) {
     module_interface->release_interfaces();
   }
 
@@ -111,7 +112,7 @@ void DashboardController::publish()
 {
   auto module_states = irc_ros_msgs::msg::CanModuleStates();
 
-  for (auto && module_interface : module_interfaces) {
+  for (auto && module_interface : module_interfaces_) {
     auto module_state = irc_ros_msgs::msg::CanModuleState();
 
     module_interface->get_values_as_message(module_state);
@@ -119,7 +120,7 @@ void DashboardController::publish()
     module_states.module_states.push_back(module_state);
   }
 
-  dashboard_publisher->publish(module_states);
+  dashboard_publisher_->publish(module_states);
 
   // state_interfaces_->get_name();
 }
@@ -130,16 +131,16 @@ void DashboardController::dashboard_command_callback(
 {
   std::string name = req->name;
 
-  // TODO: Find position of req in joints/gpios
+  // TODO: Find position of req in joints_/gpios_
   int index;
-  auto iter = std::find(joints.begin(), joints.end(), name);
-  if (iter != joints.end()) {
-    index = iter - joints.begin();
+  auto iter = std::find(joints_.begin(), joints_.end(), name);
+  if (iter != joints_.end()) {
+    index = iter - joints_.begin();
   } else {
-    iter = std::find(gpios.begin(), gpios.end(), name);
-    index = iter - gpios.begin();
-    if (iter != gpios.end()) {
-      index = joints.size() + iter - gpios.begin();
+    iter = std::find(gpios_.begin(), gpios_.end(), name);
+    index = iter - gpios_.begin();
+    if (iter != gpios_.end()) {
+      index = joints_.size() + iter - gpios_.begin();
     } else {
       // ERR: Not found
       resp->success = false;
@@ -152,7 +153,7 @@ void DashboardController::dashboard_command_callback(
   // Wait timeout milliseconds for ack, else respond with error
   std::chrono::time_point<std::chrono::steady_clock> start = std::chrono::steady_clock::now();
   int reply_value;
-  while (std::chrono::steady_clock::now() - start < timeout) {
+  while (std::chrono::steady_clock::now() - start < timeout_) {
     reply_value = static_cast<int>(command_interfaces_[index].get_value());
     if (reply_value == 0) {
       // Success

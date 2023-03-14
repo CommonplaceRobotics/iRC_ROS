@@ -38,22 +38,22 @@ private:
     irc_ros_msgs::srv::CanModuleCommand_Response::SharedPtr resp);
 
   // Service, Subscriber, Publisher for all in-/outputs
-  rclcpp::Publisher<irc_ros_msgs::msg::CanModuleStates>::SharedPtr dashboard_publisher;
-  rclcpp::Service<irc_ros_msgs::srv::CanModuleCommand>::SharedPtr can_module_service;
-  std::vector<std::unique_ptr<irc_ros_controllers::DashboardSCI>> module_interfaces;
+  rclcpp::Publisher<irc_ros_msgs::msg::CanModuleStates>::SharedPtr dashboard_publisher_;
+  rclcpp::Service<irc_ros_msgs::srv::CanModuleCommand>::SharedPtr can_module_service_;
+  std::vector<std::unique_ptr<irc_ros_controllers::DashboardSCI>> module_interfaces_;
 
-  std::vector<std::string> gpios;
-  std::vector<std::string> joints;
+  std::vector<std::string> joints_;
+  std::vector<std::string> gpios_;
 
   // TODO: Move which interfaces to subscribe to to controller config yaml?
-  std::vector<std::string> module_command_interfaces = {
+  std::vector<std::string> module_command_interfaces_ = {
     "dashboard_command",
   };
-  std::vector<std::string> module_state_interfaces = {
+  std::vector<std::string> module_state_interfaces_ = {
     "can_id",      "temperature_board", "temperature_motor", "hardware_ident",
     "error_state", "motor_state",       "reset_state",       "supply_voltage"};
 
   // How long to wait for the acknowledgement of commands by the hardware interface
-  const std::chrono::duration<int64_t, std::milli> timeout = std::chrono::milliseconds(1000);
+  const std::chrono::duration<int64_t, std::milli> timeout_ = std::chrono::milliseconds(1000);
 };
 }  // namespace irc_ros_controllers
