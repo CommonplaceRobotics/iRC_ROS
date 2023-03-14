@@ -111,7 +111,7 @@ void Module::prepare_movement()
     set_pos_ = pos_;
   }
 
-  if (errorState.any()) {
+  if (errorState.any_except_mne()) {
     if (!errorState.any_fatal()) {
       RCLCPP_INFO(
         rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Errors%s detected, resetting", can_id_,
@@ -124,7 +124,7 @@ void Module::prepare_movement()
         errorState.str().c_str());
 
       // Resetting here won't help without force=true
-      // reset_error();
+      reset_error(true);
     }
   }
 

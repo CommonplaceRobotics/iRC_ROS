@@ -191,20 +191,6 @@ hardware_interface::CallbackReturn IrcRosCan::on_configure(
     // Ping modules to request startup message which contains module information
     module->ping();
 
-    while (true) {
-      // Reset all errors once on startup
-      module->reset_error(true);
-
-      module->read_can();
-
-      // TODO: errorState is set to no errors on init already, maybe change that to all errors
-      // occurred so only new messages may clear it.
-      if (!module->errorState.any()) {
-        break;
-      }
-
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
   }
 
   // TODO: Wait for successful reset and return SUCCESS only if all modules have no errors
@@ -223,6 +209,16 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
                                                 : hardware_interface::CallbackReturn::FAILURE;
 
   for (auto & [module_name, module] : modules_) {
+   while (module->errorState.any_except_mne()) {
+      // Reset all errors once on startup
+      module->reset_error(true);
+
+      module->read_can();
+      module->write_can();
+
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
     module->enable_motor();
   }
 
