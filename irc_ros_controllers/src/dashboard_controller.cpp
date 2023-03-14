@@ -132,13 +132,13 @@ controller_interface::CallbackReturn DashboardController::on_configure(
                                    std::placeholders::_1, std::placeholders::_2));
 
   for (auto name : joints) {
-    module_interfaces.push_back(
-      std::move(std::make_unique<irc_ros_controllers::DashboardSCI>(name, "joint")));
+    module_interfaces.push_back(std::move(
+      std::make_unique<irc_ros_controllers::DashboardSCI>(name, "joint", module_state_interfaces)));
   }
 
   for (auto name : gpios) {
-    module_interfaces.push_back(
-      std::move(std::make_unique<irc_ros_controllers::DashboardSCI>(name, "dio")));
+    module_interfaces.push_back(std::move(
+      std::make_unique<irc_ros_controllers::DashboardSCI>(name, "dio", module_state_interfaces)));
   }
   return controller_interface::CallbackReturn::SUCCESS;
 }
