@@ -294,8 +294,7 @@ void Joint::read_can()
     pos_ = new_pos;
     last_stamp_ = message.timestamp;
 
-    // Current RMS in mA
-    // TODO: Add current to hw_interface
+    // Current RMS in mA, only available for closed_loop modules
     if (controllerType == ControllerType::closed_loop) {
       motor_current_ = (message.data[5] << 8) + message.data[6];
     }

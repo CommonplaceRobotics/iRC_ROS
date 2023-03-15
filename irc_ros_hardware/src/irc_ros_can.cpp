@@ -354,6 +354,8 @@ std::vector<hardware_interface::StateInterface> IrcRosCan::export_state_interfac
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       joint.name, "supply_voltage", &(modules_[joint.name]->supply_voltage_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
+      joint.name, "motor_current", &(modules_[joint.name]->motor_current_double_)));
+    state_interfaces.emplace_back(hardware_interface::StateInterface(
       joint.name, "error_state", &(modules_[joint.name]->error_state_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       joint.name, "reset_state", &(modules_[joint.name]->reset_state_double_)));

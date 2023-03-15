@@ -101,8 +101,8 @@ public:
   double error_state_double_;
   double motor_state_double_;
   double reset_state_double_;
-  double motor_current_double_;
   double supply_voltage_double_;
+  double motor_current_double_;
   double command_mode_double_;
 
   double dashboard_cmd_double_ = 0.0;

@@ -160,11 +160,10 @@ void Module::update_double_copies()
   motor_state_double_ = static_cast<double>(motorState);
   reset_state_double_ = static_cast<double>(resetState);
 
-  // Convert mA to A
-  motor_current_double_ = static_cast<double>(motor_current_) / 1000.0;
-
   // Convert mV to V
   supply_voltage_double_ = static_cast<double>(supply_voltage_) / 1000.0;
+  // Convert mA to A
+  motor_current_double_ = static_cast<double>(motor_current_) / 1000.0;
 
   command_mode_double_ = static_cast<double>(commandMode);
 }
