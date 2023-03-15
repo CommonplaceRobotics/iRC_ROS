@@ -36,6 +36,10 @@ public:
   void write_can() override;
 
 private:
+  void set_position_to_zero_callback(cprcan::bytevec response);
+  void referencing_callback(cprcan::bytevec response);
+  void rotor_alignment_callback(cprcan::bytevec response);
+
   // Will be used for the zero-torque mode
   // bool zero_torque;
 

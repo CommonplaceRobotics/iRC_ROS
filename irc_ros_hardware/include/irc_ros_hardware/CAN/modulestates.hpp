@@ -76,7 +76,6 @@ enum class SetToZeroState {
   zeroing_step2,
   zeroing_step3,
   zeroing_step4,
-  zeroing_step5,
   zeroed,
 };
 
@@ -91,8 +90,6 @@ enum class ReferenceState {
   unreferenced,
   referencing_step1,
   referencing_step2,
-  referencing_step3,
-  referencing_step4,
   referenced,
 };
 
@@ -106,7 +103,6 @@ enum class RotorAlignmentState {
   unaligned,
   aligning_step1,
   aligning_step2,
-  aligning_step3,
   aligned,
 };
 
