@@ -101,6 +101,7 @@ public:
   double error_state_double_;
   double motor_state_double_;
   double reset_state_double_;
+  double motor_current_double_;
   double supply_voltage_double_;
   double command_mode_double_;
 
@@ -142,6 +143,7 @@ protected:
   std::shared_ptr<CAN::CanInterface> can_interface_;
 
   u_int16_t supply_voltage_ = 0;
+  u_int16_t motor_current_ = 0;
 };
 
 }  // namespace irc_hardware

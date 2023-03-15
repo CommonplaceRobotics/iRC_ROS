@@ -24,7 +24,7 @@ Module::Module(std::string name, std::shared_ptr<CAN::CanInterface> can_interfac
 void Module::reset_error(bool force)
 {
   force = true;
-  if (!errorState.any_fatal() || force ) {
+  if (!errorState.any_fatal() || force) {
     // Only sent reset if not already send recently
     if (resetState != ResetState::reset && resetState != ResetState::resetting) {
       RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Resetting", can_id_);
@@ -116,7 +116,7 @@ void Module::prepare_movement()
       RCLCPP_INFO(
         rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Errors%s detected, resetting", can_id_,
         errorState.str().c_str());
-        reset_error();
+      reset_error();
     } else {
       RCLCPP_ERROR(
         rclcpp::get_logger("iRC_ROS"),
@@ -159,6 +159,9 @@ void Module::update_double_copies()
   error_state_double_ = static_cast<double>(errorState.to_uint8());
   motor_state_double_ = static_cast<double>(motorState);
   reset_state_double_ = static_cast<double>(resetState);
+
+  // Convert mA to A
+  motor_current_double_ = static_cast<double>(motor_current_) / 1000.0;
 
   // Convert mV to V
   supply_voltage_double_ = static_cast<double>(supply_voltage_) / 1000.0;
