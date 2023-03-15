@@ -350,10 +350,10 @@ void Joint::read_can()
     pos_ = new_pos;
     last_stamp_ = message.timestamp;
 
-    // Current
-    // TODO: Current is only available on some modules/protocol versions
-    // TODO: Add current to hw_interface
-    int16_t current = (message.data[5] << 8) + message.data[6];
+    // Current RMS in mA, only available for closed_loop modules
+    if (controllerType == ControllerType::closed_loop) {
+      motor_current_ = (message.data[5] << 8) + message.data[6];
+    }
 
     // Flags + DIN
     std::bitset<8> flags_din = message.data[7];
@@ -482,6 +482,8 @@ void Joint::read_can()
   if (can_interface_->get_next_message(can_id_ + 3, message)) {
     if (cprcan::data_has_header(message.data, cprcan::environmental_msg_header)) {
       // Environmental parameters
+
+      // Supply voltage in mV
       supply_voltage_ = (message.data[2] << 8) + message.data[3];
 
       // The motor temperature sensor is not installed by default, which results in a reading of

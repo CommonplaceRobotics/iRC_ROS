@@ -8,6 +8,7 @@
 #include "irc_ros_hardware/CAN/can_interface.hpp"
 #include "irc_ros_hardware/CAN/can_message.hpp"
 #include "irc_ros_hardware/CAN/module.hpp"
+#include "irc_ros_hardware/CAN/modulestates.hpp"
 
 namespace irc_hardware
 {
@@ -21,6 +22,7 @@ public:
 
   int32_t encoder_pos_;
   double tics_over_degree_ = 1.0;  // [tics]/[deg]
+  ControllerType controllerType = ControllerType::undefined;
 
   bool is_ready_to_move() override;
 

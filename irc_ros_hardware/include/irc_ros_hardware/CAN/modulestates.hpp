@@ -60,6 +60,12 @@ static const std::unordered_map<uint8_t, HardwareIdent> hardware_id_map = {
   {0x8B, HardwareIdent::BOOTLOADER_DSPIC33EP128MC506},
   {0xB0, HardwareIdent::DC_GRIPPER}};
 
+enum class ControllerType {
+  undefined,
+  open_loop,
+  closed_loop,
+};
+
 enum class MotorState {
   disabled,
   disabling,
