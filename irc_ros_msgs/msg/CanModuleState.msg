@@ -12,6 +12,7 @@ int8 version_minor
 float64 temperature_motor
 float64 temperature_board
 float64 supply_voltage
+float64 motor_current
 
 # Status
 int8 error_state

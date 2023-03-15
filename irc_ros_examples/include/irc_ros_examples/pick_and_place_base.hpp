@@ -15,6 +15,7 @@
 #include "irc_ros_msgs/srv/gripper_command.hpp"
 #include "moveit/move_group_interface/move_group_interface.h"
 #include "moveit/planning_scene_interface/planning_scene_interface.h"
+#include <moveit/trajectory_processing/iterative_time_parameterization.h>
 
 static const rclcpp::Logger LOGGER = rclcpp::get_logger("PickAndPlace");
 
@@ -73,7 +74,7 @@ public:
    * @param move_group Pointer to the MoveGroupInterface that shall be used for the movement
    * @param posestamped The pose that should be moved to from the move_groups current position
    */
-  void lin(geometry_msgs::msg::PoseStamped posestamped)
+  void lin(geometry_msgs::msg::PoseStamped posestamped, const double velocity_scale = 1.0, const double acceleration_scale = 1.0)
   {
     moveit_msgs::msg::RobotTrajectory trajectory;
     const double jump_threshold = 0.00;
@@ -93,10 +94,28 @@ public:
       move_group->setPoseTarget(posestamped, "hand");
       move_group->move();
     } else {
+      // Successful planning
       RCLCPP_INFO(LOGGER, "Accuracy %lf", fraction);
+
+      // Scale the trajectory
+      if (velocity_scale != 1.0 || acceleration_scale != 1.0){
+        trajectory_processing::IterativeParabolicTimeParameterization iptp;
+        robot_trajectory::RobotTrajectory rt(move_group->getRobotModel(), PLANNING_GROUP);
+        rt.setRobotTrajectoryMsg(*move_group->getCurrentState(), trajectory);
+        bool scaling_successful = iptp.computeTimeStamps(rt, velocity_scale, acceleration_scale);
+        if (!scaling_successful){
+          RCLCPP_WARN(
+            LOGGER, "Applying velocity or acceleration constraints failed!");
+        } else{
+          rt.getRobotTrajectoryMsg(trajectory);
+        } 
+      } 
+
       move_group->execute(trajectory);
     }
   }
+
+
 
 protected:
   // MoveIt specifics

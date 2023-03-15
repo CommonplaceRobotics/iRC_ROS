@@ -60,6 +60,12 @@ static const std::unordered_map<uint8_t, HardwareIdent> hardware_id_map = {
   {0x8B, HardwareIdent::BOOTLOADER_DSPIC33EP128MC506},
   {0xB0, HardwareIdent::DC_GRIPPER}};
 
+enum class ControllerType {
+  undefined,
+  open_loop,
+  closed_loop,
+};
+
 enum class MotorState {
   disabled,
   disabling,
@@ -76,7 +82,6 @@ enum class SetToZeroState {
   zeroing_step2,
   zeroing_step3,
   zeroing_step4,
-  zeroing_step5,
   zeroed,
 };
 
@@ -104,7 +109,6 @@ enum class RotorAlignmentState {
   unaligned,
   aligning_step1,
   aligning_step2,
-  aligning_step3,
   aligned,
 };
 

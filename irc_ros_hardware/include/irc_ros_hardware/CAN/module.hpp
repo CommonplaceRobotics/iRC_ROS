@@ -90,8 +90,8 @@ public:
   std::vector<double> digital_out_double_ = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   // Dashboard Controller variables
-  double temperature_board_;
-  double temperature_motor_;
+  double temperature_board_ = 0.0;
+  double temperature_motor_ = 0.0;
 
   // Dashboard Controller variables
   // double type copies for compatibility, refreshed via update_double_copies()
@@ -103,6 +103,7 @@ public:
   double motor_state_double_;
   double reset_state_double_;
   double supply_voltage_double_;
+  double motor_current_double_;
   double command_mode_double_;
 
   double dashboard_cmd_double_ = 0.0;
@@ -142,6 +143,7 @@ protected:
   std::shared_ptr<CAN::CanInterface> can_interface_;
 
   u_int16_t supply_voltage_ = 0;
+  u_int16_t motor_current_ = 0;
 };
 
 }  // namespace irc_hardware

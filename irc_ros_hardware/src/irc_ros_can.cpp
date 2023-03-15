@@ -90,9 +90,11 @@ hardware_interface::CallbackReturn IrcRosCan::on_init(const hardware_interface::
     if (joint.parameters.count("controller_type") > 0) {
       controller_type = joint.parameters.at("controller_type");
       if (controller_type == "open_loop") {
+        j->controllerType = ControllerType::open_loop;
         j->temperature_scale_ = 0.1;
         j->positioningReadyState = PositioningReadyState::not_implemented;
       } else if (controller_type == "closed_loop") {
+        j->controllerType = ControllerType::closed_loop;
         j->temperature_scale_ = 0.01;
         j->positioningReadyState = PositioningReadyState::not_ready;
       } else {
@@ -414,6 +416,8 @@ std::vector<hardware_interface::StateInterface> IrcRosCan::export_state_interfac
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       joint.name, "supply_voltage", &(modules_[joint.name]->supply_voltage_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
+      joint.name, "motor_current", &(modules_[joint.name]->motor_current_double_)));
+    state_interfaces.emplace_back(hardware_interface::StateInterface(
       joint.name, "error_state", &(modules_[joint.name]->error_state_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       joint.name, "reset_state", &(modules_[joint.name]->reset_state_double_)));
@@ -449,6 +453,8 @@ std::vector<hardware_interface::StateInterface> IrcRosCan::export_state_interfac
       gpio.name, "temperature_motor", &(modules_[gpio.name]->temperature_motor_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       gpio.name, "supply_voltage", &(modules_[gpio.name]->supply_voltage_double_)));
+    state_interfaces.emplace_back(hardware_interface::StateInterface(
+      gpio.name, "motor_current", &(modules_[gpio.name]->motor_current_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       gpio.name, "error_state", &(modules_[gpio.name]->error_state_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(

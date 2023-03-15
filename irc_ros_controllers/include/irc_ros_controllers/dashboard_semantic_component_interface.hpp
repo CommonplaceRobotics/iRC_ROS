@@ -59,6 +59,8 @@ public:
         message.temperature_motor = si.get().get_value();
       } else if (name == (name_ + "/" + "supply_voltage")) {
         message.supply_voltage = si.get().get_value();
+      } else if (name == (name_ + "/" + "motor_current")) {
+        message.motor_current = si.get().get_value();
       } else if (name == (name_ + "/" + "error_state")) {
         message.error_state = static_cast<int>(si.get().get_value());
       } else if (name == (name_ + "/" + "reset_state")) {
