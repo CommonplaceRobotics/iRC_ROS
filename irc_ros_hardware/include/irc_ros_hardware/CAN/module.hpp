@@ -89,8 +89,8 @@ public:
   std::vector<double> digital_out_double_ = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   // Dashboard Controller variables
-  double temperature_board_;
-  double temperature_motor_;
+  double temperature_board_ = 0.0;
+  double temperature_motor_ = 0.0;
 
   // Dashboard Controller variables
   // double type copies for compatibility, refreshed via update_double_copies()
