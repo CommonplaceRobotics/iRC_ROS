@@ -392,6 +392,8 @@ std::vector<hardware_interface::StateInterface> IrcRosCan::export_state_interfac
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       gpio.name, "supply_voltage", &(modules_[gpio.name]->supply_voltage_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
+      gpio.name, "motor_current", &(modules_[gpio.name]->motor_current_double_)));
+    state_interfaces.emplace_back(hardware_interface::StateInterface(
       gpio.name, "error_state", &(modules_[gpio.name]->error_state_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       gpio.name, "reset_state", &(modules_[gpio.name]->reset_state_double_)));
