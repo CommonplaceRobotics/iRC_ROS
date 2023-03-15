@@ -165,15 +165,18 @@ void Joint::set_position_to_zero()
  */
 void Joint::referencing()
 {
-  RCLCPP_INFO(
-    rclcpp::get_logger("iRC_ROS"),
-    "Module 0x%02x: Referencing called", can_id_);
   if (referenceState == ReferenceState::unreferenced) {
+    RCLCPP_INFO(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: Sending first ref message",
+      can_id_);
     CAN::CanMessage message(can_id_, cprcan::referencing);
     can_interface_->write_message(message);
 
     referenceState = ReferenceState::referencing_step1;
   } else if (referenceState == ReferenceState::referencing_step1) {
+    RCLCPP_INFO(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: Sending second ref message",
+      can_id_);
     CAN::CanMessage message(can_id_, cprcan::referencing);
     can_interface_->write_message(message);
 
@@ -181,7 +184,7 @@ void Joint::referencing()
   } else {
     RCLCPP_WARN(
       rclcpp::get_logger("iRC_ROS"),
-      "Module 0x%02x: referencing called while process is already running", can_id_);
+      "Module 0x%02x: Referencing: Called at an unexpected ref state", can_id_);
   }
 }
 
@@ -366,25 +369,36 @@ void Joint::read_can()
       }
     } else if (message.data == cprcan::referencing_response_1) {
       if (referenceState == ReferenceState::referencing_step1) {
-        RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing ACK 1 received", can_id_);
+        RCLCPP_INFO(
+          rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: ACK 1 received", can_id_);
+        // Send the referencing message a second time and change the referenceState to step2
         referencing();
       } else {
-        RCLCPP_WARN(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Unexpected referencing response", can_id_);
+        RCLCPP_WARN(
+          rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: Unexpected response",
+          can_id_);
       }
     } else if (message.data == cprcan::referencing_response_2) {
-        if (referenceState == ReferenceState::referencing_step2) {
-          RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing done", can_id_);
-          referenceState = ReferenceState::referenced;
-        } else if (referenceState == ReferenceState::referencing_step1) {
-          RCLCPP_WARN(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Unexpected referencing response received, trying to handle it", can_id_);
-          // Legacy fix, some FW+module combinations send the second ACK to early
-          referencing();
-        } else {
-          RCLCPP_WARN(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Unexpected referencing response", can_id_);
-        }
+      if (referenceState == ReferenceState::referencing_step2) {
+        RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing done", can_id_);
+        referenceState = ReferenceState::referenced;
+      } else if (referenceState == ReferenceState::referencing_step1) {
+        RCLCPP_WARN(
+          rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: ACK 2 received too early",
+          can_id_);
+        // Legacy fix, some FW+module combinations send the second ACK to early and we still need to send the second referencing command
+        referencing();
+      } else {
+        RCLCPP_WARN(
+          rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: Unexpected response",
+          can_id_);
+      }
     } else if (message.data == cprcan::referencing_response_error) {
-      referenceState = ReferenceState::unreferenced;
-      RCLCPP_ERROR(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing response error", can_id_);
+      // TODO: Which state of referencing are we in if that happens
+      // referenceState = ReferenceState::unreferenced;
+      RCLCPP_ERROR(
+        rclcpp::get_logger("iRC_ROS"),
+        "Module 0x%02x: Referencing: Already in progress error received", can_id_);
     } else if (cprcan::data_has_header(message.data, cprcan::encoder_msg_header)) {
       // Output enc pos
       encoder_pos_ = (message.data[4] << 24) + (message.data[5] << 16) + (message.data[6] << 8) +
@@ -392,8 +406,8 @@ void Joint::read_can()
       encoder_pos_ *= 100;
     } else if (cprcan::data_has_header(message.data, cprcan::startup_msg_header)) {
       // Startup message, can also be triggered by a ping message
-    RCLCPP_INFO(
-      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Startup message received", can_id_);
+      RCLCPP_INFO(
+        rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Startup message received", can_id_);
 
       uint8_t hwid = message.data[5];
 
