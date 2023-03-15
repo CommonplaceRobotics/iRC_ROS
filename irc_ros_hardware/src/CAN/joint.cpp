@@ -171,6 +171,7 @@ void Joint::referencing()
       can_id_);
     CAN::CanMessage message(can_id_, cprcan::referencing);
     can_interface_->write_message(message);
+    // can_interface_->write_message(message);
 
     referenceState = ReferenceState::referencing_step1;
   } else if (referenceState == ReferenceState::referencing_step1) {
@@ -332,8 +333,11 @@ void Joint::read_can()
     } else if (referenceState == ReferenceState::referenced && !referenced) {
       // If we were already referenced or not currently in the process of
       // referencing a 0 in this status bit means we lost the reference
-      // TODO: Is this possible?
-      referenceState = ReferenceState::unreferenced;
+      // TODO: Is this possible? 
+      RCLCPP_WARN(
+        rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: Set to unreferenced by referenced bit",
+        can_id_);
+//      referenceState = ReferenceState::unreferenced;
     }
 
     if (aligened) {
