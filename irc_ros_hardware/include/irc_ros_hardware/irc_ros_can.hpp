@@ -64,7 +64,7 @@ private:
   const double default_gear_scale_ = 10.0;
 
   // Timeouts for the startup process
-  const std::chrono::duration<int64_t> reset_timeout_ = std::chrono::seconds(1);
-  const std::chrono::duration<int64_t> motor_enable_timeout_ = std::chrono::seconds(1);
+  const std::chrono::duration<int64_t> reset_timeout_ = std::chrono::seconds(3);
+  const std::chrono::duration<int64_t> motor_enable_timeout_ = std::chrono::seconds(3);
 };
 }  // namespace irc_hardware

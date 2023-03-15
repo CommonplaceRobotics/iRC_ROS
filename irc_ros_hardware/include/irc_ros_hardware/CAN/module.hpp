@@ -135,8 +135,8 @@ protected:
   std::chrono::time_point<std::chrono::steady_clock> reset_time_point_;
 
   // Timeout times
-  const std::chrono::duration<double> motor_state_timeout_ = std::chrono::microseconds(100);
-  const std::chrono::duration<double> reset_timeout_ = std::chrono::milliseconds(100);
+  const std::chrono::duration<double> motor_state_timeout_ = std::chrono::milliseconds(500);
+  const std::chrono::duration<double> reset_timeout_ = std::chrono::milliseconds(500);
 
   u_int8_t msg_counter_ = 0;
   std::shared_ptr<CAN::CanInterface> can_interface_;

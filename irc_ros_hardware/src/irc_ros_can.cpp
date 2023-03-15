@@ -139,6 +139,9 @@ hardware_interface::CallbackReturn IrcRosCan::on_init(const hardware_interface::
           joint.name.c_str(), referencing_required.c_str());
       }
     }
+    RCLCPP_INFO(
+      rclcpp::get_logger("iRC_ROS"), "Joint %s: Referencing_required: %d",
+      joint.name.c_str(), j->referenceState == ReferenceState::unreferenced);
 
     // Joint configuration summary
     RCLCPP_INFO(
@@ -204,6 +207,8 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
 {
   // Check if the interface is still alive
   if(!can_interface_->is_connected()){ 
+    RCLCPP_ERROR(
+      rclcpp::get_logger("iRC_ROS"), "CAN interface has died!");
     return hardware_interface::CallbackReturn::FAILURE;
   } 
 
@@ -223,6 +228,8 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
     start_point = std::chrono::steady_clock::now();
     while (!module->errorState.any_except_mne()) {
       if (std::chrono::steady_clock::now() - start_point > reset_timeout_) {
+        RCLCPP_ERROR(
+          rclcpp::get_logger("iRC_ROS"), "Failed to reset module 0x%2x", module->can_id_);
         return hardware_interface::CallbackReturn::FAILURE;
       } 
 
@@ -231,28 +238,36 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
       module->read_can();
       module->write_can();
 
-      std::this_thread::yield(); //sleep_for(std::chrono::milliseconds(10));
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     // If referencing is required do that now
     start_point = std::chrono::steady_clock::now();
-    while(module->referenceState == ReferenceState::unreferenced){
+    while(module->referenceState != ReferenceState::referenced
+       && module->referenceState != ReferenceState::not_required){
+
       // Enable the motors for referencing
       while(module->motorState != MotorState::enabled) {
-        if (std::chrono::steady_clock::now() - start_point > motor_enable_timeout_) {
-          return hardware_interface::CallbackReturn::FAILURE;
-        } 
-
+        if (module->errorState.any_except_mne()){
+          module->reset_error(true);
+        }
         module->enable_motor();
 
-        module->read_can();
         module->write_can();
+        module->read_can();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
       } 
 
       // Start referencing
-      module->referencing();
+      if (module->referenceState == ReferenceState::unreferenced) {
+        module->referencing();
+      }
+
+      module->write_can();
+      module->read_can();
+
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
     } 
   }
 
