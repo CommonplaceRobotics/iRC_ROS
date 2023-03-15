@@ -123,9 +123,7 @@ void Joint::torque_cmd()
  * @brief Sets the current position as the new 0 offset. In most cases this should not be used.
  * Can be undone by the referencing function.
  * 
- * This gets called the first time by the user.
- * After that upon receiving a response it gets called again
- * from the message callback.
+ * This gets called by the user while the rest of the process is done in the callback
  *
  * TODO: This is untested
  */
@@ -142,15 +140,38 @@ void Joint::set_position_to_zero()
     can_interface_->write_message(message);
 
     setToZeroState = SetToZeroState::zeroing_step1;
-  } else if (setToZeroState == SetToZeroState::zeroing_step3) {
-    CAN::CanMessage message(can_id_, cprcan::set_pos_to_zero);
-    can_interface_->write_message(message);
-
-    setToZeroState = SetToZeroState::zeroing_step4;
   } else {
     RCLCPP_WARN(
       rclcpp::get_logger("iRC_ROS"),
-      "Module 0x%02x: setPositionToZero called while process is already running", can_id_);
+      "Module 0x%02x: setPositionToZero: Called while process is already running", can_id_);
+  }
+}
+
+void Joint::set_position_to_zero_callback(cprcan::bytevec response)
+{
+  if (
+    setToZeroState == SetToZeroState::zeroing_step1 &&
+    response == cprcan::set_pos_to_zero_response_1) {
+    setToZeroState = SetToZeroState::zeroing_step2;
+  } else if (
+    setToZeroState == SetToZeroState::zeroing_step2 &&
+    response == cprcan::set_pos_to_zero_response_2) {
+    CAN::CanMessage message(can_id_, cprcan::set_pos_to_zero);
+    can_interface_->write_message(message);
+
+    setToZeroState = SetToZeroState::zeroing_step3;
+  } else if (
+    setToZeroState == SetToZeroState::zeroing_step3 &&
+    response == cprcan::set_pos_to_zero_response_3) {
+    setToZeroState = SetToZeroState::zeroing_step4;
+  } else if (
+    setToZeroState == SetToZeroState::zeroing_step4 &&
+    response == cprcan::set_pos_to_zero_response_4) {
+    setToZeroState = SetToZeroState::zeroed;
+  } else {
+    RCLCPP_WARN(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: setPositionToZero: Unexpected response",
+      can_id_);
   }
 }
 
@@ -159,32 +180,60 @@ void Joint::set_position_to_zero()
  * absolute encoders and it is not necessary as it is done on startup already. For DIN-RAIL
  * modules it is required to be done on startup.
  * 
- * This gets called the first time by the user.
- * After that upon receiving a response it gets called again
- * from the message callback.
+ * This gets called by the user while the rest of the process is done in the callback
  */
 void Joint::referencing()
-{
-  if (referenceState == ReferenceState::unreferenced) {
+{   
+  if (referenceState == ReferenceState::unreferenced ||
+    referenceState == ReferenceState::not_required) {
     RCLCPP_INFO(
       rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: Sending first ref message",
       can_id_);
+
     CAN::CanMessage message(can_id_, cprcan::referencing);
     can_interface_->write_message(message);
 
     referenceState = ReferenceState::referencing_step1;
-  } else if (referenceState == ReferenceState::referencing_step1) {
+  } else {
+    RCLCPP_WARN(
+      rclcpp::get_logger("iRC_ROS"),
+      "Module 0x%02x: Referencing: Called while process is already running", can_id_);
+  }
+}
+
+void Joint::referencing_callback(cprcan::bytevec response)
+{
+  if (
+    referenceState == ReferenceState::referencing_step1 &&
+    response == cprcan::referencing_response_1) {
     RCLCPP_INFO(
-      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: Sending second ref message",
-      can_id_);
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: ACK 1 received", can_id_);
+
     CAN::CanMessage message(can_id_, cprcan::referencing);
     can_interface_->write_message(message);
 
     referenceState = ReferenceState::referencing_step2;
+  } else if (
+    referenceState == ReferenceState::referencing_step2 &&
+    response == cprcan::referencing_response_2) {
+    RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing done", can_id_);
+
+    referenceState = ReferenceState::referenced;
+  } else if (referenceState == ReferenceState::referencing_step1 &&
+    reponse == cprcan::referencing_response_1) {
+        RCLCPP_WARN(
+          rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: ACK 2 received too early",
+          can_id_);
+        // Legacy fix, some FW+module combinations send the second ACK to early and we still need to send the second referencing command
+        referencing();
+  } else if (response == cprcan::referencing_response_error) {
+    RCLCPP_ERROR(
+      rclcpp::get_logger("iRC_ROS"),
+      "Module 0x%02x: Referencing: Referencing has already been started", can_id_);
   } else {
     RCLCPP_WARN(
-      rclcpp::get_logger("iRC_ROS"),
-      "Module 0x%02x: Referencing: Called at an unexpected ref state", can_id_);
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: Unexpected response received",
+      can_id_);
   }
 }
 
@@ -193,9 +242,7 @@ void Joint::referencing()
  * This is done during powering up automatically and is not needed to be called manually under normal
  * circumstances.
  * 
- * This gets called the first time by the user.
- * After that upon receiving a response it gets called again
- * from the message callback.
+ * This gets called by the user while the rest of the process is done in the callback
  *
  * TODO: This is untested.
 */
@@ -206,12 +253,30 @@ void Joint::rotor_alignment()
     can_interface_->write_message(message);
 
     rotorAlignmentState = RotorAlignmentState::aligning_step1;
-  } else if (rotorAlignmentState == RotorAlignmentState::aligning_step2) {
-    rotorAlignmentState = RotorAlignmentState::aligning_step3;
   } else {
     RCLCPP_WARN(
       rclcpp::get_logger("iRC_ROS"),
-      "Module 0x%02x: rotorAlignment called while process is already running", can_id_);
+      "Module 0x%02x: Aligning: Called while process is already running", can_id_);
+  }
+}
+
+void Joint::rotor_alignment_callback(cprcan::bytevec response)
+{
+  if (
+    rotorAlignmentState == RotorAlignmentState::aligning_step1 &&
+    response == cprcan::rotor_alignment_response_1) {
+    CAN::CanMessage message(can_id_, cprcan::rotor_alignment);
+    can_interface_->write_message(message);
+
+    rotorAlignmentState = RotorAlignmentState::aligning_step2;
+  } else if (
+    rotorAlignmentState == RotorAlignmentState::aligning_step2 &&
+    response == cprcan::rotor_alignment_response_2) {
+    rotorAlignmentState = RotorAlignmentState::aligned;
+  } else {
+    RCLCPP_WARN(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Aligning: Unexpected response received",
+      can_id_);
   }
 }
 
@@ -300,10 +365,10 @@ void Joint::read_can()
     pos_ = new_pos;
     last_stamp_ = message.timestamp;
 
-    // Current
-    // TODO: Current is only available on some modules/protocol versions
-    // TODO: Add current to hw_interface
-    int16_t current = (message.data[5] << 8) + message.data[6];
+    // Current RMS in mA, only available for closed_loop modules
+    if (controllerType == ControllerType::closed_loop) {
+      motor_current_ = (message.data[5] << 8) + message.data[6];
+    }
 
     // Flags + DIN
     std::bitset<8> flags_din = message.data[7];
@@ -343,8 +408,6 @@ void Joint::read_can()
       // TODO: Is this possible?
       referenceState = ReferenceState::unreferenced;
     }
-
-    // TODO: Add SetToZero handling here
   }
 
   //control cmd received
@@ -357,6 +420,14 @@ void Joint::read_can()
 
       // Dont set it to finished quite yet, wait for the error bit to be 0;
       // resetState = ResetState::reset;
+    } else if (message.data == cprcan::set_pos_to_zero_response_1) {
+      set_position_to_zero_callback(message.data);
+    } else if (message.data == cprcan::set_pos_to_zero_response_2) {
+      set_position_to_zero_callback(message.data);
+    } else if (message.data == cprcan::set_pos_to_zero_response_3) {
+      set_position_to_zero_callback(message.data);
+    } else if (message.data == cprcan::set_pos_to_zero_response_4) {
+      set_position_to_zero_callback(message.data);
     } else if (message.data == cprcan::enable_motor_response) {
       if (motorState != MotorState::enabled) {
         RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Motor enabled", can_id_);
@@ -368,37 +439,15 @@ void Joint::read_can()
         motorState = MotorState::disabled;
       }
     } else if (message.data == cprcan::referencing_response_1) {
-      if (referenceState == ReferenceState::referencing_step1) {
-        RCLCPP_INFO(
-          rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: ACK 1 received", can_id_);
-        // Send the referencing message a second time and change the referenceState to step2
-        referencing();
-      } else {
-        RCLCPP_WARN(
-          rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: Unexpected response",
-          can_id_);
-      }
+      referencing_callback(message.data);
     } else if (message.data == cprcan::referencing_response_2) {
-      if (referenceState == ReferenceState::referencing_step2) {
-        RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing done", can_id_);
-        referenceState = ReferenceState::referenced;
-      } else if (referenceState == ReferenceState::referencing_step1) {
-        RCLCPP_WARN(
-          rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: ACK 2 received too early",
-          can_id_);
-        // Legacy fix, some FW+module combinations send the second ACK to early and we still need to send the second referencing command
-        referencing();
-      } else {
-        RCLCPP_WARN(
-          rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: Unexpected response",
-          can_id_);
-      }
+      referencing_callback(message.data);
     } else if (message.data == cprcan::referencing_response_error) {
-      // TODO: Which state of referencing are we in if that happens
-      // referenceState = ReferenceState::unreferenced;
-      RCLCPP_ERROR(
-        rclcpp::get_logger("iRC_ROS"),
-        "Module 0x%02x: Referencing: Already in progress error received", can_id_);
+      referencing_callback(message.data);
+    } else if (message.data == cprcan::rotor_alignment_response_1) {
+      rotor_alignment_callback(message.data);
+    } else if (message.data == cprcan::rotor_alignment_response_2) {
+      rotor_alignment_callback(message.data);
     } else if (cprcan::data_has_header(message.data, cprcan::encoder_msg_header)) {
       // Output enc pos
       encoder_pos_ = (message.data[4] << 24) + (message.data[5] << 16) + (message.data[6] << 8) +
@@ -450,6 +499,8 @@ void Joint::read_can()
   if (can_interface_->get_next_message(can_id_ + 3, message)) {
     if (cprcan::data_has_header(message.data, cprcan::environmental_msg_header)) {
       // Environmental parameters
+
+      // Supply voltage in mV
       supply_voltage_ = (message.data[2] << 8) + message.data[3];
 
       // The motor temperature sensor is not installed by default, which results in a reading of
