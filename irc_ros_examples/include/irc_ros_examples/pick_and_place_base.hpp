@@ -100,7 +100,7 @@ public:
       // Scale the trajectory
       if (velocity_scale != 1.0 || acceleration_scale != 1.0){
         trajectory_processing::IterativeParabolicTimeParameterization iptp;
-        robot_trajectory::RobotTrajectory rt(move_group->getRobotModel());
+        robot_trajectory::RobotTrajectory rt(move_group->getRobotModel(), PLANNING_GROUP);
         rt.setRobotTrajectoryMsg(*move_group->getCurrentState(), trajectory);
         bool scaling_successful = iptp.computeTimeStamps(rt, velocity_scale, acceleration_scale);
         if (!scaling_successful){

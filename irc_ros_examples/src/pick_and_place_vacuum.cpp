@@ -148,7 +148,7 @@ public:
     // Slowly touch the object
     posestamped.pose.position.z -= height_offsetheight_offset_;
     target_pose= buffer_->transform(posestamped, planning_frame_);
-    lin(target_pose, 0.2, 0.2);
+    lin(target_pose, 0.1, 0.1);
 
     set_gripper(true);
 
@@ -187,7 +187,7 @@ public:
     // Slowly touch the object
     posestamped.pose.position.z -= height_offsetheight_offset_;
     target_pose= buffer_->transform(posestamped, planning_frame_);
-    lin(target_pose, 0.2, 0.2);
+    lin(target_pose, 0.1, 0.1);
 
     set_gripper(false);
     // While the set_gripper fn blocks until the vacuum is gone or a timeout occurs
