@@ -221,7 +221,7 @@ void Joint::referencing_callback(cprcan::bytevec response)
 
     referenceState = ReferenceState::referenced;
   } else if (referenceState == ReferenceState::referencing_step1 &&
-    reponse == cprcan::referencing_response_1) {
+    response == cprcan::referencing_response_1) {
         RCLCPP_WARN(
           rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: ACK 2 received too early",
           can_id_);
