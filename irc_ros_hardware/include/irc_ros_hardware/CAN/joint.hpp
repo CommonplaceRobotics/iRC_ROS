@@ -41,6 +41,10 @@ private:
   void set_position_to_zero_callback(cprcan::bytevec response);
   void referencing_callback(cprcan::bytevec response);
   void rotor_alignment_callback(cprcan::bytevec response);
+  void standard_response_callback(CAN::TimedCanMessage message);
+  void encoder_message_callback(cprcan::bytevec data);
+  void startup_message_callback(cprcan::bytevec data);
+  void environmental_message_callback(cprcan::bytevec data);
 
   // Will be used for the zero-torque mode
   // bool zero_torque;

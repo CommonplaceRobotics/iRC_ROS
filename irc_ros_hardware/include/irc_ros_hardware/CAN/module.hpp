@@ -54,9 +54,12 @@ public:
   virtual void torque_cmd() = 0;
 
   virtual void reset_error(bool force = false);
+  virtual void reset_error_callback(cprcan::bytevec response);
   virtual void set_position_to_zero() = 0;
   virtual void enable_motor();
+  virtual void enable_motor_callback(cprcan::bytevec response);
   virtual void disable_motor();
+  virtual void disable_motor_callback(cprcan::bytevec response);
   virtual void referencing() = 0;
   virtual void rotor_alignment() = 0;
 

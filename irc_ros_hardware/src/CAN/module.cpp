@@ -46,6 +46,14 @@ void Module::reset_error(bool force)
   }
 }
 
+void Module::reset_error_callback(cprcan::bytevec response)
+{
+  RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Error reset acknowledged", can_id_);
+
+  // Dont set it to finished quite yet, wait for the error bit to be 0;
+  // resetState = ResetState::reset;
+}
+
 /**
  * @brief Sends the enable message to the controller if the motor is not already
  * enabled. The state is then set to enabling, and will be set to enabled once
@@ -67,6 +75,14 @@ void Module::enable_motor()
     std::chrono::steady_clock::now() - motor_state_time_point_ > motor_state_timeout_) {
     motorState = MotorState::disabled;
     RCLCPP_WARN(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Enabling motor timed out", can_id_);
+  }
+}
+
+void Module::enable_motor_callback(cprcan::bytevec response)
+{
+  if (motorState != MotorState::enabled) {
+    RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Motor enabled", can_id_);
+    motorState = MotorState::enabled;
   }
 }
 
@@ -94,6 +110,13 @@ void Module::disable_motor()
   }
 }
 
+void Module::disable_motor_callback(cprcan::bytevec response)
+{
+  if (motorState != MotorState::disabled) {
+    RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Motor disabled", can_id_);
+    motorState = MotorState::disabled;
+  }
+}
 /**
  * @brief Sets the motor to a ready state. This means resetting any
  * errors besides MNE and enabling the motors
