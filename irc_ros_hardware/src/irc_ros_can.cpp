@@ -142,8 +142,8 @@ hardware_interface::CallbackReturn IrcRosCan::on_init(const hardware_interface::
       }
     }
     RCLCPP_INFO(
-      rclcpp::get_logger("iRC_ROS"), "Joint %s: Referencing_required: %d",
-      joint.name.c_str(), j->referenceState == ReferenceState::unreferenced);
+      rclcpp::get_logger("iRC_ROS"), "Joint %s: Referencing_required: %d", joint.name.c_str(),
+      j->referenceState == ReferenceState::unreferenced);
 
     // Joint configuration summary
     RCLCPP_INFO(
@@ -208,24 +208,23 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
   const rclcpp_lifecycle::State & previous_state)
 {
   // Check if the interface is still alive
-  if(!can_interface_->is_connected()){ 
-    RCLCPP_ERROR(
-      rclcpp::get_logger("iRC_ROS"), "CAN interface has died!");
+  if (!can_interface_->is_connected()) {
+    RCLCPP_ERROR(rclcpp::get_logger("iRC_ROS"), "CAN interface has died!");
     return hardware_interface::CallbackReturn::FAILURE;
-  } 
+  }
 
   // Insert all modules in a multimap with the priority being the key
   std::multimap<int, Module::Ptr> referencing_priority_map;
 
   for (auto & [module_name, module] : modules_) {
-    referencing_priority_map.insert(std::pair<int, Module::Ptr>(module->reference_priority_, module));
-  } 
+    referencing_priority_map.insert(
+      std::pair<int, Module::Ptr>(module->reference_priority_, module));
+  }
 
   std::chrono::time_point<std::chrono::steady_clock> start_point;
 
   // And go through the modules now sorted in the order of referencing priority
-  for (auto & [priority, module] : referencing_priority_map ){ 
-
+  for (auto & [priority, module] : referencing_priority_map) {
     // Reset all errors on startup
     start_point = std::chrono::steady_clock::now();
     while (!module->errorState.any_except_mne()) {
@@ -233,7 +232,7 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
         RCLCPP_ERROR(
           rclcpp::get_logger("iRC_ROS"), "Failed to reset module 0x%2x", module->can_id_);
         return hardware_interface::CallbackReturn::FAILURE;
-      } 
+      }
 
       module->reset_error(true);
 
@@ -245,12 +244,11 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
 
     // If referencing is required do that now
     start_point = std::chrono::steady_clock::now();
-    while(module->referenceState != ReferenceState::referenced
-       && module->referenceState != ReferenceState::not_required){
-
+    while (module->referenceState != ReferenceState::referenced &&
+           module->referenceState != ReferenceState::not_required) {
       // Enable the motors for referencing
-      while(module->motorState != MotorState::enabled) {
-        if (module->errorState.any_except_mne()){
+      while (module->motorState != MotorState::enabled) {
+        if (module->errorState.any_except_mne()) {
           module->reset_error(true);
         }
         module->enable_motor();
@@ -259,7 +257,7 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
         module->read_can();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-      } 
+      }
 
       // Start referencing
       if (module->referenceState == ReferenceState::unreferenced) {
@@ -270,7 +268,10 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
       module->read_can();
 
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    } 
+    }
+
+    // Allow resetting during the start of the loop
+    module->may_reset_ = true;
   }
 
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -327,6 +328,9 @@ hardware_interface::return_type IrcRosCan::perform_command_mode_switch(
   for (auto start : start_interfaces) {
     for (auto && [module_name, module] : modules_) {
       module->prepare_movement();
+
+      // Allow resetting during the start of the loop
+      module->may_reset_ = true;
     }
   }
 

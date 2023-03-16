@@ -117,6 +117,11 @@ public:
 
   CommandMode commandMode = CommandMode::none;
 
+  // Used to limit the automatic reset during the looping for the startup procedure
+  // Is requires in case the delay between on_activate/on_command_mode_change and write is too long
+  // meaning that the heartbeat is interrupted and the controller goes into a COM error.
+  bool may_reset_ = false;
+
 protected:
   std::bitset<8> digital_in_;
   std::bitset<8> digital_out_;

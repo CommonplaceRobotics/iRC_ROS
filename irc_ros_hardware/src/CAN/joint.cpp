@@ -183,8 +183,9 @@ void Joint::set_position_to_zero_callback(cprcan::bytevec response)
  * This gets called by the user while the rest of the process is done in the callback
  */
 void Joint::referencing()
-{   
-  if (referenceState == ReferenceState::unreferenced ||
+{
+  if (
+    referenceState == ReferenceState::unreferenced ||
     referenceState == ReferenceState::not_required) {
     RCLCPP_INFO(
       rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: Sending first ref message",
@@ -220,13 +221,14 @@ void Joint::referencing_callback(cprcan::bytevec response)
     RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing done", can_id_);
 
     referenceState = ReferenceState::referenced;
-  } else if (referenceState == ReferenceState::referencing_step1 &&
+  } else if (
+    referenceState == ReferenceState::referencing_step1 &&
     response == cprcan::referencing_response_1) {
-        RCLCPP_WARN(
-          rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: ACK 2 received too early",
-          can_id_);
-        // Legacy fix, some FW+module combinations send the second ACK to early and we still need to send the second referencing command
-        referencing();
+    RCLCPP_WARN(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: ACK 2 received too early",
+      can_id_);
+    // Legacy fix, some FW+module combinations send the second ACK to early and we still need to send the second referencing command
+    referencing();
   } else if (response == cprcan::referencing_response_error) {
     RCLCPP_ERROR(
       rclcpp::get_logger("iRC_ROS"),
@@ -398,11 +400,11 @@ void Joint::read_can()
     } else if (referenceState == ReferenceState::referenced && !referenced) {
       // If we were already referenced or not currently in the process of
       // referencing a 0 in this status bit means we lost the reference
-      // TODO: Is this possible? 
+      // TODO: Is this possible?
       RCLCPP_WARN(
-        rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: Set to unreferenced by referenced bit",
-        can_id_);
-//      referenceState = ReferenceState::unreferenced;
+        rclcpp::get_logger("iRC_ROS"),
+        "Module 0x%02x: Referencing: Set to unreferenced by referenced bit", can_id_);
+      //      referenceState = ReferenceState::unreferenced;
     }
 
     if (aligened) {
@@ -554,6 +556,9 @@ void Joint::write_can()
       positioningReadyState != PositioningReadyState::not_ready) {
       // Ready to move
 
+      // Thus no more automatic resets
+      may_reset_ = false;
+
       if (commandMode == CommandMode::position && !std::isnan(set_pos_)) {
         position_cmd();
       } else if (commandMode == CommandMode::velocity && !std::isnan(set_vel_)) {
@@ -570,8 +575,14 @@ void Joint::write_can()
       // movement. If it didn't succeed the movement will lag behind a bit. Too much lag may
       // cause the motor to jerk and go into a LAG error.
 
-      // Try to reset errors and activate the motors.
-      prepare_movement();
+      // Try to reset errors and activate the motors. Only right after starting the loop
+      if (may_reset_) {
+        prepare_movement();
+      } else {
+        RCLCPP_ERROR(
+          rclcpp::get_logger("iRC_ROS"),
+          "Module 0x%02x: command mode set but no joint goal provided.", can_id_);
+      }
 
       if (commandMode == CommandMode::position) {
         // If the motor is already enabled or getting enabled, sending a position of 0 might cause
