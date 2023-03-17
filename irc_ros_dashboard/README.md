@@ -13,3 +13,7 @@ Define which modules to plot in the controllers .yaml configuration. The dashboa
 Information is provided by DashboardController, DioController, JointStates and standard ros2_control controllers:
 
 ![The dataflow to and from the dashboard](doc/dashboard.png)
+
+### Dashboard commands
+
+![The dataflow of sending commands to the dashboard](doc/dashboard_process.png)

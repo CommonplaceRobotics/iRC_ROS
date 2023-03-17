@@ -80,10 +80,10 @@
     </joint>
     <joint name="joint6">
       <command_interface name="position">
-        <!-- While the last axis can turn continuously, it is limited here in case a tool with wiring is mounted.
-        If you are certain that no wiring issues can arise you may change this do a continuous joint -->
-        <param name="min">${-pi*179/180}</param>
-        <param name="max">${pi*179/180}</param>
+        <xacro:unless value="$(arg continuous_last_joint)">
+          <param name="min">${-pi*179/180}</param>
+          <param name="max">${pi*179/180}</param>
+        </xacro:unless>
       </command_interface>
       <command_interface name="velocity">
         <param name="min">-2.16</param>

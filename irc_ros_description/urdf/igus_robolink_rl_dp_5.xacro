@@ -1,5 +1,6 @@
 <?xml version="1.0" ?>
-<robot name="igus_robolink_rl_dp_5">
+<robot xmlns:xacro="http://wiki.ros.org/xacro"
+       name="igus_robolink_rl_dp_5" >
   <link name="base_link">
     <visual>
       <geometry>
@@ -116,14 +117,24 @@
       <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
     </inertial>
   </link>
-  <joint name="joint5" type="revolute">
-    <parent link="link_6"/>
-    <child link="link_7"/>
-    <!-- FIXME The 0.03m offset are most likely caused by the mesh file -->
-    <origin rpy="0.0 0.0 0.0" xyz="0.0 0 0.1785"/>
-    <axis xyz="0 0 1"/>
-    <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="2.16"/>
-  </joint>
+  <xacro:if value="$(arg continuous_last_joint)">
+    <joint name="joint5" type="continuous">
+      <parent link="link_6"/>
+      <child link="link_7"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0 0.1785"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="330.0" velocity="2.16"/>
+    </joint>
+  </xacro:if>
+  <xacro:unless value="$(arg continuous_last_joint)">
+    <joint name="joint5" type="revolute">
+      <parent link="link_6"/>
+      <child link="link_7"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0 0.1785"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="2.16"/>
+    </joint>
+  </xacro:unless>
   <link name="link_7">
     <visual>
       <geometry>

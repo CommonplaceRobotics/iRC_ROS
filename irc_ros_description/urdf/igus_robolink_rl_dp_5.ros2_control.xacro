@@ -73,8 +73,10 @@
     </joint>
     <joint name="joint5">
       <command_interface name="position">
-        <param name="min">{-pi*179/180}</param>
-        <param name="max">{pi*179/180}</param>
+        <xacro:unless value="$(arg continuous_last_joint)">
+          <param name="min">{-pi*179/180}</param>
+          <param name="max">{pi*179/180}</param>
+        </xacro:unless>
       </command_interface>
       <command_interface name="velocity">
         <param name="min">-2.16</param>

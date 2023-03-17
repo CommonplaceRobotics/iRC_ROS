@@ -491,13 +491,14 @@ void Joint::read_can()
   CAN::TimedCanMessage message;
 
   // Standard response
-  if (can_interface_->get_next_message(can_id_ + 1, message)) {
+  while (can_interface_->get_next_message(can_id_ + 1, message)) {
     // Requires the timestamp, thus we TimedCanMessage instead of just the payload
     standard_response_callback(message);
   }
 
   //control cmd received
-  if (can_interface_->get_next_message(can_id_ + 2, message)) {
+
+  while (can_interface_->get_next_message(can_id_ + 2, message)) {
     if (message.data == cprcan::reset_error_response) {
       reset_error_callback(message.data);
     } else if (message.data == cprcan::set_pos_to_zero_response_1) {
@@ -533,7 +534,7 @@ void Joint::read_can()
       // to evaluate any unexplainable errors.
     }
   }
-  if (can_interface_->get_next_message(can_id_ + 3, message)) {
+  while (can_interface_->get_next_message(can_id_ + 3, message)) {
     if (cprcan::data_has_header(message.data, cprcan::environmental_msg_header)) {
       environmental_message_callback(message.data);
     }
