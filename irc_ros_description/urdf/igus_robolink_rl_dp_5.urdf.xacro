@@ -6,8 +6,10 @@
   <xacro:arg name="use_gripper" default="false" />
   <xacro:arg name="gripper" default="schmalz_ecbpmi" />
   
-  <!-- Enable continuous rotation on the last joint -->
-  <xacro:arg name="continuous_last_joint" default="true" />
+  <!-- Enable continuous rotation on the last join. While the last axis can turn continuously,
+  it is limited here in case a tool with wiring is mounted. If you are certain that no wiring
+  issues can arise you may enable this -->
+  <xacro:arg name="continuous_last_joint" default="false" />
 
   <xacro:include filename="$(find irc_ros_description)/urdf/igus_robolink_rl_dp_5.xacro" />
   <xacro:include filename="$(find irc_ros_description)/urdf/igus_robolink_rl_dp_5.ros2_control.xacro" />

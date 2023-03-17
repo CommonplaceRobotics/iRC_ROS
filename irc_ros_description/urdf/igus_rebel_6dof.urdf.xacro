@@ -8,10 +8,10 @@
   <!-- Gripper selection -->
   <xacro:arg name="gripper" default="ext_dio_gripper" />
 
-  <!-- Enable continuous rotation on the last joint -->
-  <!-- While the last axis can turn continuously, it is limited here in case a tool with wiring is mounted.
-  If you are certain that no wiring issues can arise you may change this do a continuous joint -->
-  <xacro:arg name="continuous_last_joint" default="true" />
+  <!-- Enable continuous rotation on the last join. While the last axis can turn continuously,
+  it is limited here in case a tool with wiring is mounted. If you are certain that no wiring
+  issues can arise you may enable this -->
+  <xacro:arg name="continuous_last_joint" default="false" />
 
   <!-- TODO -->
   <xacro:arg name="root_link" default="false" />

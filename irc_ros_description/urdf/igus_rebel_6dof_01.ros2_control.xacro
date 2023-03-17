@@ -1,5 +1,6 @@
 <?xml version="1.0" ?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot xmlns:xacro="http://wiki.ros.org/xacro"
+       name="igus_rebel_6dof" >
   <ros2_control name="Rebel" type="system">
     <hardware>
       <class>temp</class>

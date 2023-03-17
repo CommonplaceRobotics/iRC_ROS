@@ -1,5 +1,6 @@
 <?xml version="1.0" ?>
-<robot name="igus_rebel_6dof">
+<robot xmlns:xacro="http://wiki.ros.org/xacro"
+       name="igus_rebel_6dof" >
   <link name="base_link">
     <visual>
       <geometry>
