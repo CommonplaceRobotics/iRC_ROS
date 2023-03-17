@@ -1,5 +1,6 @@
 <?xml version="1.0" ?>
-<robot name="igus_rebel_6dof">
+<robot xmlns:xacro="http://wiki.ros.org/xacro"
+       name="igus_rebel_6dof" >
   <link name="base_link">
     <visual>
       <geometry>
@@ -143,13 +144,24 @@
       <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
     </inertial>
   </link>
-  <joint name="joint6" type="revolute">
-    <parent link="link_7"/>
-    <child link="link_8"/>
-    <origin rpy="0.0 0.0 0.0" xyz="0.0 0 0.1208"/>
-    <axis xyz="0 0 1"/>
-    <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="2.16"/>
-  </joint>
+  <xacro:if value="$(arg continuous_last_joint)">
+  <joint name="joint6" type="continuous">
+      <parent link="link_7"/>
+      <child link="link_8"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0 0.1208"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="330.0" velocity="2.16"/>
+    </joint>
+  </xacro:if>
+  <xacro:unless value="$(arg continuous_last_joint)">
+    <joint name="joint6" type="revolute">
+      <parent link="link_7"/>
+      <child link="link_8"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0 0.1208"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="2.16"/>
+    </joint>
+  </xacro:unless>
   <link name="link_8">
     <visual>
       <geometry>
