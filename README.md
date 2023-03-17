@@ -2,6 +2,8 @@
 
 **This is an early beta version. The code WILL change in the near future and is not intended for any serious work right now. If you still use it be cautious when running it on your hardware and know that updating this package may break your running setup!**
 
+**Be very careful when using a Robolink DP 5 or other robots which need to be referenced on startup, as this feature is currently broken for the controllers used in those!**
+
 This repository aims to bring ROS2 support to igus robots. The main focus and is the igus ReBeL in the 6 DOF version, but other devices may also be used, as long as robot controller modules from Commonplace Robotics are used in the kinematics. For a list of currently supported hardware see below.
 The hardware communication is available with two different protocols, CRI and CPRCANv2. Links containing more information about these can be found below. The CRI implementation is build upon a ROS Noetic project by [Truphysics](https://www.truphysics.com/), which is linked below as well.
 
