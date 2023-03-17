@@ -275,7 +275,7 @@ void Joint::read_can()
   CAN::TimedCanMessage message;
 
   // Standard response
-  if (can_interface_->get_next_message(can_id_ + 1, message)) {
+  while (can_interface_->get_next_message(can_id_ + 1, message)) {
     RCLCPP_DEBUG(
       rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Standard response received", can_id_);
 
@@ -394,7 +394,7 @@ void Joint::read_can()
   }
 
   //control cmd received
-  if (can_interface_->get_next_message(can_id_ + 2, message)) {
+  while (can_interface_->get_next_message(can_id_ + 2, message)) {
     RCLCPP_DEBUG(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Control cmd received", can_id_);
 
     if (message.data == cprcan::reset_error_response) {
@@ -479,7 +479,7 @@ void Joint::read_can()
       // to evaluate any unexplainable errors.
     }
   }
-  if (can_interface_->get_next_message(can_id_ + 3, message)) {
+  while (can_interface_->get_next_message(can_id_ + 3, message)) {
     if (cprcan::data_has_header(message.data, cprcan::environmental_msg_header)) {
       // Environmental parameters
 
