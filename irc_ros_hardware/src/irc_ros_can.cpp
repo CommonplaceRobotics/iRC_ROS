@@ -405,6 +405,8 @@ std::vector<hardware_interface::StateInterface> IrcRosCan::export_state_interfac
       joint.name, hardware_interface::HW_IF_VELOCITY, &(modules_[joint.name]->vel_)));
 
     //Dashboard specific states (same for gpios and joints)
+
+    // Device info
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       joint.name, "can_id", &(modules_[joint.name]->can_id_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
@@ -414,6 +416,10 @@ std::vector<hardware_interface::StateInterface> IrcRosCan::export_state_interfac
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       joint.name, "version_minor", &(modules_[joint.name]->version_minor_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
+      joint.name, "controller_type", &(modules_[joint.name]->controller_type_double_)));
+
+    // Physical information
+    state_interfaces.emplace_back(hardware_interface::StateInterface(
       joint.name, "temperature_board", &(modules_[joint.name]->temperature_board_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       joint.name, "temperature_motor", &(modules_[joint.name]->temperature_motor_)));
@@ -421,14 +427,16 @@ std::vector<hardware_interface::StateInterface> IrcRosCan::export_state_interfac
       joint.name, "supply_voltage", &(modules_[joint.name]->supply_voltage_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       joint.name, "motor_current", &(modules_[joint.name]->motor_current_double_)));
+
+    // States
+    state_interfaces.emplace_back(hardware_interface::StateInterface(
+      joint.name, "command_mode", &(modules_[joint.name]->command_mode_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       joint.name, "error_state", &(modules_[joint.name]->error_state_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
-      joint.name, "reset_state", &(modules_[joint.name]->reset_state_double_)));
-    state_interfaces.emplace_back(hardware_interface::StateInterface(
       joint.name, "motor_state", &(modules_[joint.name]->motor_state_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
-      joint.name, "command_mode", &(modules_[joint.name]->command_mode_double_)));
+      joint.name, "reset_state", &(modules_[joint.name]->reset_state_double_)));
   }
 
   // DIO specific state_interfaces
@@ -442,7 +450,10 @@ std::vector<hardware_interface::StateInterface> IrcRosCan::export_state_interfac
       }
     }
 
-    //Dashboard specific states (same for gpios and joints)
+    // Dashboard specific states, not all contain useful information as joint only states are
+    // included as well to make it easier to implement the dashboard
+
+    // Device info
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       gpio.name, "can_id", &(modules_[gpio.name]->can_id_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
@@ -452,6 +463,10 @@ std::vector<hardware_interface::StateInterface> IrcRosCan::export_state_interfac
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       gpio.name, "version_minor", &(modules_[gpio.name]->version_minor_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
+      gpio.name, "controller_type", &(modules_[gpio.name]->controller_type_double_)));
+
+    // Physical information
+    state_interfaces.emplace_back(hardware_interface::StateInterface(
       gpio.name, "temperature_board", &(modules_[gpio.name]->temperature_board_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       gpio.name, "temperature_motor", &(modules_[gpio.name]->temperature_motor_)));
@@ -459,14 +474,16 @@ std::vector<hardware_interface::StateInterface> IrcRosCan::export_state_interfac
       gpio.name, "supply_voltage", &(modules_[gpio.name]->supply_voltage_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       gpio.name, "motor_current", &(modules_[gpio.name]->motor_current_double_)));
+
+    // States
+    state_interfaces.emplace_back(hardware_interface::StateInterface(
+      gpio.name, "command_mode", &(modules_[gpio.name]->command_mode_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       gpio.name, "error_state", &(modules_[gpio.name]->error_state_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
-      gpio.name, "reset_state", &(modules_[gpio.name]->reset_state_double_)));
-    state_interfaces.emplace_back(hardware_interface::StateInterface(
       gpio.name, "motor_state", &(modules_[gpio.name]->motor_state_double_)));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
-      gpio.name, "command_mode", &(modules_[gpio.name]->command_mode_double_)));
+      gpio.name, "reset_state", &(modules_[gpio.name]->reset_state_double_)));
   }
 
   return state_interfaces;

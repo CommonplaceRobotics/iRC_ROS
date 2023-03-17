@@ -171,17 +171,17 @@ void Module::update_double_copies()
   hardware_ident_double_ = static_cast<double>(hardwareIdent);
   version_major_double_ = static_cast<double>(version_[0]);
   version_minor_double_ = static_cast<double>(version_[1]);
+  controller_type_double_ = static_cast<double>(controllerType);
   // TODO: find an acceptable way to transmit the different error states.
   error_state_double_ = static_cast<double>(errorState.to_uint8());
   motor_state_double_ = static_cast<double>(motorState);
   reset_state_double_ = static_cast<double>(resetState);
+  command_mode_double_ = static_cast<double>(commandMode);
 
   // Convert mV to V
   supply_voltage_double_ = static_cast<double>(supply_voltage_) / 1000.0;
   // Convert mA to A
   motor_current_double_ = static_cast<double>(motor_current_) / 1000.0;
-
-  command_mode_double_ = static_cast<double>(commandMode);
 }
 
 /**

@@ -86,6 +86,7 @@ public:
   ReferenceState referenceState = ReferenceState::not_required;
   int reference_priority_ = std::numeric_limits<int>::max();
   ErrorState errorState;
+  ControllerType controllerType = ControllerType::undefined;
 
   // Public member variables which are accessed by controllers
   // DIO Controller variables
@@ -102,12 +103,13 @@ public:
   double hardware_ident_double_;
   double version_major_double_;
   double version_minor_double_;
-  double error_state_double_;
-  double motor_state_double_;
-  double reset_state_double_;
+  double controller_type_double_;
   double supply_voltage_double_;
   double motor_current_double_;
   double command_mode_double_;
+  double error_state_double_;
+  double motor_state_double_;
+  double reset_state_double_;
 
   double dashboard_cmd_double_ = 0.0;
 
