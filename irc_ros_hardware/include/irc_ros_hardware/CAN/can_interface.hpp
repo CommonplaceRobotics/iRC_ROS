@@ -115,6 +115,8 @@ protected:
 
 private:
   std::mutex map_mutex_;
+  size_t warn_message_queue_size_ = 10;
+  size_t max_message_queue_size_ = 20;
 
   /**
     * @brief Buffer of the last incoming messages of each CAN ID
