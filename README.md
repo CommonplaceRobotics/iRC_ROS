@@ -49,7 +49,10 @@ General requirements:
    - [IRA Laser Tools](https://github.com/nakai-omer/ira_laser_tools/tree/humble)
    - [Textual](https://github.com/Textualize/textual)
 
-While ros2_control recommends the use of a real-time kernel we used a standard Ubuntu 22.04 install without encountering any issues. 
+### Realtime kernel
+While ros2_control recommends the use of a real-time kernel we also used a standard Ubuntu 22.04 install without encountering any issues. For installing the RT patch follow [this](https://docs.ros.org/en/humble/Tutorials/Miscellaneous/Building-Realtime-rt_preempt-kernel-for-ROS-2.html) guide.
+
+When compiling the kernel for Ubuntu (22.04) make sure to also install the `dwarves` package before compiling. In the .config file remove the ubuntu certificate names and disable secure boot, else the missing certificates will prevent booting.
 
 ## Setup
 Install all necessary requirements for the functionality you intend to use and then simply clone this in the src/ directory of a ROS2 workspace.
