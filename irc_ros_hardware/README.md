@@ -2,8 +2,6 @@
 
 **Do not use the CRI interface for any serious work. It is not yet ready for anything besides testing, if even that.**
 
-**If you are using a robot besides the ReBeL be sure to read the chapter about referencing below, otherwise you may crash your robot**
-
 This package contains the drivers for interfacing with different robots. This can be done both over the CPRCANv2 protocol and the CRI protocol.
 The CAN protocol is more perfomant and provides more functionality. The drawback is requiring more direct hardware access. If an EmbeddedControl unit or a igus Rebel with a base is used, the Raspberry Pi inside could be used. This could interfere with TinyCtrl and stop the robot from working with CRI. Furthermore it is untested and the performance might be subpar. Thus it is not advised for general use, instead a dedicated computer with a canbus adapter, e.g. a P-CAN adapter, is recommended.
 
@@ -101,7 +99,20 @@ Note that the reset state is reached via a no error-bits set status message, as 
 Used to keep track of the state of the corrosponding commands. Only the referenceState should normally change, as the robot should be in the correct alignment state after startup and the position should always be read out/referenced instead of simply setting it to 0.
 
 ### Referencing
-Older robots without absolute encoders like the Robolink DP 5 need to reference their joint positions on startup. This requires the joints to move to a specific position. Normally this would be done in a specific order to avoid collisions. While the order can be set in the .ros2_control.urdf already, it is currently ignored and all joints reference themselves in the write_can() function.
+Older robots without absolute encoders like the Robolink DP 5 need to reference their joint positions on startup. This requires the joints to move to a specific position. This has to be done in a specific order to avoid collisions, which is done during the on_activate method. If the robot was already referenced before this may be read in the standard response.
+
+```mermaid
+stateDiagram-v2
+    [*] --> not_required : e.g. igus ReBeL
+    [*] --> unreferenced : e.g. Robolink DP 5
+    unreferenced --> referencing_step1 : referencing() call during on_activate()
+    referencing_step1 --> referencing_step2 : referencing() call caused by response_1
+    referencing_step2 --> referenced : response_2
+    
+    [*] --> unreferenced : response_error
+    [*] --> referenced : reference bit set in standard response
+
+```
 
 ### Timing
 Checking the approximate timing with `candump can0,010:FFF -td` (010 is for the module 0x10, so the first motor module) shows a relatively stable frequency around the set rate of 100Hz. Plotting the data from the highest can id (in the images case 0x40) shows some jitter, if this causes trouble switching to a real time kernel might help. The example can dump and plotting script can be found in `doc/`. For further debugging comparing the jitter peaks with the sending of position messages might be of interest, for which the data is already available in the python plot script.

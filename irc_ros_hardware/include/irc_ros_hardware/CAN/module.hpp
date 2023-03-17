@@ -54,9 +54,12 @@ public:
   virtual void torque_cmd() = 0;
 
   virtual void reset_error(bool force = false);
+  virtual void reset_error_callback(cprcan::bytevec response);
   virtual void set_position_to_zero() = 0;
   virtual void enable_motor();
+  virtual void enable_motor_callback(cprcan::bytevec response);
   virtual void disable_motor();
+  virtual void disable_motor_callback(cprcan::bytevec response);
   virtual void referencing() = 0;
   virtual void rotor_alignment() = 0;
 
@@ -82,6 +85,7 @@ public:
   MotorState motorState = MotorState::disabled;
   ReferenceState referenceState = ReferenceState::not_required;
   int reference_priority_ = std::numeric_limits<int>::max();
+  ErrorState errorState;
 
   // Public member variables which are accessed by controllers
   // DIO Controller variables
@@ -116,6 +120,11 @@ public:
 
   CommandMode commandMode = CommandMode::none;
 
+  // Used to limit the automatic reset during the looping for the startup procedure
+  // Is requires in case the delay between on_activate/on_command_mode_change and write is too long
+  // meaning that the heartbeat is interrupted and the controller goes into a COM error.
+  bool may_reset_ = false;
+
 protected:
   std::bitset<8> digital_in_;
   std::bitset<8> digital_out_;
@@ -125,7 +134,6 @@ protected:
   std::array<uint8_t, 2> version_ = {0, 0};  // major, minor version
 
   // Internal states
-  ErrorState errorState;
   ErrorState lastErrorState;
   SetToZeroState setToZeroState = SetToZeroState::not_zeroed;
   RotorAlignmentState rotorAlignmentState = RotorAlignmentState::unaligned;
@@ -136,8 +144,8 @@ protected:
   std::chrono::time_point<std::chrono::steady_clock> reset_time_point_;
 
   // Timeout times
-  const std::chrono::duration<int64_t> motor_state_timeout_ = std::chrono::seconds(1);
-  const std::chrono::duration<int64_t> reset_timeout_ = std::chrono::seconds(1);
+  const std::chrono::duration<double> motor_state_timeout_ = std::chrono::milliseconds(500);
+  const std::chrono::duration<double> reset_timeout_ = std::chrono::milliseconds(500);
 
   u_int8_t msg_counter_ = 0;
   std::shared_ptr<CAN::CanInterface> can_interface_;

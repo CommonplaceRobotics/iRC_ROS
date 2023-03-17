@@ -147,6 +147,10 @@ void Joint::set_position_to_zero()
   }
 }
 
+/**
+ * @brief Gets called by the read_can function once a response message arrives.
+ * @param response The message that triggered the function call
+ */
 void Joint::set_position_to_zero_callback(cprcan::bytevec response)
 {
   if (
@@ -187,8 +191,13 @@ void Joint::referencing()
   if (
     referenceState == ReferenceState::unreferenced ||
     referenceState == ReferenceState::not_required) {
+    RCLCPP_INFO(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: Sending first ref message",
+      can_id_);
+
     CAN::CanMessage message(can_id_, cprcan::referencing);
     can_interface_->write_message(message);
+    // can_interface_->write_message(message);
 
     referenceState = ReferenceState::referencing_step1;
   } else {
@@ -198,11 +207,18 @@ void Joint::referencing()
   }
 }
 
+/**
+ * @brief Gets called by the read_can function once a response message arrives.
+ * @param response The message that triggered the function call
+ */
 void Joint::referencing_callback(cprcan::bytevec response)
 {
   if (
     referenceState == ReferenceState::referencing_step1 &&
     response == cprcan::referencing_response_1) {
+    RCLCPP_INFO(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: ACK 1 received", can_id_);
+
     CAN::CanMessage message(can_id_, cprcan::referencing);
     can_interface_->write_message(message);
 
@@ -210,7 +226,17 @@ void Joint::referencing_callback(cprcan::bytevec response)
   } else if (
     referenceState == ReferenceState::referencing_step2 &&
     response == cprcan::referencing_response_2) {
+    RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing done", can_id_);
+
     referenceState = ReferenceState::referenced;
+  } else if (
+    referenceState == ReferenceState::referencing_step1 &&
+    response == cprcan::referencing_response_1) {
+    RCLCPP_WARN(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: ACK 2 received too early",
+      can_id_);
+    // Legacy fix, some FW+module combinations send the second ACK to early and we still need to send the second referencing command
+    referencing();
   } else if (response == cprcan::referencing_response_error) {
     RCLCPP_ERROR(
       rclcpp::get_logger("iRC_ROS"),
@@ -228,9 +254,7 @@ void Joint::referencing_callback(cprcan::bytevec response)
  * circumstances.
  * 
  * This gets called by the user while the rest of the process is done in the callback
- *
- * TODO: This is untested.
-*/
+ */
 void Joint::rotor_alignment()
 {
   if (rotorAlignmentState == RotorAlignmentState::unaligned) {
@@ -245,6 +269,10 @@ void Joint::rotor_alignment()
   }
 }
 
+/**
+ * @brief Gets called by the read_can function once a response message arrives.
+ * @param response The message that triggered the function call
+ */
 void Joint::rotor_alignment_callback(cprcan::bytevec response)
 {
   if (
@@ -266,6 +294,194 @@ void Joint::rotor_alignment_callback(cprcan::bytevec response)
 }
 
 /**
+ * @brief Parses the standard response. May influence most of the internal states.
+ */
+void Joint::standard_response_callback(CAN::TimedCanMessage message)
+{
+  // Error
+  std::bitset<8> error_code = message.data[0];
+  errorState.parse(error_code);
+
+  if (!(lastErrorState == errorState)) {
+    RCLCPP_INFO(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Errorcode: %s ", can_id_,
+      error_code.to_string().c_str());
+  }
+
+  lastErrorState = errorState;
+
+  // motorState = enabled but error -> motorState is outdated, set to disabled
+  // NOTE: COM error should not occur anymore since us reading the message means the keep
+  // alive signal is already being sent.
+  if (motorState == MotorState::enabled && errorState.any()) {
+    RCLCPP_INFO(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Errors%s detected, motorstate set to disabled",
+      can_id_, errorState.str().c_str());
+
+    // As errors occurred the motor controller will have disabled the motors automcatically
+    // As such no disable_motor() call is required, but we need to update our internal state.
+    motorState = MotorState::disabled;
+  }
+
+  // Resetting and only MNE error? -> Reset is done
+  // TODO: Seems that MNE errors don't occur here, so any() instead of any_except_mne() is used
+  if (!errorState.any() && resetState != ResetState::reset) {
+    resetState = ResetState::reset;
+    RCLCPP_INFO(
+      rclcpp::get_logger("iRC_ROS"),
+      "Module 0x%02x: Reset appears to have been successful, no errors remaining", can_id_);
+  } else if (errorState.any() && resetState == ResetState::reset) {
+    resetState = ResetState::not_reset;
+    RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Reset required", can_id_);
+  }
+
+  // Position
+  int32_t position =
+    (message.data[1] << 24) + (message.data[2] << 16) + (message.data[3] << 8) + message.data[4];
+
+  // Converts motor tics to radians
+  double new_pos = (static_cast<double>(position) / (tics_over_degree_)) * (M_PI / 180.0);
+
+  // Calculate the velocity
+  std::chrono::duration<double> diff = message.timestamp - last_stamp_;
+  double delay = diff.count();
+
+  // Ignore wraparounds and div by 0
+  if (delay > 0.0) {
+    double new_vel = (new_pos - pos_) / delay;
+
+    // TODO: Velocity is of by factor 10, why?
+    new_vel *= 10.0;
+
+    velocity_buffer_.pop_back();
+    velocity_buffer_.push_front(new_vel);
+
+    double sum = 0.0;
+    for (int i = 0; i < velocity_buffer_size_; i++) {
+      sum += velocity_buffer_[i] * velocity_buffer_weights_[i];
+    }
+
+    vel_ = sum;
+  }
+
+  // Write the new position and save the last timestamp
+  pos_ = new_pos;
+  last_stamp_ = message.timestamp;
+
+  // Current RMS in mA, only available for closed_loop modules
+  if (controllerType == ControllerType::closed_loop) {
+    motor_current_ = (message.data[5] << 8) + message.data[6];
+  }
+
+  // Flags + DIN
+  std::bitset<8> flags_din = message.data[7];
+
+  bool referenced = flags_din[7];
+  bool aligened = flags_din[6];
+  // Bit 5 is unused
+
+  // NOTE: Bit 6 having this functionality on closed loop controllers is not mentioned in the docs
+  bool posRdyState = flags_din[4];
+
+  // NOTE: The inputs on the motor modules are not usable for the end-user
+  // We only read them to follow the protocol specifications
+  digital_in_[0] = flags_din[3];
+  digital_in_[1] = flags_din[2];
+  digital_in_[2] = flags_din[1];
+  digital_in_[3] = flags_din[0];
+
+  if (positioningReadyState != PositioningReadyState::not_implemented) {
+    positioningReadyState =
+      posRdyState ? PositioningReadyState::ready : PositioningReadyState::not_ready;
+  }
+
+  if (referenced) {
+    referenceState = ReferenceState::referenced;
+  } else if (referenceState == ReferenceState::referenced && !referenced) {
+    // If we were already referenced or not currently in the process of
+    // referencing a 0 in this status bit means we lost the reference.
+    // TODO: Can this happen in an actual scenario?
+    RCLCPP_WARN(
+      rclcpp::get_logger("iRC_ROS"),
+      "Module 0x%02x: Referencing: Set to unreferenced by referenced bit", can_id_);
+    // Temporary removed until made sure that this bit is set on all modules.
+    // referenceState = ReferenceState::unreferenced;
+  }
+
+  if (aligened) {
+    rotorAlignmentState = RotorAlignmentState::aligned;
+  } else if (rotorAlignmentState == RotorAlignmentState::aligned && !aligened) {
+    // TODO: Same status as the referenced bit
+    // referenceState = ReferenceState::unreferenced;
+  }
+}
+
+/**
+ * @brief Parses the output encoder position
+ */
+void Joint::encoder_message_callback(cprcan::bytevec data)
+{
+  encoder_pos_ = 100 * ((data[4] << 24) + (data[5] << 16) + (data[6] << 8) + data[7]);
+}
+
+/**
+ * @brief Parses the startup message, which can also be triggered by a ping message.
+ */
+void Joint::startup_message_callback(cprcan::bytevec data)
+{
+  RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Startup message received", can_id_);
+
+  uint8_t hwid = data[5];
+
+  if (hardware_id_map.count(hwid) == 0) {
+    hardwareIdent = HardwareIdent::unknown;
+    RCLCPP_INFO(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Unknown Hardware Ident 0x%02x", can_id_, hwid);
+  } else {
+    hardwareIdent = hardware_id_map.at(hwid);
+    RCLCPP_INFO(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Hardware Ident 0x%02x", can_id_, hwid);
+  }
+
+  version_[0] = data[6];
+  version_[1] = data[7];
+  if (version_[0] < 3) {
+    RCLCPP_WARN(
+      rclcpp::get_logger("iRC_ROS"),
+      "Module 0x%02x: Firmware version is %02x.%02x. This version is very outdated, please "
+      "update via ModuleControl",
+      can_id_, version_[0], version_[1]);
+
+    // Old versions do not support the ready to move bit
+    positioningReadyState = PositioningReadyState::not_implemented;
+
+  } else {
+    RCLCPP_INFO(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Firmware version is %02x.%02x", can_id_,
+      version_[0], version_[1]);
+  }
+}
+
+/**
+ * @brief Parses the environmental message.
+ */
+void Joint::environmental_message_callback(cprcan::bytevec data)
+{
+  // Supply voltage in mV
+  supply_voltage_ = (data[2] << 8) + data[3];
+
+  // The motor temperature sensor is not installed by default, which results in a reading of
+  // several hundred degrees celsius.
+  temperature_motor_ = temperature_scale_ * ((data[4] << 8) + data[5]);
+  temperature_board_ = temperature_scale_ * ((data[6] << 8) + data[7]);
+
+  RCLCPP_DEBUG(
+    rclcpp::get_logger("iRC_ROS"),
+    "Module 0x%02x: Environmental parameters: %i mV, Motor %.1lf °C, Board %.1lf °C", can_id_,
+    supply_voltage_, temperature_motor_, temperature_board_);
+}
+
+/**
  * @brief Reads the last can message for each of the can ids belonging to this module.
  */
 void Joint::read_can()
@@ -276,133 +492,15 @@ void Joint::read_can()
 
   // Standard response
   while (can_interface_->get_next_message(can_id_ + 1, message)) {
-    RCLCPP_DEBUG(
-      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Standard response received", can_id_);
-
-    // Error
-    std::bitset<8> error_code = message.data[0];
-    errorState.parse(error_code);
-
-    if (!(lastErrorState == errorState)) {
-      RCLCPP_INFO(
-        rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Errorcode: %s ", can_id_,
-        error_code.to_string().c_str());
-    }
-
-    lastErrorState = errorState;
-
-    // motorState = enabled but error -> motorState is outdated, set to disabled
-    // NOTE: COM error should not occur anymore since us reading the message means the keep
-    // alive signal is already being sent.
-    if (motorState == MotorState::enabled && errorState.any()) {
-      RCLCPP_INFO(
-        rclcpp::get_logger("iRC_ROS"),
-        "Module 0x%02x: Errors%s detected, motorstate set to disabled", can_id_,
-        errorState.str().c_str());
-
-      // As errors occurred the motor controller will have disabled the motors automcatically
-      // As such no disable_motor() call is required.
-      motorState = MotorState::disabled;
-    }
-
-    // Resetting and only MNE error? -> Reset is done
-    // TODO: Seems that MNE errors don't occur here, so any() instead of any_except_mne() is used
-    if (!errorState.any() && resetState != ResetState::reset) {
-      resetState = ResetState::reset;
-      RCLCPP_INFO(
-        rclcpp::get_logger("iRC_ROS"),
-        "Module 0x%02x: Reset appears to have been successful, no errors remaining", can_id_);
-    } else if (errorState.any() && resetState == ResetState::reset) {
-      resetState = ResetState::not_reset;
-      RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Reset required", can_id_);
-    }
-
-    // Position
-    int32_t position =
-      (message.data[1] << 24) + (message.data[2] << 16) + (message.data[3] << 8) + message.data[4];
-
-    // Converts motor tics to radians
-    double new_pos = (static_cast<double>(position) / (tics_over_degree_)) * (M_PI / 180.0);
-
-    // Calculate the velocity
-    std::chrono::duration<double> diff = message.timestamp - last_stamp_;
-    double delay = diff.count();
-
-    // Ignore wraparounds and div by 0
-    if (delay > 0.0) {
-      double new_vel = (new_pos - pos_) / delay;
-
-      // TODO: Velocity is of by factor 10, why?
-      new_vel *= 10.0;
-
-      velocity_buffer_.pop_back();
-      velocity_buffer_.push_front(new_vel);
-
-      double sum = 0.0;
-      for (int i = 0; i < velocity_buffer_size_; i++) {
-        sum += velocity_buffer_[i] * velocity_buffer_weights_[i];
-      }
-
-      vel_ = sum;
-    }
-
-    // Write the new position and save the last timestamp
-    pos_ = new_pos;
-    last_stamp_ = message.timestamp;
-
-    // Current RMS in mA, only available for closed_loop modules
-    if (controllerType == ControllerType::closed_loop) {
-      motor_current_ = (message.data[5] << 8) + message.data[6];
-    }
-
-    // Flags + DIN
-    std::bitset<8> flags_din = message.data[7];
-
-    bool referenced = flags_din[7];
-    bool aligened = flags_din[6];
-    // Bit 5 is unused
-
-    // NOTE: Bit 6 having this functionality on closed loop controllers is not mentioned in the docs
-    bool posRdyState = flags_din[4];
-
-    // NOTE: The inputs on the motor modules are not usable for the end-user
-    // We only read them to follow the protocol specifications
-    digital_in_[0] = flags_din[3];
-    digital_in_[1] = flags_din[2];
-    digital_in_[2] = flags_din[1];
-    digital_in_[3] = flags_din[0];
-
-    if (positioningReadyState != PositioningReadyState::not_implemented) {
-      positioningReadyState =
-        posRdyState ? PositioningReadyState::ready : PositioningReadyState::not_ready;
-    }
-
-    if (referenced) {
-      referenceState = ReferenceState::referenced;
-    } else if (referenceState == ReferenceState::referenced && !referenced) {
-      // If we were already referenced or not currently in the process of
-      // referencing a 0 in this status bit means we lost the reference
-      referenceState = ReferenceState::unreferenced;
-    }
-
-    if (aligened) {
-      rotorAlignmentState = RotorAlignmentState::aligned;
-    } else if (rotorAlignmentState == RotorAlignmentState::aligned && !aligened) {
-      // Same principle as for referenced above
-      referenceState = ReferenceState::unreferenced;
-    }
+    // Requires the timestamp, thus we TimedCanMessage instead of just the payload
+    standard_response_callback(message);
   }
 
   //control cmd received
+
   while (can_interface_->get_next_message(can_id_ + 2, message)) {
-    RCLCPP_DEBUG(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Control cmd received", can_id_);
-
     if (message.data == cprcan::reset_error_response) {
-      RCLCPP_INFO(
-        rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Error reset acknowledged", can_id_);
-
-      // Dont set it to finished quite yet, wait for the error bit to be 0;
-      // resetState = ResetState::reset;
+      reset_error_callback(message.data);
     } else if (message.data == cprcan::set_pos_to_zero_response_1) {
       set_position_to_zero_callback(message.data);
     } else if (message.data == cprcan::set_pos_to_zero_response_2) {
@@ -412,15 +510,9 @@ void Joint::read_can()
     } else if (message.data == cprcan::set_pos_to_zero_response_4) {
       set_position_to_zero_callback(message.data);
     } else if (message.data == cprcan::enable_motor_response) {
-      if (motorState != MotorState::enabled) {
-        RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Motor enabled", can_id_);
-        motorState = MotorState::enabled;
-      }
+      enable_motor_callback(message.data);
     } else if (message.data == cprcan::disable_motor_response) {
-      if (motorState != MotorState::disabled) {
-        RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Motor disabled", can_id_);
-        motorState = MotorState::disabled;
-      }
+      disable_motor_callback(message.data);
     } else if (message.data == cprcan::referencing_response_1) {
       referencing_callback(message.data);
     } else if (message.data == cprcan::referencing_response_2) {
@@ -432,46 +524,9 @@ void Joint::read_can()
     } else if (message.data == cprcan::rotor_alignment_response_2) {
       rotor_alignment_callback(message.data);
     } else if (cprcan::data_has_header(message.data, cprcan::encoder_msg_header)) {
-      // Output enc pos
-      encoder_pos_ = (message.data[4] << 24) + (message.data[5] << 16) + (message.data[6] << 8) +
-                     message.data[7];
-      encoder_pos_ *= 100;
+      encoder_message_callback(message.data);
     } else if (cprcan::data_has_header(message.data, cprcan::startup_msg_header)) {
-      // Startup message, can also be triggered by a ping message
-      RCLCPP_INFO(
-        rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Startup message received", can_id_);
-
-      uint8_t hwid = message.data[5];
-
-      if (hardware_id_map.count(hwid) == 0) {
-        hardwareIdent = HardwareIdent::unknown;
-        RCLCPP_INFO(
-          rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Unknown Hardware Ident 0x%02x", can_id_,
-          hwid);
-      } else {
-        hardwareIdent = hardware_id_map.at(hwid);
-        RCLCPP_INFO(
-          rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Hardware Ident 0x%02x", can_id_, hwid);
-      }
-
-      version_[0] = message.data[6];
-      version_[1] = message.data[7];
-      if (version_[0] < 3) {
-        RCLCPP_WARN(
-          rclcpp::get_logger("iRC_ROS"),
-          "Module 0x%02x: Firmware version is %02x.%02x. This version is very outdated, please "
-          "update via ModuleControl",
-          can_id_, version_[0], version_[1]);
-
-        // Old versions do not support the ready to move bit
-        positioningReadyState = PositioningReadyState::not_implemented;
-
-      } else {
-        RCLCPP_INFO(
-          rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Firmware version is %02x.%02x", can_id_,
-          version_[0], version_[1]);
-      }
-
+      startup_message_callback(message.data);
     } else if (cprcan::data_has_header(message.data, cprcan::extended_error_msg_header)) {
       // Extended error message
       // This message does not get handled since the contents are not
@@ -481,20 +536,7 @@ void Joint::read_can()
   }
   while (can_interface_->get_next_message(can_id_ + 3, message)) {
     if (cprcan::data_has_header(message.data, cprcan::environmental_msg_header)) {
-      // Environmental parameters
-
-      // Supply voltage in mV
-      supply_voltage_ = (message.data[2] << 8) + message.data[3];
-
-      // The motor temperature sensor is not installed by default, which results in a reading of
-      // several hundred degrees celsius.
-      temperature_motor_ = temperature_scale_ * ((message.data[4] << 8) + message.data[5]);
-      temperature_board_ = temperature_scale_ * ((message.data[6] << 8) + message.data[7]);
-
-      RCLCPP_DEBUG(
-        rclcpp::get_logger("iRC_ROS"),
-        "Module 0x%02x: Environmental parameters: %i mV, Motor %.1lf °C, Board %.1lf °C", can_id_,
-        supply_voltage_, temperature_motor_, temperature_board_);
+      environmental_message_callback(message.data);
     }
   }
 }
@@ -515,7 +557,12 @@ void Joint::write_can()
     // Start a heartbeat position command
     if (motorState != MotorState::enabled) {
       // Since the motor won't move yet and pos might not been read yet, send 0.0 as the goal.
-      set_pos_ = 0.0;
+      if (std::isnan(pos_)) {
+        set_pos_ = 0.0;
+      } else {
+        set_pos_ = pos_;
+      }
+
       position_cmd();
     }
 
@@ -528,11 +575,8 @@ void Joint::write_can()
       positioningReadyState != PositioningReadyState::not_ready) {
       // Ready to move
 
-      // Temporary workaround for not being able reference without the periodic signal
-      // TODO: Solve this better
-      if (referenceState == ReferenceState::unreferenced) {
-        referencing();
-      }
+      // Thus no more automatic resets
+      may_reset_ = false;
 
       if (commandMode == CommandMode::position && !std::isnan(set_pos_)) {
         position_cmd();
@@ -550,8 +594,14 @@ void Joint::write_can()
       // movement. If it didn't succeed the movement will lag behind a bit. Too much lag may
       // cause the motor to jerk and go into a LAG error.
 
-      // Try to reset errors and activate the motors.
-      prepare_movement();
+      // Try to reset errors and activate the motors. Only right after starting the loop
+      if (may_reset_) {
+        prepare_movement();
+      } else {
+        RCLCPP_ERROR(
+          rclcpp::get_logger("iRC_ROS"),
+          "Module 0x%02x: command mode set but no joint goal provided.", can_id_);
+      }
 
       if (commandMode == CommandMode::position) {
         // If the motor is already enabled or getting enabled, sending a position of 0 might cause

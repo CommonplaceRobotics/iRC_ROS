@@ -46,6 +46,14 @@ void Module::reset_error(bool force)
   }
 }
 
+void Module::reset_error_callback(cprcan::bytevec response)
+{
+  RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Error reset acknowledged", can_id_);
+
+  // Dont set it to finished quite yet, wait for the error bit to be 0;
+  // resetState = ResetState::reset;
+}
+
 /**
  * @brief Sends the enable message to the controller if the motor is not already
  * enabled. The state is then set to enabling, and will be set to enabled once
@@ -67,6 +75,14 @@ void Module::enable_motor()
     std::chrono::steady_clock::now() - motor_state_time_point_ > motor_state_timeout_) {
     motorState = MotorState::disabled;
     RCLCPP_WARN(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Enabling motor timed out", can_id_);
+  }
+}
+
+void Module::enable_motor_callback(cprcan::bytevec response)
+{
+  if (motorState != MotorState::enabled) {
+    RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Motor enabled", can_id_);
+    motorState = MotorState::enabled;
   }
 }
 
@@ -94,9 +110,16 @@ void Module::disable_motor()
   }
 }
 
+void Module::disable_motor_callback(cprcan::bytevec response)
+{
+  if (motorState != MotorState::disabled) {
+    RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Motor disabled", can_id_);
+    motorState = MotorState::disabled;
+  }
+}
 /**
  * @brief Sets the motor to a ready state. This means resetting any
- * non-fatal errors besides MNE and enabling the motors
+ * errors besides MNE and enabling the motors
  *
  * Contrary to its name it is also used to prepare the DIO modules, as it
  * contains the reset error calls.
@@ -106,26 +129,19 @@ void Module::disable_motor()
 void Module::prepare_movement()
 {
   // If we are in position mode save the current position as set_pos_,
-  // after reset enable it might have changed a bit.
+  // as after reset enable it might have changed a bit.
   if (commandMode == CommandMode::position) {
     set_pos_ = pos_;
   }
 
-  if (errorState.any()) {
-    if (!errorState.any_fatal()) {
-      RCLCPP_INFO(
-        rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Errors%s detected, resetting", can_id_,
-        errorState.str().c_str());
-      reset_error();
-    } else {
-      RCLCPP_ERROR(
-        rclcpp::get_logger("iRC_ROS"),
-        "Module 0x%02x: Fatal error among errors%s, please coldstart", can_id_,
-        errorState.str().c_str());
+  if (errorState.any_except_mne()) {
+    RCLCPP_INFO(
+      rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Errors%s detected, resetting", can_id_,
+      errorState.str().c_str());
 
-      // Resetting here won't help without force=true
-      // reset_error();
-    }
+    // We need to reset all errors when this is called after a command mode switch, as this causes
+    // COM errors, which are normally considered to be fatal errors.
+    reset_error(true);
   }
 
   if (motorState != MotorState::enabled) {

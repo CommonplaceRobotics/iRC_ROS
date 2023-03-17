@@ -92,11 +92,11 @@ enum class SetToZeroState {
  * continuusly from the status message.
  */
 enum class ReferenceState {
-  not_required,
-  unreferenced,
-  referencing_step1,
-  referencing_step2,
-  referenced,
+  not_required,       // Set for e.g. the ReBeL module, which does not need a referencing process
+  unreferenced,       // Initial state for modules which require referencing
+  referencing_step1,  // State after the first command is sent to the controller
+  referencing_step2,  // State after the second command is sent to the controller
+  referenced,         // Set either by the referenced bit or a referencing done message
 };
 
 /**
