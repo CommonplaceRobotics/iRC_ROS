@@ -22,7 +22,6 @@ public:
 
   int32_t encoder_pos_;
   double tics_over_degree_ = 1.0;  // [tics]/[deg]
-  ControllerType controllerType = ControllerType::undefined;
 
   bool is_ready_to_move() override;
 
