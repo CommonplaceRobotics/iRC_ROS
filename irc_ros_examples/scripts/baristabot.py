@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import rclpy
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 
@@ -39,16 +41,25 @@ class NavigationInterface:
 
             result = self.nav.getResult()
             if result == TaskResult.SUCCEEDED:
-                print("Goal succeeded!")
+                self.get_logger().info("Goal succeeded")
             elif result == TaskResult.CANCELED:
-                print("Goal was canceled!")
+                self.get_logger().info("Goal canceled")
             elif result == TaskResult.FAILED:
-                print("Goal failed!")
+                self.get_logger().info("Goal failed")
 
 class MoveItInterface:
     def __init__(self) -> None:
+        delay(10000)
         self.moveit_py_instance = MoveItPy(node_name="moveit_py")
         self.rebel = self.moveit_py_instance.get_planning_component("rebel_6dof")
+
+        self.frame_id = "base_link"
+
+        self.coffee_cup_dispenser = PoseStamped()
+        self.pose_serving_area.header.frame_id = self.frame_id
+        self.pose_serving_area.pose.position.x = 0.7
+        self.pose_serving_area.pose.position.y = 0.0
+        self.pose_serving_area.pose.position.z = 0.4 
 
     def move_to_pose(self, pose: PoseStamped):
         self.rebel.set_start_state_to_current_state()
@@ -73,12 +84,13 @@ if __name__ == '__main__':
         # TODO: Coffee ordered? (Via web ui?)
 
         # TODO: Grab empty cup
+        moveit_int.move_to_pose(moveit_int.coffee_cup_dispenser)
         # gripper_service.call(close)
 
         # TODO: No empty cups left? Notify assistant
         
         # Move to CM
-        nav_int.move_to_pose(nav_int.pose_coffee_maker)
+        #nav_int.move_to_pose(nav_int.pose_coffee_maker)
 
         # TODO: Bring empty cup in position
         #moveit_int.move_to_pose(moveit_int.pose_coffe_maker)
@@ -92,7 +104,7 @@ if __name__ == '__main__':
         # gripper_service.call(close)
     
         # Drive slowly to counter
-        nav_int.move_to_pose(nav_int.pose_serving_area)
+        #nav_int.move_to_pose(nav_int.pose_serving_area)
 
         # TODO: Place cup there
         #moveit_int.move_to_pose(moveit_int.pose_serving_tray)
