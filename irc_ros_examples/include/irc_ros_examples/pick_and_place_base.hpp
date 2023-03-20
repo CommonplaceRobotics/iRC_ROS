@@ -74,12 +74,14 @@ public:
    * @param move_group Pointer to the MoveGroupInterface that shall be used for the movement
    * @param posestamped The pose that should be moved to from the move_groups current position
    */
-  void lin(geometry_msgs::msg::PoseStamped posestamped, const double velocity_scale = 1.0, const double acceleration_scale = 1.0)
+  void lin(geometry_msgs::msg::PoseStamped posestamped, const double velocity_scale = 0.2, const double acceleration_scale = 0.2)
   {
     moveit_msgs::msg::RobotTrajectory trajectory;
-    const double jump_threshold = 0.00;
-    const double eef_step = 0.005;
+    const double jump_threshold = 1.40;
+    const double eef_step = 0.010;
     double fraction;
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     std::vector<geometry_msgs::msg::Pose> waypoints = {
       move_group->getCurrentPose().pose, posestamped.pose};
