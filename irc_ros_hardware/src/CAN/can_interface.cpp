@@ -178,10 +178,10 @@ void CanInterface::add_message_to_buffer(const TimedCanMessage & message)
   const std::lock_guard<std::mutex> lock(map_mutex_);
   message_buffer_[message.id].push(message);
   if (message_buffer_[message.id].size() > max_message_queue_size_) {
-    RCLCPP_WARN(rclcpp::get_logger("iRC_ROS::CAN"), "CAN ids 0x%02x message buffer has grown over max allowed size, dropping oldest message", message.id);
+    RCLCPP_DEBUG(rclcpp::get_logger("iRC_ROS::CAN"), "CAN ids 0x%02x message buffer has grown over max allowed size, dropping oldest message", message.id);
     message_buffer_[message.id].pop();
   } else if (message_buffer_[message.id].size() > warn_message_queue_size_) {
-    RCLCPP_WARN(rclcpp::get_logger("iRC_ROS::CAN"), "CAN ids 0x%02x message buffer is growing more than expected", message.id);
+    RCLCPP_DEBUG(rclcpp::get_logger("iRC_ROS::CAN"), "CAN ids 0x%02x message buffer is growing more than expected", message.id);
   } 
 }
 
