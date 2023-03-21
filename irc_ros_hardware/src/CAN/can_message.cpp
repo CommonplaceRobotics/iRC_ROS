@@ -19,7 +19,7 @@ namespace CAN
 CanMessage::CanMessage(CanMessageID id, std::vector<uint8_t> data) : id(id), data(data)
 {
   if (data.size() > 8) {
-    throw std::invalid_argument("invalid CAN message length");
+    throw std::invalid_argument("Invalid CAN message length");
   }
 }
 
@@ -33,7 +33,7 @@ CanMessage::CanMessage(CanMessageID id, std::vector<uint8_t> data) : id(id), dat
 CanMessage::CanMessage(CanMessageID id, size_t length, uint8_t * _data) : id(id)
 {
   if (length > 8) {
-    throw std::invalid_argument("invalid CAN message length");
+    throw std::invalid_argument("Invalid CAN message length");
   }
 
   for (size_t i = 0; i < length; i++) {
@@ -60,7 +60,7 @@ CanMessage::CanMessage(
 : id(id)
 {
   if (length > 8) {
-    throw std::invalid_argument("invalid CAN message length");
+    throw std::invalid_argument("Invalid CAN message length");
   }
 
   std::array<uint8_t, 8> _data = {data0, data1, data2, data3, data4, data5, data6, data7};
@@ -78,9 +78,10 @@ std::string CanMessage::to_string() const
 {
   std::stringstream ss;
   ss << std::setfill('0') << std::setw(2) << "0x" << std::hex << id << std::dec << "  ["
-     << std::setw(1) << data.size() << "] ";
-  for (int i = 0; i < data.size(); i++) {
-    ss << ' ' << std::setw(2) << std::hex << data[i];
+     << std::setw(1) << data.size() << "] " << std::setw(2) << std::hex;
+  // Implicitily cast the uint8_t to unsigned int, else it will be interpreted as an (ASCII) char
+  for (unsigned int i : data) {
+    ss << " " << i;
   }
   return ss.str();
 }
