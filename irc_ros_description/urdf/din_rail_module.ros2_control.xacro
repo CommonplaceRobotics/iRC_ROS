@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:macro name="din_rail_module" params="name can_id position_min position_max gear_scale continuous_last_joint=false referencing_required=false referencing_priority=0" >
+  <xacro:macro name="din_rail_module" params="name can_id position_min=0 position_max=0 gear_scale continuous_joint=false referencing_required=false referencing_priority=0" >
     <joint name="${name}">
       <command_interface name="position">
-        <xacro:unless value="${continuous_last_joint}">
+        <xacro:unless value="${continuous_joint}">
           <param name="min">${position_min}</param>
           <param name="max">${position_max}</param>
         </xacro:unless>
