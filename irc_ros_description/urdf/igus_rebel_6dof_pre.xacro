@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<robot xmlns:xacro="http://wiki.ros.org/xacro"
+<robot robot xmlns:xacro="https://wiki.ros.org/xacro"
        name="igus_rebel_6dof" >
   <link name="base_link">
     <visual>

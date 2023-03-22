@@ -1,6 +1,6 @@
 <!-- Nearly empty file to enable including no gripper via -->
 <!-- <xacro:include filename="$(find irc_ros_description)/urdf/gripper_$(arg gripper).urdf.xacro" /> -->
 <!-- Only requires the following line for xacro support and the definition of gripper_link -->
-<robot xmlns:xacro="http://wiki.ros.org/xacro">
+<robot robot xmlns:xacro="https://wiki.ros.org/xacro">
     <link name="gripper_mount" />
 </robot>

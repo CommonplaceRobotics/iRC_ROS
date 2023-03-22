@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="https://wiki.ros.org/xacro">
+  <xacro:macro name="din_rail_module" params="name can_id position_min position_max gear_scale continuous_last_joint=false referencing_required=false referencing_priority=0" >
+    <joint name="${name}">
+      <command_interface name="position">
+        <xacro:unless value="${continuous_last_joint}">
+          <param name="min">${position_min}</param>
+          <param name="max">${position_max}</param>
+        </xacro:unless>
+      </command_interface>
+      <command_interface name="velocity">
+        <param name="min">-2.16</param>
+        <param name="max">2.16</param>
+      </command_interface>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <param name="can_id">${can_id}</param>
+      <param name="gear_scale">${gear_scale}</param>
+      <param name="controller_type">open_loop</param>
+      <param name="referencing_required">"${referencing_required}"</param>
+      <param name="referencing_priority">${referencing_priority}</param>
+    </joint>
+  </xacro:macro>
+</robot>      
