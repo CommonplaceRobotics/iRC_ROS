@@ -1,11 +1,33 @@
 <?xml version="1.0" ?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="use_mock_hardware" default="true"/>
+  <xacro:arg name="use_gazebo" default="true"/>
+  <xacro:arg name="use_cprcanv2" default="false"/>
+  <xacro:arg name="use_cri" default="false"/>
+
+  <xacro:include filename="$(find irc_ros_description)/urdf/rebel_joint.ros2_control.xacro" />
+
+
   <ros2_control name="Rebel" type="system">
     <hardware>
-      <class>temp</class>
-      <plugin>irc_hardware/IrcRosCan</plugin>
-      <!-- <plugin>irc_hardware/IrcRosCri</plugin> -->
-      <param name="can_socket">can0</param>
+      <!-- <class>temp</class> -->
+      <xacro:if value="$(arg use_mock_hardware)">
+        <plugin>mock_components/GenericSystem</plugin>
+      </xacro:if>
+      <xacro:if value="$(arg use_gazebo)">
+        <hardware>
+          <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+        </hardware>
+      </xacro:if>
+      <xacro:unless value="$(arg use_mock_hardware)">
+        <xacro:if value="$(arg use_cprcanv2)">
+          <plugin>irc_hardware/IrcRosCan</plugin>
+          <param name="can_socket">can0</param>
+        </xacro:if>
+        <xacro:if value="$(arg use_cri)">
+          <plugin>irc_hardware/IrcRosCri</plugin>
+        </xacro:if>
+      </xacro:unless>
     </hardware>
     <joint name="joint1">
       <command_interface name="position">
@@ -16,8 +38,9 @@
         <param name="min">-2.16</param>
         <param name="max">2.16</param>
       </command_interface>
-      <!-- <command_interface name="torque"/> -->
-      <state_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
       <param name="gear_scale">1031.11</param>
       <param name="controller_type">closed_loop</param>
     </joint>
@@ -25,14 +48,15 @@
       <command_interface name="position">
         <!-- Difference with iRC files due to 30 degree offset in joint 2 and 3 -->
         <param name="min">${-pi*2/3}</param>
-        <param name="max">${pi*2/3}</param>
+        <param name="max">${pi*2/3}</param> 
       </command_interface>
       <command_interface name="velocity">
         <param name="min">-2.16</param>
         <param name="max">2.16</param>
       </command_interface>
-      <!-- <command_interface name="torque"/> -->
-      <state_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
       <param name="gear_scale">1031.11</param>
       <param name="controller_type">closed_loop</param>
     </joint>
@@ -45,8 +69,9 @@
         <param name="min">-2.16</param>
         <param name="max">2.16</param>
       </command_interface>
-      <!-- <command_interface name="torque"/> -->
-      <state_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
       <param name="gear_scale">1031.11</param>
       <param name="controller_type">closed_loop</param>
     </joint>
@@ -59,8 +84,9 @@
         <param name="min">-2.16</param>
         <param name="max">2.16</param>
       </command_interface>
-      <!-- <command_interface name="torque"/> -->
-      <state_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
       <param name="gear_scale">-1031.11</param>
       <param name="controller_type">closed_loop</param>
     </joint>
@@ -73,8 +99,9 @@
         <param name="min">-2.16</param>
         <param name="max">2.16</param>
       </command_interface>
-      <!-- <command_interface name="torque"/> -->
-      <state_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
       <param name="gear_scale">1031.11</param>
       <param name="controller_type">closed_loop</param>
     </joint>
@@ -89,8 +116,9 @@
         <param name="min">-2.16</param>
         <param name="max">2.16</param>
       </command_interface>
-      <!-- <command_interface name="torque"/> -->
-      <state_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
       <param name="gear_scale">-1031.11</param>
       <param name="controller_type">closed_loop</param>
     </joint>
