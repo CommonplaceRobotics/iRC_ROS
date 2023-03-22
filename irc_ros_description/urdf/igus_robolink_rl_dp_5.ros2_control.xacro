@@ -6,9 +6,7 @@
         <plugin>mock_components/GenericSystem</plugin>
       </xacro:if>
       <xacro:if value="$(arg use_gazebo)">
-        <hardware>
           <plugin>gazebo_ros2_control/GazeboSystem</plugin>
-        </hardware>
       </xacro:if>
       <xacro:unless value="$(arg use_mock_hardware)">
         <xacro:if value="$(arg use_cprcanv2)">
