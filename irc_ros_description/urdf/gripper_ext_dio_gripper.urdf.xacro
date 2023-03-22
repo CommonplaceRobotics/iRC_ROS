@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<robot robot xmlns:xacro="https://wiki.ros.org/xacro"
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
        name="cpr_platform_medium" >
 
   <xacro:include filename="$(find irc_ros_description)/urdf/gripper_ext_dio_gripper.xacro" />

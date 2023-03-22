@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
-<!-- <robot robot xmlns:xacro="https://wiki.ros.org/xacro"> -->
-<robot robot xmlns:xacro="https://wiki.ros.org/xacro"
+<!-- <robot xmlns:xacro="http://www.ros.org/wiki/xacro"> -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
        name="cpr_platform_medium" >
 
   <xacro:property name="base_height" value="0.05"/>
