@@ -86,6 +86,7 @@ def generate_launch_description():
             rebel_version,
             " gripper:=",
             gripper,
+            " use_cprcanv2:=true"
         ]
     )
 
