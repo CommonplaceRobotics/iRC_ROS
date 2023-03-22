@@ -22,8 +22,9 @@
 
   <!-- TODO -->
   <xacro:arg name="root_link" default="false" />
-  <xacro:include filename="$(find irc_ros_description)/urdf/igus_rebel_4dof_$(arg rebel_version).xacro" />
+  <xacro:arg name="prefix" default="" />
 
+  <xacro:include filename="$(find irc_ros_description)/urdf/igus_rebel_4dof_$(arg rebel_version).xacro" />
   <xacro:include filename="$(find irc_ros_description)/urdf/igus_rebel_4dof_$(arg rebel_version).ros2_control.xacro" />
 
   <link name="world" />

@@ -19,6 +19,8 @@
   issues can arise you may enable this -->
   <xacro:arg name="continuous_last_joint" default="false" />
 
+  <xacro:arg name="prefix" default="" />
+
   <xacro:include filename="$(find irc_ros_description)/urdf/igus_robolink_rl_dp_5.xacro" />
   <xacro:include filename="$(find irc_ros_description)/urdf/igus_robolink_rl_dp_5.ros2_control.xacro" />
   

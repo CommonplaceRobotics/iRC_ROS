@@ -8,7 +8,7 @@
     <param name="can_socket">can0</param> 
   </hardware>
  
-  <gpio name="dio_ext">
+  <gpio name="${prefix}dio_ext">
     <param name="can_id">0x90</param>
     <command_interface name="digital_output" size="7" data_type="bool" />
     <state_interface name="digital_input" size="7" data_type="bool" />

@@ -24,6 +24,7 @@
 
   <!-- TODO -->
   <xacro:arg name="root_link" default="false" />
+  <xacro:arg name="prefix" default="" />
 
   <xacro:include filename="$(find irc_ros_description)/urdf/igus_rebel_6dof_$(arg rebel_version).xacro" />
 
