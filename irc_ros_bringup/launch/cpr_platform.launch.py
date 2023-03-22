@@ -90,6 +90,7 @@ def generate_launch_description():
             FindExecutable(name="xacro"),
             " ",
             platform_urdf,
+            " use_cprcanv2:=true"
         ]
     )
 

@@ -33,6 +33,7 @@ def generate_launch_description():
             FindExecutable(name="xacro"),
             " ",
             xacro_file,
+            " use_cprcanv2:=true"
         ]
     )
 

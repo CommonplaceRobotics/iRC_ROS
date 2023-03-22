@@ -1,77 +1,41 @@
 <?xml version="1.0" ?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-
-<ros2_control name="igus_rebel_4dof" type="system">
-  <hardware>
-    <class>temp</class>
-    <plugin>irc_hardware/IrcRosCan</plugin>
-    <!-- <plugin>irc_hardware/IrcRosCri</plugin> -->
-    <!-- For CAN -->
-    <param name="can_socket">can0</param> 
-    <!-- For CRI -->
-    <param name="ip">192.168.3.11</param>
-  </hardware>
-  <joint name="joint1">
-    <command_interface name="position">
-      <param name="min">${-pi*179/180}</param>
-      <param name="max">${pi*179/180}</param>
-    </command_interface>
-    <command_interface name="velocity">
-      <param name="min">-2.16</param>
-      <param name="max">2.16</param>
-    </command_interface>
-    <!-- <command_interface name="torque"/> -->
-    <state_interface name="position"/>
-    <param name="gear_scale">-1031.11</param>
-    <param name="controller_type">closed_loop</param>
-    <param name="can_id">0x10</param>
-  </joint>
-  <joint name="joint2">
-    <command_interface name="position">
-      <param name="min">${-pi*2/3}</param>
-      <param name="max">${pi*2/3}</param>
-    </command_interface>
-    <command_interface name="velocity">
-      <param name="min">-2.16</param>
-      <param name="max">2.16</param>
-    </command_interface>
-    <!-- <command_interface name="torque"/> -->
-    <state_interface name="position"/>
-    <param name="gear_scale">1031.11</param>
-    <param name="controller_type">closed_loop</param>
-    <param name="can_id">0x20</param>
-  </joint>
-  <joint name="joint3">
-    <command_interface name="position">
-      <param name="min">${-pi*2/3}</param>
-      <param name="max">${pi*2/3}</param>
-    </command_interface>
-    <command_interface name="velocity">
-      <param name="min">-2.16</param>
-      <param name="max">2.16</param>
-    </command_interface>
-    <!-- <command_interface name="torque"/> -->
-    <state_interface name="position"/>
-    <param name="gear_scale">1031.11</param>
-    <param name="controller_type">closed_loop</param>
-    <param name="can_id">0x30</param>
-  </joint>
-  <joint name="joint4">
-    <command_interface name="position">
-      <xacro:unless value="$(arg continuous_last_joint)">
-        <param name="min">${-pi*19/36}</param>
-        <param name="max">${pi*19/36}</param>
+  <ros2_control name="igus_rebel_4dof" type="system">
+    <hardware>
+      <xacro:if value="$(arg use_mock_hardware)">
+        <plugin>mock_components/GenericSystem</plugin>
+      </xacro:if>
+      <xacro:if value="$(arg use_gazebo)">
+          <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+      </xacro:if>
+      <xacro:unless value="$(arg use_mock_hardware)">
+        <xacro:if value="$(arg use_cprcanv2)">
+          <plugin>irc_hardware/IrcRosCan</plugin>
+          <param name="can_socket">can0</param>
+        </xacro:if>
+        <xacro:if value="$(arg use_cri)">
+          <plugin>irc_hardware/IrcRosCri</plugin>
+          <param name="ip">192.168.3.11</param>
+        </xacro:if>
       </xacro:unless>
-    </command_interface>
-    <command_interface name="velocity">
-      <param name="min">-2.16</param>
-      <param name="max">2.16</param>
-    </command_interface>
-    <!-- <command_interface name="torque"/> -->
-    <state_interface name="position"/>
-    <param name="gear_scale">1031.11</param>
-    <param name="controller_type">closed_loop</param>
-    <param name="can_id">0x40</param>
-  </joint>
-</ros2_control>
+    </hardware>
+
+    <xacro:rebel_joint name="joint1" can_id="0x10" position_min="${-pi*179/180}" position_max="${pi*179/180}" gear_scale="-1031.11" />
+    <!-- Position limit difference with iRC files due to 30 degree offset in joint 2 and 3 -->
+    <xacro:rebel_joint name="joint2" can_id="0x20" position_min="${-pi*2/3}" position_max="${pi*2/3}" gear_scale="1031.11" />
+    <xacro:rebel_joint name="joint3" can_id="0x30" position_min="${-pi*2/3}" position_max="${pi*2/3}" gear_scale="1031.11" />
+    <xacro:rebel_joint name="joint4" can_id="0x40" position_min="${-pi*19/36}" position_max="${pi*19/36}" gear_scale="1031.11" continuous_last_joint="$(arg continuous_last_joint)" />
+
+    <gpio name="dio_base">
+      <param name="can_id">0x70</param>
+      <command_interface name="digital_output" size="7" data_type="bool" />
+      <state_interface name="digital_input" size="7" data_type="bool" />
+    </gpio>
+
+    <gpio name="dio_arm">
+      <param name="can_id">0x80</param>
+      <command_interface name="digital_output" size="2" data_type="bool" />
+      <state_interface name="digital_input" size="2" data_type="bool" />
+    </gpio>
+  </ros2_control>
 </robot>

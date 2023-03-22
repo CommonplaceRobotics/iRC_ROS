@@ -1,6 +1,14 @@
 <?xml version="1.0"?>
-<robot xmlns:xacro="http://wiki.ros.org/xacro"
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
        name="cpr_platform_medium" >
+
+  <!-- Controller settings -->  
+  <xacro:arg name="use_mock_hardware" default="false"/>
+  <xacro:arg name="use_gazebo" default="false"/>
+  <xacro:arg name="use_cprcanv2" default="false"/>
+  <xacro:arg name="use_cri" default="false"/>
+
+  <xacro:include filename="$(find irc_ros_description)/urdf/din_rail_module.ros2_control.xacro" />
 
   <xacro:include filename="$(find irc_ros_description)/urdf/cpr_platform_medium.xacro" />
   <xacro:include filename="$(find irc_ros_description)/urdf/cpr_platform_medium.ros2_control.xacro" />

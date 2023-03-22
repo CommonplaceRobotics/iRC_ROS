@@ -3,7 +3,6 @@
 
 <ros2_control name="gripper_ext_dio_gripper" type="system">
   <hardware>
-    <class>temp</class>
     <!-- Only works via CAN -->
     <plugin>irc_hardware/IrcRosCan</plugin>
     <param name="can_socket">can0</param> 
