@@ -3,9 +3,9 @@
        name="igus_rebel_4dof" >
 
   <!-- Controller settings -->  
-  <xacro:arg name="use_mock_hardware" default="true"/>
-  <xacro:arg name="use_gazebo" default="true"/>
-  <xacro:arg name="use_cprcanv2" default="false"/>
+  <xacro:arg name="use_mock_hardware" default="false"/>
+  <xacro:arg name="use_gazebo" default="false"/>
+  <xacro:arg name="use_cprcanv2" default="true"/>
   <xacro:arg name="use_cri" default="false"/>
 
   <xacro:include filename="$(find irc_ros_description)/urdf/rebel_joint.ros2_control.xacro" />
