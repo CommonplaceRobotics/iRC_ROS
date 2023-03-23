@@ -2,13 +2,13 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"
        name="rebel_on_platform" >
 
-  <xacro:include filename="$(find irc_ros_description)/urdf/igus_rebel_6dof.urdf.xacro"/>
+  <xacro:include filename="$(find irc_ros_description)/urdf/igus_rebel_6dof.urdf.xacro" prefix="rebel_1_" />
 
-  <xacro:include filename="$(find irc_ros_description)/urdf/cpr_platform_medium.urdf.xacro"/>
+  <xacro:include filename="$(find irc_ros_description)/urdf/cpr_platform_medium.urdf.xacro" prefix=""/>
 
   <joint name="platform_to_rebel" type="fixed">
-    <parent link="chassis" />
-    <child link = "base_link" />
+    <parent link="base_link" />
+    <child link="rebel_1_base_link" />
     <origin xyz="0.0 0.0 ${0.7-0.1}" rpy="0.0 0.0 ${-pi/6}" />
   </joint>
 </robot>

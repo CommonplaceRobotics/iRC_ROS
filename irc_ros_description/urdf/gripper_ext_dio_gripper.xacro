@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"
     name="gripper_ext_dio_gripper">
 
-  <link name="gripper_mount">
+  <link name="$(arg prefix)gripper_mount">
     <visual>
       <geometry>
         <cylinder radius="0.035" length="0.01"/>
@@ -21,13 +21,13 @@
     </inertial>
   </link>
 
-  <joint name="gripper_mount_joint" type="fixed">
-    <parent link="gripper_mount" />
-    <child link="gripper_base" />
+  <joint name="$(arg prefix)gripper_mount_joint" type="fixed">
+    <parent link="$(arg prefix)gripper_mount" />
+    <child link="$(arg prefix)gripper_base" />
     <origin xyz="0.01 0.0 0.0" rpy="0.0 0.0 0.0" />
   </joint>
 
-  <link name="gripper_base">
+  <link name="$(arg prefix)gripper_base">
     <visual>
       <geometry>
         <mesh filename="package://irc_ros_description/meshes/gripper_schmalz_ecbpmi/Joint0.dae"/>
@@ -45,13 +45,13 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="joint99" type="fixed">
-    <parent link="gripper_base"/>
-    <child link="tcp"/>
+  <joint name="$(arg prefix)joint99" type="fixed">
+    <parent link="$(arg prefix)gripper_base"/>
+    <child link="$(arg prefix)tcp"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.07341 0.0 0.0"/>
     <axis xyz="0 0 0"/>
   </joint>
-  <link name="tcp">
+  <link name="$(arg prefix)tcp">
     <inertial>
       <mass value="0.1"/>
       <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>

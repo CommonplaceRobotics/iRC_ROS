@@ -15,7 +15,7 @@ cpr_platform_controller:
     right_wheel_names: ["joint_wheel_2"]
 
     odom_frame_id: odom
-    base_frame_id: chassis
+    base_frame_id: base_link
 
     enable_odom_tf: true    
 

@@ -35,16 +35,16 @@
 
     <joint name="world_joint" type="fixed">
       <parent link="world" />
-      <child link = "base_link" />
+      <child link = "$(arg prefix)base_link" />
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
     </joint>
   </xacro:if>
 
   <!-- Grippers -->
 
-  <joint name="hand_to_gripper" type="fixed">
-    <parent link="hand" />
-    <child link = "gripper_mount" />
+  <joint name="$(arg prefix)hand_to_gripper" type="fixed">
+    <parent link="$(arg prefix)hand" />
+    <child link = "$(arg prefix)gripper_mount" />
     <origin xyz="0.0 0.0 0.0" rpy="0.0 ${-pi/2} 0.0" />
   </joint>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"
        name="igus_rebel_4dof" >
-  <link name="base_link">
+  <link name="$(arg prefix)base_link">
     <visual>
       <geometry>
         <mesh filename="package://irc_ros_description/meshes/igus_rebel_4dof_00/Joint0.dae"/>
@@ -17,14 +17,14 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="joint1" type="revolute">
-    <parent link="base_link"/>
-    <child link="link_1"/>
+  <joint name="$(arg prefix)joint1" type="revolute">
+    <parent link="$(arg prefix)base_link"/>
+    <child link="$(arg prefix)link_1"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.100"/>
     <axis xyz="0 0 -1"/>
     <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="2.16"/>
   </joint>
-  <link name="link_1">
+  <link name="$(arg prefix)link_1">
     <visual>
       <geometry>
         <mesh filename="package://irc_ros_description/meshes/igus_rebel_4dof_00/Joint1.dae"/>
@@ -42,14 +42,14 @@
       <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
     </inertial>
   </link>
-  <joint name="joint2" type="revolute">
-    <parent link="link_1"/>
-    <child link="link_2"/>
+  <joint name="$(arg prefix)joint2" type="revolute">
+    <parent link="$(arg prefix)link_1"/>
+    <child link="$(arg prefix)link_2"/>
     <origin rpy="0.0 ${pi/6} 0.0" xyz="0.0 0 0.149"/>
     <axis xyz="0 1 0"/>
     <limit effort="330.0" lower="${-pi*2/3}" upper="${pi*2/3}" velocity="2.16"/>
   </joint>
-  <link name="link_2">
+  <link name="$(arg prefix)link_2">
     <visual>
       <geometry>
         <mesh filename="package://irc_ros_description/meshes/igus_rebel_4dof_00/Joint2.dae"/>
@@ -67,14 +67,14 @@
       <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
     </inertial>
   </link>
-  <joint name="joint3" type="revolute">
-    <parent link="link_2"/>
-    <child link="link_3"/>
+  <joint name="$(arg prefix)joint3" type="revolute">
+    <parent link="$(arg prefix)link_2"/>
+    <child link="$(arg prefix)link_3"/>
     <origin rpy="0.0 ${pi/6} 0.0" xyz="0.0 0.0 0.2384"/> 
     <axis xyz="0 1 0"/>
     <limit effort="330.0" lower="${-pi*2/3}" upper="${pi*2/3}" velocity="2.16"/>
   </joint>
-  <link name="link_3">
+  <link name="$(arg prefix)link_3">
     <visual>
       <geometry>
         <mesh filename="package://irc_ros_description/meshes/igus_rebel_4dof_00/Joint3.dae"/>
@@ -93,24 +93,24 @@
     </inertial>
   </link>
   <xacro:if value="$(arg continuous_last_joint)">
-    <joint name="joint4" type="continuous">
-      <parent link="link_3"/>
-      <child link="link_4"/>
+    <joint name="$(arg prefix)joint4" type="continuous">
+      <parent link="$(arg prefix)link_3"/>
+      <child link="$(arg prefix)link_4"/>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.2423"/>
       <axis xyz="0 -1 0"/>
       <limit effort="330.0" velocity="2.16"/>
     </joint>
   </xacro:if>
   <xacro:unless value="$(arg continuous_last_joint)">
-    <joint name="joint4" type="revolute">
-      <parent link="link_3"/>
-      <child link="link_4"/>
+    <joint name="$(arg prefix)joint4" type="revolute">
+      <parent link="$(arg prefix)link_3"/>
+      <child link="$(arg prefix)link_4"/>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.2423"/>
       <axis xyz="0 -1 0"/>
       <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="2.16"/>
     </joint>
   </xacro:unless>
-  <link name="link_4">
+  <link name="$(arg prefix)link_4">
     <visual>
       <geometry>
         <mesh filename="package://irc_ros_description/meshes/igus_rebel_4dof_00/Joint4.dae"/>
@@ -128,26 +128,26 @@
       <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
     </inertial>
   </link>
-  <joint name="joint5" type="fixed">
-    <parent link="link_4"/>
-    <child link="hand"/>
+  <joint name="$(arg prefix)joint5" type="fixed">
+    <parent link="$(arg prefix)link_4"/>
+    <child link="$(arg prefix)hand"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.062"/>
     <axis xyz="0 -1 0"/>
   </joint>
-  <link name="hand">
+  <link name="$(arg prefix)hand">
     <inertial>
       <mass value="0.1"/>
       <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
     </inertial>
   </link>
 
-  <gpio name="dio_base">
+  <gpio name="$(arg prefix)dio_base">
     <param name="can_id">0x70</param>
     <command_interface name="digital_output" size="7" data_type="bool" />
     <state_interface name="digital_input" size="7" data_type="bool" />
   </gpio>
 
-  <gpio name="dio_arm">
+  <gpio name="$(arg prefix)dio_arm">
     <param name="can_id">0x80</param>
     <command_interface name="digital_output" size="2" data_type="bool" />
     <state_interface name="digital_input" size="2" data_type="bool" />

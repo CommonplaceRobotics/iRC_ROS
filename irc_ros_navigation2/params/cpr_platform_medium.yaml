@@ -2,7 +2,7 @@ slam_toolbox:
   ros__parameters:
     odom_frame: "odom"
     map_frame: "map"
-    base_frame: "chassis"
+    base_frame: "base_link"
 
 
 amcl:
@@ -13,7 +13,7 @@ amcl:
     alpha3: 0.2
     alpha4: 0.2
     alpha5: 0.2
-    base_frame_id: "chassis"
+    base_frame_id: "base_link"
     beam_skip_distance: 0.5
     beam_skip_error_threshold: 0.9
     beam_skip_threshold: 0.3
@@ -58,7 +58,7 @@ bt_navigator:
   ros__parameters:
     use_sim_time: False
     global_frame: map
-    robot_base_frame: chassis
+    robot_base_frame: base_link
     odom_topic: /odom
     default_bt_xml_filename: "navigate_w_recovery_and_replanning_only_if_path_becomes_invalid.xml" #"navigate_w_replanning_and_recovery.xml"
     bt_loop_duration: 10
@@ -175,7 +175,7 @@ controller_server:
 behavior_server:
   ros__parameters:
     global_frame: odom
-    robot_base_frame: chassis
+    robot_base_frame: base_link
 
 controller_server_rclcpp_node:
   ros__parameters:
@@ -187,7 +187,7 @@ local_costmap:
       update_frequency: 2.0
       publish_frequency: 1.0
       global_frame: odom
-      robot_base_frame: chassis
+      robot_base_frame: base_link
       use_sim_time: False
       rolling_window: true
       width: 6
@@ -246,7 +246,7 @@ global_costmap:
       update_frequency: 1.0
       publish_frequency: 1.0
       global_frame: map
-      robot_base_frame: chassis
+      robot_base_frame: base_link
       use_sim_time: False
       robot_radius: 0.5 # TODO:
       resolution: 0.05
@@ -342,7 +342,7 @@ recoveries_server:
     wait:
       plugin: "nav2_recoveries/Wait"
     global_frame: odom
-    robot_base_frame: chassis
+    robot_base_frame: base_link
     transform_timeout: 0.1
     use_sim_time: False
     simulate_ahead_time: 2.0
