@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:macro name="rebel_joint" params="name can_id="" position_min=0 position_max=0 gear_scale=1 continuous_joint=false">
+  <xacro:macro name="rebel_joint" params="name can_id position_min=0 position_max=0 gear_scale=1 continuous_joint=false">
     <joint name="${name}">
       <command_interface name="position">
         <xacro:unless value="${continuous_joint}">

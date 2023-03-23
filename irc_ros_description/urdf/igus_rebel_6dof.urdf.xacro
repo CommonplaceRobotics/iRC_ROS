@@ -8,7 +8,6 @@
   <xacro:arg name="use_cprcanv2" default="false"/>
   <xacro:arg name="use_cri" default="false"/>
 
-
   <xacro:include filename="$(find irc_ros_description)/urdf/rebel_joint.ros2_control.xacro" />
 
   <!-- (Internal) hardware selection  -->
