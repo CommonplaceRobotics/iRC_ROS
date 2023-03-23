@@ -3,16 +3,15 @@
 
 <ros2_control name="gripper_ext_dio_gripper" type="system">
   <hardware>
-    <!-- Only works via CAN -->
+    <!-- This gripper only works via CAN -->
     <plugin>irc_hardware/IrcRosCan</plugin>
     <param name="can_socket">can0</param> 
   </hardware>
  
-  <gpio name="$(arg prefix)dio_ext">
+  <gpio name="${prefix}dio_ext">
     <param name="can_id">0x90</param>
     <command_interface name="digital_output" size="7" data_type="bool" />
     <state_interface name="digital_input" size="7" data_type="bool" />
   </gpio>
-
 </ros2_control>
 </robot>

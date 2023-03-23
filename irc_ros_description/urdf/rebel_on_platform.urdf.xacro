@@ -2,9 +2,17 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"
        name="rebel_on_platform" >
 
-  <xacro:include filename="$(find irc_ros_description)/urdf/igus_rebel_6dof.urdf.xacro" prefix="rebel_1_" />
+  <!-- Controller settings -->  
+  <xacro:arg name="use_mock_hardware" default="false"/>
+  <xacro:arg name="use_gazebo" default="false"/>
+  <xacro:arg name="use_cprcanv2" default="false"/>
+  <xacro:arg name="use_cri" default="false"/>
 
-  <xacro:include filename="$(find irc_ros_description)/urdf/cpr_platform_medium.urdf.xacro" prefix=""/>
+  <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_rebel_6dof.macro.xacro"/>
+  <xacro:include filename="$(find irc_ros_description)/urdf/platforms/cpr_platform_medium.macro.xacro"/>
+
+  <xacro:igus_rebel_6dof prefix="rebel_1_" rebel_version="01" />
+  <xacro:cpr_platform_medium prefix="" />
 
   <joint name="platform_to_rebel" type="fixed">
     <parent link="base_link" />

@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"
        name="igus_rebel_4dof" >
 
-  <!-- Controller settings -->  
+  <!-- Controller settings, only enable a single one in the launch file -->  
   <xacro:arg name="use_mock_hardware" default="false"/>
   <xacro:arg name="use_gazebo" default="false"/>
   <xacro:arg name="use_cprcanv2" default="false"/>
@@ -10,10 +10,11 @@
 
   <xacro:include filename="$(find irc_ros_description)/urdf/rebel_joint.ros2_control.xacro" />
 
-  <!-- (Internal) hardware selection  -->
+  <!-- Rebel version selection  -->
   <xacro:arg name="rebel_version" default="01" />
+
   <!-- Gripper selection -->
-  <xacro:arg name="gripper" default="schmalz_ecbpmi" />
+  <xacro:arg name="gripper" default="none" />
 
   <!-- Enable continuous rotation on the last join. While the last axis can turn continuously,
   it is limited here in case a tool with wiring is mounted. If you are certain that no wiring
