@@ -11,6 +11,6 @@
   <xacro:arg name="prefix" default="" />
 
   <xacro:include filename="$(find irc_ros_description)/urdf/platforms/cpr_platform_medium.macro.xacro" />
-  <xacro:cpr_platform_medium prefix="${prefix}" />
+  <xacro:cpr_platform_medium prefix="$(arg prefix)" />
 
 </robot>
