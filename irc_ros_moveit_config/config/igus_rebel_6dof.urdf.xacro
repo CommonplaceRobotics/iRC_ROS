@@ -3,16 +3,18 @@
        name="igus_rebel_6dof" >
 
   <!-- Controller settings -->  
-  <xacro:arg name="use_mock_hardware" default="false"/>
+  <xacro:arg name="use_mock_hardware" default="true"/>
   <xacro:arg name="use_gazebo" default="false"/>
-  <xacro:arg name="use_cprcanv2" default="true"/>  <!-- Default differs in this launch file -->
+  <xacro:arg name="use_cprcanv2" default="false"/>  <!-- Default differs in this launch file -->
   <xacro:arg name="use_cri" default="false"/>
-
-
-  <xacro:include filename="$(find irc_ros_description)/urdf/rebel_joint.ros2_control.xacro" />
 
   <!-- (Internal) hardware selection  -->
   <xacro:arg name="rebel_version" default="00" />
+
+  <!-- Prefix used for all joints and links, required for multi-robot setups!
+  Only change this over the launch file parameters, so the rest of the stack
+  knows what joint names to look for. -->
+  <xacro:arg name="prefix" default="" />
 
   <!-- Gripper selection -->
   <xacro:arg name="gripper" default="none" />
@@ -24,9 +26,8 @@
 
   <xacro:arg name="root_link" default="true" />
 
-  <xacro:include filename="$(find irc_ros_description)/urdf/igus_rebel_6dof_$(arg rebel_version).xacro" />
-
-  <xacro:include filename="$(find irc_ros_description)/urdf/igus_rebel_6dof_$(arg rebel_version).ros2_control.xacro" />
+  <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_rebel_6dof.macro.xacro" />
+  <xacro:igus_rebel_6dof prefix="$(arg prefix)" continuous_last_joint="$(arg continuous_last_joint)" rebel_version="'$(arg rebel_version)'" />
 
   <xacro:if value="$(arg root_link)">
     <link name="world" />
@@ -39,13 +40,10 @@
   </xacro:if>
 
   <!-- Grippers -->
-
-  <joint name="hand_to_gripper" type="fixed">
-    <parent link="hand" />
-    <child link = "gripper_mount" />
+  <xacro:include filename="$(find irc_ros_description)/urdf/grippers/$(arg gripper).urdf.xacro" />
+  <joint name="$(arg prefix)flange_to_gripper" type="fixed">
+    <parent link="$(arg prefix)flange" />
+    <child link = "$(arg prefix)gripper_mount" />
     <origin xyz="0.0 0.0 0.0" rpy="0.0 ${-pi/2} 0.0" />
   </joint>
-
-  <xacro:include filename="$(find irc_ros_description)/urdf/gripper_$(arg gripper).urdf.xacro" />
-
 </robot>
