@@ -6,9 +6,9 @@
   <xacro:include filename="$(find irc_ros_description)/urdf/platforms/cpr_platform_medium.description.xacro" />
   <xacro:include filename="$(find irc_ros_description)/urdf/platforms/cpr_platform_medium.ros2_control.xacro" />
 
-  <xacro:macro name="cpr_platform_medium" params="prefix">
+  <xacro:macro name="cpr_platform_medium" params="prefix controller_type">
     <!-- Call macros once -->
     <xacro:cpr_platform_medium_description prefix="${prefix}"/>
-    <xacro:cpr_platform_medium_ros2_control prefix="${prefix}" />
+    <xacro:cpr_platform_medium_ros2_control prefix="${prefix}" controller_type="${controller_type}"/>
   </xacro:macro>
 </robot>

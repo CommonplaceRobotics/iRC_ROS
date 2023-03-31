@@ -3,12 +3,7 @@
        name="igus_rebel_4dof" >
 
   <!-- Controller settings, only enable a single one in the launch file -->  
-  <xacro:arg name="use_mock_hardware" default="false"/>
-  <xacro:arg name="use_gazebo" default="false"/>
-  <xacro:arg name="use_cprcanv2" default="false"/>
-  <xacro:arg name="use_cri" default="false"/>
-
-  <xacro:include filename="$(find irc_ros_description)/urdf/rebel_joint.ros2_control.xacro" />
+  <xacro:arg name="controller_type" default="mock_hardware"/>
 
   <!-- Rebel version selection  -->
   <xacro:arg name="rebel_version" default="01" />
@@ -21,28 +16,32 @@
   issues can arise you may enable this -->
   <xacro:arg name="continuous_last_joint" default="false" />
 
-  <!-- TODO -->
-  <xacro:arg name="root_link" default="false" />
+  <!-- Prefix used for all joints and links, required for multi-robot setups!
+  Only change this over the launch file parameters, so the rest of the stack
+  knows what joint names to look for. -->
   <xacro:arg name="prefix" default="" />
 
-  <xacro:include filename="$(find irc_ros_description)/urdf/igus_rebel_4dof_$(arg rebel_version).xacro" />
-  <xacro:include filename="$(find irc_ros_description)/urdf/igus_rebel_4dof_$(arg rebel_version).ros2_control.xacro" />
+  <!-- Gripper selection -->
+  <xacro:arg name="gripper" default="none" />
 
+  <!-- Include and call relevant macro -->
+  <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_rebel_4dof.macro.xacro" />
+  <xacro:igus_rebel_4dof prefix="$(arg prefix)" continuous_last_joint="$(arg continuous_last_joint)" rebel_version="'$(arg rebel_version)'" controller_type="$(arg controller_type)" />
+
+  <!-- Add world link -->
   <link name="world" />
-
-  <joint name="world_joint" type="fixed">
+  <joint name="world_to_$(arg prefix)base" type="fixed">
     <parent link="world" />
     <child link = "$(arg prefix)base_link" />
     <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
   </joint>
 
   <!-- Grippers -->
-  <joint name="$(arg prefix)hand_to_gripper" type="fixed">
-    <parent link="$(arg prefix)hand" />
+  <xacro:include filename="$(find irc_ros_description)/urdf/grippers/$(arg gripper).urdf.xacro" />
+  <joint name="$(arg prefix)flange_to_gripper" type="fixed">
+    <parent link="$(arg prefix)flange" />
     <child link = "$(arg prefix)gripper_mount" />
     <origin xyz="0.0 0.0 0.0" rpy="0.0 ${-pi/2} 0.0" />
   </joint>
-
-  <xacro:include filename="$(find irc_ros_description)/urdf/gripper_$(arg gripper).urdf.xacro" />
 
 </robot>

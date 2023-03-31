@@ -93,7 +93,7 @@
         <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
       </inertial>
     </link>
-    <xacro:if value="$(arg continuous_last_joint)">
+    <xacro:if value="${continuous_last_joint}">
       <joint name="${prefix}joint4" type="continuous">
         <parent link="${prefix}link_3"/>
         <child link="${prefix}link_4"/>
@@ -102,7 +102,7 @@
         <limit effort="330.0" velocity="2.16"/>
       </joint>
     </xacro:if>
-    <xacro:unless value="$(arg continuous_last_joint)">
+    <xacro:unless value="${continuous_last_joint}">
       <joint name="${prefix}joint4" type="revolute">
         <parent link="${prefix}link_3"/>
         <child link="${prefix}link_4"/>
@@ -131,11 +131,11 @@
     </link>
     <joint name="${prefix}joint5" type="fixed">
       <parent link="${prefix}link_4"/>
-      <child link="${prefix}hand"/>
+      <child link="${prefix}flange"/>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.062"/>
       <axis xyz="0 -1 0"/>
     </joint>
-    <link name="${prefix}hand">
+    <link name="${prefix}flange">
       <inertial>
         <mass value="0.1"/>
         <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>

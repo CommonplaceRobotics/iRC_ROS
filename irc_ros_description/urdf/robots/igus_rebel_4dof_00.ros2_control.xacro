@@ -1,20 +1,20 @@
 <?xml version="1.0" ?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:macro name="igus_rebel_4dof_00_ros2_control" params="prefix continuous_last_joint">
+  <xacro:macro name="igus_rebel_4dof_00_ros2_control" params="prefix controller_type continuous_last_joint">
     <ros2_control name="igus_rebel_4dof" type="system">
       <hardware>
-        <xacro:if value="$(arg use_mock_hardware)">
+        <xacro:if value="${controller_type == 'mock_hardware'}">
           <plugin>mock_components/GenericSystem</plugin>
         </xacro:if>
-        <xacro:if value="$(arg use_gazebo)">
+        <xacro:if value="${controller_type == 'gazebo'}">
             <plugin>gazebo_ros2_control/GazeboSystem</plugin>
         </xacro:if>
-        <xacro:unless value="$(arg use_mock_hardware)">
-          <xacro:if value="$(arg use_cprcanv2)">
+        <xacro:unless value="${controller_type == 'mock_hardware'}">
+          <xacro:if value="${controller_type == 'cprcanv2'}">
             <plugin>irc_hardware/IrcRosCan</plugin>
             <param name="can_socket">can0</param>
           </xacro:if>
-          <xacro:if value="$(arg use_cri)">
+          <xacro:if value="${controller_type == 'cri'}">
             <plugin>irc_hardware/IrcRosCri</plugin>
             <param name="ip">192.168.3.11</param>
           </xacro:if>
@@ -28,7 +28,7 @@
       <!-- Position limit difference with iRC files due to 30 degree offset in joint 2 and 3 -->
       <xacro:rebel_joint name="${prefix}joint2" can_id="0x20" position_min="${-pi*2/3}" position_max="${pi*2/3}" gear_scale="1031.11" />
       <xacro:rebel_joint name="${prefix}joint3" can_id="0x30" position_min="${-pi*2/3}" position_max="${pi*2/3}" gear_scale="1031.11" />
-      <xacro:rebel_joint name="${prefix}joint4" can_id="0x40" position_min="${-pi*19/36}" position_max="${pi*19/36}" gear_scale="1031.11" continuous_last_joint="$(arg continuous_last_joint)" />
+      <xacro:rebel_joint name="${prefix}joint4" can_id="0x40" position_min="${-pi*19/36}" position_max="${pi*19/36}" gear_scale="1031.11" continuous_joint="${continuous_last_joint}" />
 
       <gpio name="${prefix}dio_base">
         <param name="can_id">0x70</param>

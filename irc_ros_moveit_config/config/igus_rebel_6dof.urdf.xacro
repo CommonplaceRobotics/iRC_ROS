@@ -3,10 +3,7 @@
        name="igus_rebel_6dof" >
 
   <!-- Controller settings -->  
-  <xacro:arg name="use_mock_hardware" default="true"/>
-  <xacro:arg name="use_gazebo" default="false"/>
-  <xacro:arg name="use_cprcanv2" default="false"/>  <!-- Default differs in this launch file -->
-  <xacro:arg name="use_cri" default="false"/>
+  <xacro:arg name="controller_type" default="mock_hardware"/>
 
   <!-- (Internal) hardware selection  -->
   <xacro:arg name="rebel_version" default="00" />
@@ -27,7 +24,7 @@
   <xacro:arg name="root_link" default="true" />
 
   <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_rebel_6dof.macro.xacro" />
-  <xacro:igus_rebel_6dof prefix="$(arg prefix)" continuous_last_joint="$(arg continuous_last_joint)" rebel_version="'$(arg rebel_version)'" />
+  <xacro:igus_rebel_6dof prefix="$(arg prefix)" continuous_last_joint="$(arg continuous_last_joint)" rebel_version="'$(arg rebel_version)'"  controller_type="$(arg controller_type)" />
 
   <xacro:if value="$(arg root_link)">
     <link name="world" />

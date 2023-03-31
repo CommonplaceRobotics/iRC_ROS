@@ -3,10 +3,7 @@
        name="igus_rebel_6dof" >
 
   <!-- Controller settings, only enable a single one in the launch file -->  
-  <xacro:arg name="use_mock_hardware" default="false"/>
-  <xacro:arg name="use_gazebo" default="false"/>
-  <xacro:arg name="use_cprcanv2" default="false"/>
-  <xacro:arg name="use_cri" default="false"/>
+  <xacro:arg name="controller_type" default="mock_hardware"/>
 
   <!-- Rebel version selection  -->
   <xacro:arg name="rebel_version" default="01" />
@@ -26,7 +23,7 @@
 
   <!-- Include and call relevant macro -->
   <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_rebel_6dof.macro.xacro" />
-  <xacro:igus_rebel_6dof prefix="$(arg prefix)" continuous_last_joint="$(arg continuous_last_joint)" rebel_version="'$(arg rebel_version)'" />
+  <xacro:igus_rebel_6dof prefix="$(arg prefix)" continuous_last_joint="$(arg continuous_last_joint)" rebel_version="'$(arg rebel_version)'" controller_type="$(arg controller_type)" />
 
   <!-- Add world link -->
   <link name="world" />
@@ -43,6 +40,5 @@
     <child link = "$(arg prefix)gripper_mount" />
     <origin xyz="0.0 0.0 0.0" rpy="0.0 ${-pi/2} 0.0" />
   </joint>
-
 
 </robot>
