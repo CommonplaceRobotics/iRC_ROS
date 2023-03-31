@@ -77,7 +77,7 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        hand:
+        flange:
           Alpha: 1
           Show Axes: false
           Show Trail: false
