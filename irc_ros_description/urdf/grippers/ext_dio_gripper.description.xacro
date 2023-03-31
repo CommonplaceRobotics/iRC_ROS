@@ -2,7 +2,12 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"
        name="gripper_ext_dio_gripper">
 
-  <xacro:macro name="gripper_ext_dio_gripper" params="prefix">
+  <xacro:macro name="ext_dio_gripper_description" params="prefix parent_link">
+    <joint name="${prefix}flange_to_gripper" type="fixed">
+      <parent link="${parent_link}" />
+      <child link = "${prefix}gripper_mount" />
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 ${-pi/2} 0.0" />
+    </joint>
     <link name="${prefix}gripper_mount">
       <visual>
         <geometry>

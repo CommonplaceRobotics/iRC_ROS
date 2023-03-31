@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="grippers" >
+  
+  <!-- Include all gripper macros -->
+  <xacro:include filename="$(find irc_ros_description)/urdf/grippers/ext_dio_gripper.description.xacro" />
+  <xacro:include filename="$(find irc_ros_description)/urdf/grippers/ext_dio_gripper.ros2_control.xacro" />
+
+  <xacro:include filename="$(find irc_ros_description)/urdf/grippers/schmalz_ecbpmi.description.xacro" />
+
+  <xacro:macro name="gripper" params="prefix gripper_type parent_link">
+    <!-- Call macros once -->
+    <xacro:if value="${gripper_type == 'ext_dio_gripper'}">
+      <xacro:ext_dio_gripper_description prefix="${prefix}" parent_link="${parent_link}" />
+      <xacro:ext_dio_gripper_ros2_control prefix="${prefix}" parent_link="${parent_link}" />
+    </xacro:if>
+    <xacro:if value="${gripper_type == 'schmalz_ecbpmi'}">
+      <xacro:schmalz_ecbpmi_description prefix="${prefix}" parent_link="${parent_link}" />
+    </xacro:if>
+    <xacro:if value="${gripper_type == 'none'}">
+    </xacro:if>
+  </xacro:macro>
+</robot>
