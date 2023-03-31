@@ -17,6 +17,7 @@ def generate_launch_description():
     default_urdf_filename_arg = DeclareLaunchArgument(
         "default_urdf_filename",
         default_value=[LaunchConfiguration("robot_name"), ".urdf.xacro"],
+        description="Name of the robot description file",
     )
     default_urdf_file = PathJoinSubstitution(
         [
@@ -29,6 +30,7 @@ def generate_launch_description():
     default_robot_controller_filename_arg = DeclareLaunchArgument(
         "default_robot_controller_filename",
         default_value=["controller_", LaunchConfiguration("robot_name"), ".yaml"],
+        description="Name of the robot controller configuration file",
     )
     default_robot_controller_file = PathJoinSubstitution(
         [
@@ -38,32 +40,49 @@ def generate_launch_description():
         ]
     )
 
-    # TODO: Add descriptions for all parameters
     use_rviz_arg = DeclareLaunchArgument(
         "use_rviz",
         default_value="true",
         choices=["0", "1", "false", "true", "False", "True"],
+        description="Whether to start rviz with the launch file",
     )
-    rviz_file_arg = DeclareLaunchArgument("rviz_file", default_value=default_rviz_file)
+    rviz_file_arg = DeclareLaunchArgument(
+        "rviz_file",
+        default_value=default_rviz_file,
+        description="The path to the rviz configuration file",
+    )
     robot_name_arg = DeclareLaunchArgument(
         "robot_name",
         default_value="igus_rebel_6dof",
         choices=["igus_rebel_6dof", "igus_rebel_4dof"],
+        description="Which igus ReBeL type to use",
     )
     robot_urdf_arg = DeclareLaunchArgument(
-        "robot_urdf", default_value=default_urdf_file
+        "robot_urdf",
+        default_value=default_urdf_file,
+        description="Path of the robot description file",
     )
     robot_controller_config_arg = DeclareLaunchArgument(
         "robot_controller_config",
         default_value=default_robot_controller_file,
+        description="Path of the robot's description file",
     )
     rebel_version_arg = DeclareLaunchArgument(
-        "rebel_version", default_value="01", choices=["pre", "00", "01"]
+        "rebel_version",
+        default_value="01",
+        choices=["pre", "00", "01"],
+        description="Which version of the igus ReBeL to use"
     )
     gripper_arg = DeclareLaunchArgument(
         "gripper",
         default_value="none",
         choices=["none", "schmalz_ecbpmi", "ext_dio_gripper"],
+        description="Which gripper to attach to the flange",
+    )
+    namespace_arg = DeclareLaunchArgument(
+        "namespace",
+        default_value="",
+        description="The namespace to use for all nodes started by this launch file",
     )
 
     namespace = LaunchConfiguration("namespace")
@@ -75,7 +94,6 @@ def generate_launch_description():
     robot_controller_config = LaunchConfiguration("robot_controller_config")
     rebel_version = LaunchConfiguration("rebel_version")
     gripper = LaunchConfiguration("gripper")
-    namespace_arg = DeclareLaunchArgument("namespace", default_value="")
 
     robot_description = Command(
         [
