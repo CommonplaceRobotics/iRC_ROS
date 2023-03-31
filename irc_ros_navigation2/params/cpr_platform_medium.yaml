@@ -60,7 +60,7 @@ bt_navigator:
     global_frame: map
     robot_base_frame: chassis
     odom_topic: /odom
-    default_bt_xml_filename: "navigate_w_replanning_and_recovery.xml"
+    default_bt_xml_filename: "navigate_w_recovery_and_replanning_only_if_path_becomes_invalid.xml" #"navigate_w_replanning_and_recovery.xml"
     bt_loop_duration: 10
     default_server_timeout: 20
     enable_groot_monitoring: False
@@ -107,7 +107,7 @@ bt_navigator_rclcpp_node:
 controller_server:
   ros__parameters:
     use_sim_time: False
-    controller_frequency: 10.0
+    controller_frequency: 2.0
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.5
     min_theta_velocity_threshold: 0.001
@@ -119,7 +119,7 @@ controller_server:
     # Progress checker parameters
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
-      required_movement_radius: 0.2
+      required_movement_radius: 0.1
       movement_time_allowance: 20.0
     
     general_goal_checker:
@@ -132,28 +132,28 @@ controller_server:
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      min_vel_x: 0.0
+      min_vel_x: -1.50
       min_vel_y: 0.0
-      max_vel_x: 0.42
+      max_vel_x: 1.50
       max_vel_y: 0.0
       max_vel_theta: 1.0
-      min_speed_xy: 0.0
-      max_speed_xy: 0.42
+      min_speed_xy: -1.00
+      max_speed_xy: 1.00
       min_speed_theta: 0.0
-      acc_lim_x: 2.5
+      acc_lim_x: 1.5
       acc_lim_y: 0.0
-      acc_lim_theta: 3.2
-      decel_lim_x: -2.5
+      acc_lim_theta: 0.8
+      decel_lim_x: -1.5
       decel_lim_y: 0.0
-      decel_lim_theta: -3.2
+      decel_lim_theta: -0.8
       vx_samples: 20
       vy_samples: 0
       vtheta_samples: 40
-      sim_time: 2.0
-      linear_granularity: 0.05
-      angular_granularity: 0.025
-      transform_tolerance: 0.2
-      xy_goal_tolerance: 0.05
+      sim_time: 3.0
+      linear_granularity: 0.1
+      angular_granularity: 0.05
+      transform_tolerance: 0.314
+      xy_goal_tolerance: 0.1
       trans_stopped_velocity: 0.25
       short_circuit_trajectory_evaluation: True
       stateful: True
@@ -167,7 +167,9 @@ controller_server:
       GoalDist.scale: 24.0
       RotateToGoal.scale: 32.0
       RotateToGoal.slowing_factor: 2.0
-      RotateToGoal.lookahead_time: -1.0
+      RotateToGoal.lookahead_time: 5.0
+      Oscillation.oscillation_reset_angle: 0.8
+      Oscillation.oscillation_reset_time: 1.0
 
 
 behavior_server:
@@ -182,21 +184,21 @@ controller_server_rclcpp_node:
 local_costmap:
   local_costmap:
     ros__parameters:
-      update_frequency: 5.0
-      publish_frequency: 2.0
+      update_frequency: 2.0
+      publish_frequency: 1.0
       global_frame: odom
       robot_base_frame: chassis
       use_sim_time: False
       rolling_window: true
-      width: 3
-      height: 3
-      resolution: 0.05
+      width: 6
+      height: 6
+      resolution: 0.1
       # robot_radius: 0.22
       footprint: "[ [0.25, 0.300], [0.25, -0.300], [-0.70, -0.300], [-0.70, 0.300] ]"
       plugins: ["obstacle_layer", "voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 1.0
+        inflation_radius: 0.5
         cost_scaling_factor: 3.0
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
@@ -245,7 +247,7 @@ global_costmap:
       publish_frequency: 1.0
       global_frame: map
       robot_base_frame: chassis
-      use_sim_time: True
+      use_sim_time: False
       robot_radius: 0.5 # TODO:
       resolution: 0.05
       track_unknown_space: true
@@ -342,7 +344,7 @@ recoveries_server:
     global_frame: odom
     robot_base_frame: chassis
     transform_timeout: 0.1
-    use_sim_time: true
+    use_sim_time: False
     simulate_ahead_time: 2.0
     max_rotational_vel: 1.0
     min_rotational_vel: 0.4
