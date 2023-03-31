@@ -23,8 +23,9 @@ def generate_launch_description():
     )
     default_urdf_file = PathJoinSubstitution(
         [
-            FindPackageShare("irc_ros_bringup"),
-            "launch",
+            FindPackageShare("irc_ros_description"),
+            "urdf",
+            LaunchConfiguration("default_urdf_filename"),
         ]
     )
     default_robot_controller_filename_arg = DeclareLaunchArgument(

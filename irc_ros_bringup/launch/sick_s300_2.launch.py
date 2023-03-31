@@ -15,7 +15,7 @@ def generate_launch_description():
     laserscanner_name = LaunchConfiguration("laserscanner_name")
     laserscanner_name_arg = DeclareLaunchArgument(
         "laserscanner_name",
-        default_value="",
+        default_value="sick_s300",
         description="Name of the laserscanner node"
     )
 
