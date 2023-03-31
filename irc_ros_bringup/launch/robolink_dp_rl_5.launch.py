@@ -17,6 +17,7 @@ def generate_launch_description():
         "use_rviz",
         default_value="true",
         choices=["0", "1", "false", "true", "False", "True"],
+        description="Whether to start rviz with the launch file",
     )
     use_rviz = LaunchConfiguration("use_rviz")
 

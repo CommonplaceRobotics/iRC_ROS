@@ -17,7 +17,9 @@ def generate_launch_description():
         [FindPackageShare("irc_ros_description"), "rviz", "platform.rviz"]
     )
     default_urdf_filename_arg = DeclareLaunchArgument(
-        "default_urdf_filename", default_value=["rebel_on_platform.urdf.xacro"]
+        "default_urdf_filename",
+        default_value=["rebel_on_platform.urdf.xacro"],
+        description="Name of the robot description file",
     )
     default_urdf_file = PathJoinSubstitution(
         [
@@ -29,6 +31,7 @@ def generate_launch_description():
     default_robot_controller_filename_arg = DeclareLaunchArgument(
         "default_robot_controller_filename",
         default_value=["controller_", LaunchConfiguration("robot_name"), ".yaml"],
+        description="Name of the robot controller configuration file",
     )
     default_robot_controller_file = PathJoinSubstitution(
         [
@@ -40,6 +43,7 @@ def generate_launch_description():
     default_platform_controller_filename_arg = DeclareLaunchArgument(
         "default_platform_controller_filename",
         default_value=["controller_", LaunchConfiguration("platform_name"), ".yaml"],
+        description="Name of the platform controller configuration file",
     )
     default_platform_controller_file = PathJoinSubstitution(
         [
@@ -49,41 +53,60 @@ def generate_launch_description():
         ]
     )
 
-    namespace_arg = DeclareLaunchArgument("namespace", default_value="")
+    namespace_arg = DeclareLaunchArgument(
+        "namespace",
+        default_value="",
+        description="The namespace to use for all nodes started by this launch file",
+    )
     use_rviz_arg = DeclareLaunchArgument(
         "use_rviz",
         default_value="true",
         choices=["0", "1", "false", "true", "False", "True"],
+        description="Whether to start rviz with the launch file",
     )
-    rviz_file_arg = DeclareLaunchArgument("rviz_file", default_value=default_rviz_file)
+    rviz_file_arg = DeclareLaunchArgument(
+        "rviz_file",
+        default_value=default_rviz_file,
+        description="The path to the rviz configuration file",
+    )
     use_rqt_robot_steering_arg = DeclareLaunchArgument(
         "use_rqt_robot_steering",
         default_value="true",
         choices=["0", "1", "false", "true", "False", "True"],
+        description="Whether to start RqtRobotSteering with the launch file",
     )
     platform_name_arg = DeclareLaunchArgument(
         "platform_name",
         default_value="cpr_platform_medium",
         choices=["cpr_platform_medium"],
+        description="The product name of the mobile platform. Currently only one model is available",
     )
     platform_urdf_arg = DeclareLaunchArgument(
-        "platform_urdf", default_value=default_urdf_file
+        "platform_urdf",
+        default_value=default_urdf_file,
+        description="Path of the robot description file",
     )
     platform_controller_config_arg = DeclareLaunchArgument(
-        "platform_controller_config", default_value=default_platform_controller_file
+        "platform_controller_config",
+        default_value=default_platform_controller_file,
+        description="Path of the platform's controller file",
     )
     robot_name_arg = DeclareLaunchArgument(
         "robot_name",
         default_value="igus_rebel_6dof",
         choices=["igus_rebel_6dof", "igus_rebel_4dof"],
+        description="The product name of the robot. Currently only igus rebels are supported on the platform",
     )
     robot_controller_config_arg = DeclareLaunchArgument(
-        "robot_controller_config", default_value=default_robot_controller_file
+        "robot_controller_config",
+        default_value=default_robot_controller_file,
+        description="Path of the robot's description file",
     )
     use_laserscanners_arg = DeclareLaunchArgument(
         "use_laserscanners",
         default_value="true",
         choices=["0", "1", "false", "true", "False", "True"],
+        description="Whether to launch the laserscanner specific nodes",
     )
 
     namespace = LaunchConfiguration("namespace")

@@ -18,12 +18,14 @@ def generate_launch_description():
     robot_name_arg = DeclareLaunchArgument(
         "robot_name",
         default_value="igus_rebel_6dof",
+        description="Which robot to use",
     )
 
     # Required to concatenate name with .urdf.xacro
     xacro_filename_arg = DeclareLaunchArgument(
         "xacro_filename",
         default_value=[LaunchConfiguration("robot_name"), ".urdf.xacro"],
+        description="Name of the .urdf.xacro file to use",
     )
 
     # Fully qualified path to the urdf/xacro file, can also be used directly
@@ -37,18 +39,21 @@ def generate_launch_description():
                 LaunchConfiguration("xacro_filename"),
             ]
         ),
+        description="Path to the .urdf.xacro file to use",
     )
 
     rebel_version_arg = DeclareLaunchArgument(
         "rebel_version",
         default_value="01",
         choices=["pre", "00", "01"],
+        description="If visualizing an igus ReBel, chose which version to use"
     )
 
     gripper_arg = DeclareLaunchArgument(
         "gripper",
         default_value="none",
         choices=["none", "schmalz_ecbpmi", "ext_dio_gripper"],
+        description="Which gripper to attach to the flange",
     )
 
     xacro_path = LaunchConfiguration("xacro_path")

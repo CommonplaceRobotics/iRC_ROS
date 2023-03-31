@@ -17,11 +17,13 @@ def generate_launch_description():
         "use_rviz",
         default_value="true",
         choices=["0", "1", "false", "true", "False", "True"],
+        description="Whether to start rviz with the launch file",
     )
     gripper_arg = DeclareLaunchArgument(
         "gripper",
         default_value="none",
         choices=["none", "schmalz_ecbpmi", "ext_dio_gripper"],
+        description="Which gripper to attach to the flange",
     )
 
     use_rviz = LaunchConfiguration("use_rviz")

@@ -12,16 +12,18 @@ import lifecycle_msgs.msg
 
 def generate_launch_description():
     # Parameters to make including this multiple times over IncludeLaunchDescription easy
-    name = LaunchConfiguration("name")
-    name_arg = DeclareLaunchArgument(
-        "name",
+    laserscanner_name = LaunchConfiguration("laserscanner_name")
+    laserscanner_name_arg = DeclareLaunchArgument(
+        "laserscanner_name",
         default_value="",
+        description="Name of the laserscanner node"
     )
 
     namespace = LaunchConfiguration("namespace")
     namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value="",
+        description="Namespace for the laserscanner node"
     )
 
     default_param_file = PathJoinSubstitution(
@@ -35,13 +37,14 @@ def generate_launch_description():
     params_file_arg = DeclareLaunchArgument(
         "params_file",
         default_value=default_param_file,
+        description="Path to the parameter file containing the laser scanner's config",
     )
 
     sicks300_2_node = LifecycleNode(
         package="sicks300_2",
         namespace=namespace,
         executable="sicks300_2",
-        name=name,
+        name=laserscanner_name,
         parameters=[params_file],
         emulate_tty=True,
         # arguments=['--ros-args', '--log-level', 'DEBUG'],
@@ -73,7 +76,7 @@ def generate_launch_description():
 
     description = LaunchDescription()
 
-    description.add_action(name_arg)
+    description.add_action(laserscanner_name_arg)
     description.add_action(namespace_arg)
     description.add_action(params_file_arg)
 
