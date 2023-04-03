@@ -109,9 +109,17 @@ def generate_launch_description():
         description="Whether to launch the laserscanner specific nodes",
     )
 
+    controller_type_arg = DeclareLaunchArgument(
+        "controller_type", default_value="cprcanv2",
+        choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
+        description="TODO",
+    )
+
+
     use_rqt_robot_steering = LaunchConfiguration("use_rqt_robot_steering")
     robot_controller_config = LaunchConfiguration("robot_controller_config")
     use_laserscanners = LaunchConfiguration("use_laserscanners")
+    controller_type = LaunchConfiguration("controller_type")
 
     rebel_stack = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([irc_ros_bringup_launch_dir, "/rebel.launch.py"]),
@@ -124,6 +132,7 @@ def generate_launch_description():
             "launch_dashboard_controller": "false",
             "launch_dio_controller": "false",
             "use_rviz": "false",
+            "controller_type" : controller_type,
         }.items(),
     )
 
@@ -142,6 +151,7 @@ def generate_launch_description():
             "use_laserscanners": use_laserscanners,
             "use_rviz": "false",
             "use_rqt_robot_steering": use_rqt_robot_steering,
+            "controller_type" : controller_type,
         }.items(),
     )
 
@@ -163,6 +173,7 @@ def generate_launch_description():
     description.add_action(platform_controller_config_arg)
     description.add_action(robot_controller_config_arg)
     description.add_action(use_laserscanners_arg)
+    description.add_action(controller_type_arg)
 
     description.add_action(rebel_stack)
     description.add_action(platform_stack)

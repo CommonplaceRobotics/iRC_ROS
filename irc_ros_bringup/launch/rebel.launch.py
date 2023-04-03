@@ -93,6 +93,11 @@ def generate_launch_description():
     launch_dio_controller_arg = DeclareLaunchArgument(
         "launch_dio_controller", default_value="true"
     )
+    controller_type_arg = DeclareLaunchArgument(
+        "controller_type", default_value="cprcanv2",
+        choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
+        description="TODO",
+    )
 
     namespace = LaunchConfiguration("namespace")
     prefix = LaunchConfiguration("prefix")
@@ -103,6 +108,7 @@ def generate_launch_description():
     robot_controller_config = LaunchConfiguration("robot_controller_config")
     rebel_version = LaunchConfiguration("rebel_version")
     gripper = LaunchConfiguration("gripper")
+    controller_type = LaunchConfiguration("controller_type")
 
     # Not required as variables
     # robot_name = LaunchConfiguration('robot_name')
@@ -120,8 +126,8 @@ def generate_launch_description():
             gripper,
             " prefix:=",
             prefix,
-            " use_mock_hardware:=true",
-            # " use_cprcanv2:=true",
+            " controller_type:=",
+            controller_type,
         ]
     )
 
@@ -257,6 +263,7 @@ def generate_launch_description():
     description.add_action(gripper_arg)
     description.add_action(launch_dashboard_controller_arg)
     description.add_action(launch_dio_controller_arg)
+    description.add_action(controller_type_arg)
 
     # Robot nodes
     description.add_action(control_node)

@@ -88,6 +88,11 @@ def generate_launch_description():
         choices=["0", "1", "false", "true", "False", "True"],
         description="Whether to launch the laserscanner specific nodes",
     )
+    controller_type_arg = DeclareLaunchArgument(
+        "controller_type", default_value="cprcanv2",
+        choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
+        description="TODO",
+    )
 
     use_rviz = LaunchConfiguration("use_rviz")
     rviz_file = LaunchConfiguration("rviz_file")
@@ -98,14 +103,15 @@ def generate_launch_description():
     platform_controller_config = LaunchConfiguration("platform_controller_config")
     use_laserscanners = LaunchConfiguration("use_laserscanners")
     namespace = LaunchConfiguration("namespace")
+    controller_type = LaunchConfiguration("controller_type")
 
     robot_description = Command(
         [
             FindExecutable(name="xacro"),
             " ",
             platform_urdf,
-            # " use_cprcanv2:=true"
-            " use_mock_hardware:=true",
+            " controller_type:=",
+            controller_type,
         ]
     )
 
@@ -256,6 +262,7 @@ def generate_launch_description():
     description.add_action(platform_urdf_arg)
     description.add_action(platform_controller_config_arg)
     description.add_action(use_laserscanners_arg)
+    description.add_action(controller_type_arg)
 
     # Robot nodes
     description.add_action(control_node)

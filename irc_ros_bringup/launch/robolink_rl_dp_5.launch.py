@@ -19,7 +19,15 @@ def generate_launch_description():
         choices=["0", "1", "false", "true", "False", "True"],
         description="Whether to start rviz with the launch file",
     )
+    controller_type_arg = DeclareLaunchArgument(
+        "controller_type", default_value="cprcanv2",
+        choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
+        description="TODO",
+    )
+
+
     use_rviz = LaunchConfiguration("use_rviz")
+    controller_type = LaunchConfiguration("controller_type")
 
     xacro_file = PathJoinSubstitution(
         [
@@ -34,7 +42,8 @@ def generate_launch_description():
             FindExecutable(name="xacro"),
             " ",
             xacro_file,
-            " use_cprcanv2:=true"
+            " controller_type:=",
+            controller_type,
         ]
     )
 
@@ -118,6 +127,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             use_rviz_arg,
+            controller_type_arg,
             control_node,
             robot_state_pub,
             joint_state_pub,
