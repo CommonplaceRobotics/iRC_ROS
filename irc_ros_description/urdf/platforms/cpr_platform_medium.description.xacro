@@ -84,7 +84,7 @@
     <link name="${prefix}laser_front">
     </link>
 
-    <joint name="${prefix}joint_lidar_back" type="fixed">
+    <joint name="${prefix}joint_laser_back" type="fixed">
       <parent link="base_link"/>
       <child link="laser_back"/>
       <origin rpy="0.0 0.0 ${pi}" xyz="-0.54 0 0"/>
