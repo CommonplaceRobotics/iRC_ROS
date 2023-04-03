@@ -12,16 +12,14 @@
         <xacro:if value="${hardware_protocol == 'gazebo'}">
             <plugin>gazebo_ros2_control/GazeboSystem</plugin>
         </xacro:if>
-        <xacro:unless value="${hardware_protocol == 'mock_hardware'}">
-          <xacro:if value="${hardware_protocol == 'cprcanv2'}">
-            <plugin>irc_hardware/IrcRosCan</plugin>
-            <param name="can_socket">can0</param>
-          </xacro:if>
-          <xacro:if value="${hardware_protocol == 'cri'}">
-            <plugin>irc_hardware/IrcRosCri</plugin>
-            <param name="ip">192.168.3.11</param>
-          </xacro:if>
-        </xacro:unless>
+        <xacro:if value="${hardware_protocol == 'cprcanv2'}">
+          <plugin>irc_hardware/IrcRosCan</plugin>
+          <param name="can_socket">can0</param>
+        </xacro:if>
+        <xacro:if value="${hardware_protocol == 'cri'}">
+          <plugin>irc_hardware/IrcRosCri</plugin>
+          <param name="ip">192.168.3.11</param>
+        </xacro:if>
       </hardware>
 
       <!-- The gear_scale of joint 1 is positive in the iRC files -->
