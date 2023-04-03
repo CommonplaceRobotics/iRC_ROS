@@ -3,7 +3,7 @@
        name="igus_rebel_4dof" >
 
   <!-- Controller settings, only enable a single one in the launch file -->  
-  <xacro:arg name="controller_type" default="mock_hardware"/>
+  <xacro:arg name="controller_type" default="cprcanv2"/>
 
   <!-- Rebel version selection  -->
   <xacro:arg name="rebel_version" default="01" />

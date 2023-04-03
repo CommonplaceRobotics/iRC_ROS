@@ -3,7 +3,7 @@
        name="rebel_on_platform" >
 
   <!-- Controller settings -->  
-  <xacro:arg name="controller_type" default="mock_hardware"/>
+  <xacro:arg name="controller_type" default="cprcanv2"/>
 
   <!-- Enable continuous rotation on the last join. While the last axis can turn continuously,
   it is limited here in case a tool with wiring is mounted. If you are certain that no wiring
