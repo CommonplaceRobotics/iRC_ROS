@@ -17,7 +17,7 @@
       </state_interface>
       <param name="can_id">${can_id}</param>
       <param name="gear_scale">${gear_scale}</param>
-      <param name="hardware_protocol">open_loop</param>
+      <param name="controller_type">open_loop</param>
       <param name="referencing_required">${referencing_required}</param>
       <param name="referencing_priority">${referencing_priority}</param>
     </joint>

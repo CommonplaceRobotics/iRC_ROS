@@ -17,7 +17,7 @@
       </state_interface>
       <param name="can_id">${can_id}</param>
       <param name="gear_scale">${gear_scale}</param>
-      <param name="hardware_protocol">closed_loop</param>
+      <param name="controller_type">closed_loop</param>
     </joint>
   </xacro:macro>
 </robot>
