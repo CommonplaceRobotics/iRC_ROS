@@ -22,7 +22,7 @@ def generate_launch_description():
     hardware_protocol_arg = DeclareLaunchArgument(
         "hardware_protocol", default_value="cprcanv2",
         choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
-        description="TODO",
+        description="Which hardware protocol or mock hardware should be used",
     )
 
 
