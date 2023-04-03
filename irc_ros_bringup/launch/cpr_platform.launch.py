@@ -216,7 +216,7 @@ def generate_launch_description():
             [irc_ros_bringup_launch_dir, "/sick_s300_2.launch.py"]
         ),
         launch_arguments={
-            "laserscaner_name": "laserscanner_front",
+            "laserscanner_name": "laserscanner_front",
             "params_file": sick_s300_params,
         }.items(),
         condition=IfCondition(use_laserscanners),
@@ -239,7 +239,7 @@ def generate_launch_description():
         name="laserscan_multi_merger",
         parameters=[
             {
-                "destination_frame": "",
+                "destination_frame": "base_link",
                 "scan_destination_topic": "/scan",
                 "laserscan_topics": "/scan_front /scan_back",
             }
