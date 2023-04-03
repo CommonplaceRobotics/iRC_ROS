@@ -9,15 +9,15 @@
   <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_rebel_4dof_01.description.xacro" />
   <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_rebel_4dof_01.ros2_control.xacro" />
 
-  <xacro:macro name="igus_rebel_4dof" params="prefix controller_type continuous_last_joint=false rebel_version">
+  <xacro:macro name="igus_rebel_4dof" params="prefix hardware_protocol continuous_last_joint=false rebel_version">
     <!-- Call macros once -->
     <xacro:if value="${rebel_version == '00'}">
       <xacro:igus_rebel_4dof_00_description prefix="${prefix}" continuous_last_joint="${continuous_last_joint}" />
-      <xacro:igus_rebel_4dof_00_ros2_control prefix="${prefix}" controller_type="${controller_type}" continuous_last_joint="${continuous_last_joint}" />
+      <xacro:igus_rebel_4dof_00_ros2_control prefix="${prefix}" hardware_protocol="${hardware_protocol}" continuous_last_joint="${continuous_last_joint}" />
     </xacro:if>
     <xacro:if value="${rebel_version == '01'}">
       <xacro:igus_rebel_4dof_00_description prefix="${prefix}" continuous_last_joint="${continuous_last_joint}" />
-      <xacro:igus_rebel_4dof_01_ros2_control prefix="${prefix}" controller_type="${controller_type}" continuous_last_joint="${continuous_last_joint}" />
+      <xacro:igus_rebel_4dof_01_ros2_control prefix="${prefix}" hardware_protocol="${hardware_protocol}" continuous_last_joint="${continuous_last_joint}" />
     </xacro:if>
   </xacro:macro>
 </robot>

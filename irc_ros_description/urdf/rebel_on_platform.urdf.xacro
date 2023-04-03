@@ -3,7 +3,7 @@
        name="rebel_on_platform" >
 
   <!-- Controller settings -->  
-  <xacro:arg name="controller_type" default="cprcanv2"/>
+  <xacro:arg name="hardware_protocol" default="cprcanv2"/>
 
   <!-- Enable continuous rotation on the last join. While the last axis can turn continuously,
   it is limited here in case a tool with wiring is mounted. If you are certain that no wiring
@@ -14,8 +14,8 @@
   <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_rebel_6dof.macro.xacro"/>
   <xacro:include filename="$(find irc_ros_description)/urdf/platforms/cpr_platform_medium.macro.xacro"/>
 
-  <xacro:cpr_platform_medium prefix="" controller_type="$(arg controller_type)" />
-  <xacro:igus_rebel_6dof prefix="rebel_1_" continuous_last_joint="$(arg continuous_last_joint)" rebel_version="'00'"  controller_type="$(arg controller_type)" />
+  <xacro:cpr_platform_medium prefix="" hardware_protocol="$(arg hardware_protocol)" />
+  <xacro:igus_rebel_6dof prefix="rebel_1_" continuous_last_joint="$(arg continuous_last_joint)" rebel_version="'00'"  hardware_protocol="$(arg hardware_protocol)" />
 
   <joint name="platform_to_rebel" type="fixed">
     <parent link="base_link" />

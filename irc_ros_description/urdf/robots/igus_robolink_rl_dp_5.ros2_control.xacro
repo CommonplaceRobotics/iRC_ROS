@@ -3,21 +3,21 @@
   <!-- Include the joint module macro -->
   <xacro:include filename="$(find irc_ros_description)/urdf/modules/din_rail.ros2_control.xacro" />
 
-  <xacro:macro name="igus_robolink_rl_dp_5_ros2_control" params="prefix controller_type continuous_last_joint">
+  <xacro:macro name="igus_robolink_rl_dp_5_ros2_control" params="prefix hardware_protocol continuous_last_joint">
     <ros2_control name="igus_robolink_rl_dp_5" type="system">
       <hardware>
-        <xacro:if value="${controller_type == 'mock_hardware'}">
+        <xacro:if value="${hardware_protocol == 'mock_hardware'}">
           <plugin>mock_components/GenericSystem</plugin>
         </xacro:if>
-        <xacro:if value="${controller_type == 'gazebo'}">
+        <xacro:if value="${hardware_protocol == 'gazebo'}">
             <plugin>gazebo_ros2_control/GazeboSystem</plugin>
         </xacro:if>
-        <xacro:unless value="${controller_type == 'mock_hardware'}">
-          <xacro:if value="${controller_type == 'cprcanv2'}">
+        <xacro:unless value="${hardware_protocol == 'mock_hardware'}">
+          <xacro:if value="${hardware_protocol == 'cprcanv2'}">
             <plugin>irc_hardware/IrcRosCan</plugin>
             <param name="can_socket">can0</param>
           </xacro:if>
-          <xacro:if value="${controller_type == 'cri'}">
+          <xacro:if value="${hardware_protocol == 'cri'}">
             <plugin>irc_hardware/IrcRosCri</plugin>
             <param name="ip">192.168.3.11</param>
           </xacro:if>

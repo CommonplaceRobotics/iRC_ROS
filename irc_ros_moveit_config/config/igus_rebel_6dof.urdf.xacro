@@ -3,7 +3,7 @@
        name="igus_rebel_6dof" >
 
   <!-- Controller settings -->  
-  <xacro:arg name="controller_type" default="cprcanv2"/>
+  <xacro:arg name="hardware_protocol" default="cprcanv2"/>
 
   <!-- (Internal) hardware selection  -->
   <xacro:arg name="rebel_version" default="00" />
@@ -24,7 +24,7 @@
   <xacro:arg name="root_link" default="true" />
 
   <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_rebel_6dof.macro.xacro" />
-  <xacro:igus_rebel_6dof prefix="$(arg prefix)" continuous_last_joint="$(arg continuous_last_joint)" rebel_version="'$(arg rebel_version)'"  controller_type="$(arg controller_type)" />
+  <xacro:igus_rebel_6dof prefix="$(arg prefix)" continuous_last_joint="$(arg continuous_last_joint)" rebel_version="'$(arg rebel_version)'"  hardware_protocol="$(arg hardware_protocol)" />
 
   <xacro:if value="$(arg root_link)">
     <link name="world" />

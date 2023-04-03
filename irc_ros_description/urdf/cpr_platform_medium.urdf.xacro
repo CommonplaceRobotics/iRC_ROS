@@ -3,11 +3,11 @@
        name="cpr_platform_medium" >
 
   <!-- Controller settings -->  
-  <xacro:arg name="controller_type" default="cprcanv2"/>
+  <xacro:arg name="hardware_protocol" default="cprcanv2"/>
 
   <xacro:arg name="prefix" default="" />
 
   <xacro:include filename="$(find irc_ros_description)/urdf/platforms/cpr_platform_medium.macro.xacro" />
-  <xacro:cpr_platform_medium prefix="$(arg prefix)" controller_type="$(arg controller_type)" />
+  <xacro:cpr_platform_medium prefix="$(arg prefix)" hardware_protocol="$(arg hardware_protocol)" />
 
 </robot>
