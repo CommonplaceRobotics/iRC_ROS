@@ -1,6 +1,8 @@
 from launch import LaunchDescription
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, GroupAction
+from launch.conditions import IfCondition
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -110,57 +112,79 @@ def generate_launch_description():
     )
 
     hardware_protocol_arg = DeclareLaunchArgument(
-        "hardware_protocol", default_value="cprcanv2",
+        "hardware_protocol",
+        default_value="cprcanv2",
         choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
         description="Which hardware protocol or mock hardware should be used",
     )
 
-
     use_rqt_robot_steering = LaunchConfiguration("use_rqt_robot_steering")
+    use_rviz = LaunchConfiguration("use_rviz")
+    rviz_file = LaunchConfiguration("rviz_file")
     robot_controller_config = LaunchConfiguration("robot_controller_config")
     use_laserscanners = LaunchConfiguration("use_laserscanners")
     hardware_protocol = LaunchConfiguration("hardware_protocol")
 
-    rebel_stack = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([irc_ros_bringup_launch_dir, "/rebel.launch.py"]),
-        launch_arguments={
-            "namespace": "/rebel_1",
-            "prefix": "rebel_1_",
-            "controller_manager_name": "/rebel_1/controller_manager",
-            "gripper": "none",
-            "robot_controller_config": robot_controller_config,
-            "launch_dashboard_controller": "false",
-            "launch_dio_controller": "false",
-            "use_rviz": "false",
-            "hardware_protocol" : hardware_protocol,
-        }.items(),
+    # Use GroupActions for scoping the launch arguments, e.g. to not overwrite rviz arg
+    rebel_stack = GroupAction(
+        [
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    [irc_ros_bringup_launch_dir, "/rebel.launch.py"]
+                ),
+                launch_arguments={
+                    "namespace": "/rebel_1",
+                    "prefix": "rebel_1_",
+                    "controller_manager_name": "/rebel_1/controller_manager",
+                    "gripper": "none",
+                    "robot_controller_config": robot_controller_config,
+                    "launch_dashboard_controller": "false",
+                    "launch_dio_controller": "false",
+                    "use_rviz": "false",
+                    "hardware_protocol": hardware_protocol,
+                }.items(),
+            )
+        ]
     )
 
-    platform_stack = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [irc_ros_bringup_launch_dir, "/cpr_platform.launch.py"]
-        ),
-        launch_arguments={
-            "namespace": "",
-            # "namespace": "/platform",
-            # "prefix": "platform_",
-            # "controller_manager_name" : "/platform/controller_manager",
-            # "platform_controller_config": platform_controller_config,
-            "launch_dashboard_controller": "false",
-            "launch_dio_controller": "false",
-            "use_laserscanners": use_laserscanners,
-            "use_rviz": "false",
-            "use_rqt_robot_steering": use_rqt_robot_steering,
-            "hardware_protocol" : hardware_protocol,
-        }.items(),
+    platform_stack = GroupAction(
+        [
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    [irc_ros_bringup_launch_dir, "/cpr_platform.launch.py"]
+                ),
+                launch_arguments={
+                    "namespace": "",
+                    # "namespace": "/platform",
+                    # "prefix": "platform_",
+                    # "controller_manager_name" : "/platform/controller_manager",
+                    # "platform_controller_config": platform_controller_config,
+                    "launch_dashboard_controller": "false",
+                    "launch_dio_controller": "false",
+                    "use_laserscanners": use_laserscanners,
+                    "use_rviz": "false",
+                    # "rviz_file": rviz_file,
+                    "use_rqt_robot_steering": use_rqt_robot_steering,
+                    "hardware_protocol": hardware_protocol,
+                }.items(),
+            )
+        ]
     )
 
+    rviz_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="log",
+        arguments=["-d", rviz_file],
+        condition=IfCondition(use_rviz),
+    )
     description = LaunchDescription()
 
     # Launch args
     description.add_action(platform_name_arg)
     description.add_action(robot_name_arg)
-    
+
     description.add_action(default_urdf_filename_arg)
     description.add_action(default_robot_controller_filename_arg)
     description.add_action(default_platform_controller_filename_arg)
@@ -177,4 +201,6 @@ def generate_launch_description():
 
     description.add_action(rebel_stack)
     description.add_action(platform_stack)
+
+    description.add_action(rviz_node)
     return description
