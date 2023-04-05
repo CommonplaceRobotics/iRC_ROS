@@ -74,7 +74,7 @@ def generate_launch_description():
         "rebel_version",
         default_value="01",
         choices=["pre", "00", "01"],
-        description="Which version of the igus ReBeL to use"
+        description="Which version of the igus ReBeL to use",
     )
     gripper_arg = DeclareLaunchArgument(
         "gripper",
@@ -94,7 +94,8 @@ def generate_launch_description():
         "launch_dio_controller", default_value="true"
     )
     hardware_protocol_arg = DeclareLaunchArgument(
-        "hardware_protocol", default_value="cprcanv2",
+        "hardware_protocol",
+        default_value="cprcanv2",
         choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
         description="Which hardware protocol or mock hardware should be used",
     )

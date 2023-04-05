@@ -20,11 +20,11 @@ def generate_launch_description():
         description="Whether to start rviz with the launch file",
     )
     hardware_protocol_arg = DeclareLaunchArgument(
-        "hardware_protocol", default_value="cprcanv2",
+        "hardware_protocol",
+        default_value="cprcanv2",
         choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
         description="Which hardware protocol or mock hardware should be used",
     )
-
 
     use_rviz = LaunchConfiguration("use_rviz")
     hardware_protocol = LaunchConfiguration("hardware_protocol")
