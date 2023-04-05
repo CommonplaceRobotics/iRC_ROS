@@ -1,9 +1,8 @@
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, GroupAction
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-
 
 def generate_launch_description():
     irc_ros_bringup_launch_dir = PathJoinSubstitution(
@@ -28,7 +27,7 @@ def generate_launch_description():
             "controller_two_igus_rebel_6dof_second.yaml",
         ]
     )
-    rebel_1_nodes = IncludeLaunchDescription(
+    rebel_1_nodes = GroupAction([IncludeLaunchDescription(
         PythonLaunchDescriptionSource([irc_ros_bringup_launch_dir, "/rebel.launch.py"]),
         launch_arguments={
             "namespace": "/rebel_1",
@@ -40,8 +39,8 @@ def generate_launch_description():
             "launch_dio_controller": "false",
             "use_rviz": "false",
         }.items(),
-    )
-    rebel_2_nodes = IncludeLaunchDescription(
+    )]) 
+    rebel_2_nodes = GroupAction([IncludeLaunchDescription(
         PythonLaunchDescriptionSource([irc_ros_bringup_launch_dir, "/rebel.launch.py"]),
         launch_arguments={
             "namespace": "/rebel_2",
@@ -53,7 +52,8 @@ def generate_launch_description():
             "launch_dio_controller": "false",
             "use_rviz": "false",
         }.items(),
-    )
+    )]) 
+
     description = LaunchDescription()
     description.add_action(rebel_1_nodes)
     description.add_action(rebel_2_nodes)
