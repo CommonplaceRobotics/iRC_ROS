@@ -31,12 +31,8 @@ The package aims to be as modular as possible. As such you can combine a mobile 
 All of these are set via launch arguments from the respective launch files.
 Use `ros2 launch irc_ros_[...] [...].launch.py --show-args` for more information about the available arguments for a launch file.
 
-### Interface selection
-Either use 
-`<plugin>irc_hardware/IrcRosCan</plugin>`
-or
-`<plugin>irc_hardware/IrcRosCri</plugin>`
-at the beginning of the robots `.ros2_control.xacro` file to select which interface to use by default. In the future this could also be done over launch arguments/files.
+### Hardware protocol/mock hardware selection
+This is done over launch arguments, use `ros2 launch irc_ros_[...] [...].launch.py --show-args` for more informations. If not hardware protocol is specified cprcanv2 is used by default.
 
 Specific settings are set in the respective ros2_control files:
 

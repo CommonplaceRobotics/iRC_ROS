@@ -57,33 +57,7 @@ Note: Currently only works with `geometry_msgs/msg/Twist`, while we want `TwistS
  - Space to reset speed to 0
 
 ## Launch files
-Parameters are not all implemented yet, this is for future reference!
-  - `rebel_base.launch.py` (Standalone ReBeL 6DOF/4DOF)
-    - `use_rviz` Whether to start rviz (default: true)
-    - `rviz_file` The rviz launch file, gets overwritten by nav2 launch files (default: `rebel.rviz`) (TODO)
-    - `robot_name` (default: `igus_rebel_6dof`)
-    - `robot_urdf` Option to overwrite the URDF/XACRO with a custom one, e.g. containing end-effectors, reduced joint ranges, ... (default: `irc_ros_description/config/[robot_name].urdf.xacro`)
-    - TODO: xacro parameters for overwriting
-    - `robot_controller_config` Option to overwrite the loaded controller file (default: `irc_ros_bringup/config/controller_[robot_name].yaml`)
-    - `rebel_version` Whether the ReBeL is a pre, 00 or 01 model (default: `01`)
-    - `gripper` Which gripper to load. Currently supports `none`, `schmalz_ecbpmi` and `ext_dio_gripper` (default: `none`)
-    - `use_simtime` (default: false) TODO
-    - `fake_robot` (default: false) TODO
-    - `namespace` Namespace (TODO: test this)
-  - `cpr_platform.launch.py` (Mobile Platform)
-    - `use_rviz` Whether to start rviz (default: true)
-    - `rviz_file` The rviz launch file, gets overwritten by nav2 launch files (default: `platform.rviz`)
-    - `use_rqt_robot_steering` Start the robot steering tool (default: true)
-    - `platform_name` (default: `cpr_platform_medium`)
-    - `platform_urdf` TODO
-    - TODO: xacro parameters for overwriting
-    - `platform_controller_config` (default: irc_ros_bringup/config/controller_[plaform_name].yaml`)
-    - `use_simtime` (default: false) TODO
-    - `fake_robot` (default: false) TODO
-    - `use_laser_scanners` Whether to start the Sick S300 laser scanner nodes (default: true)
-    - `namespace` Namespace TODO
-  - `rebel_on_platform.launch.py`
-    - All of the above TODO
+Use `ros2 launch irc_ros_bringup [...].launch.py --show-args` for more information about the available launch arguments.
 
 ## Controller files
   - `controller_igus_rebel_*dof.yaml` implements position control via a JointTrajectoryController
