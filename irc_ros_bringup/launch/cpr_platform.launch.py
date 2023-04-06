@@ -1,9 +1,11 @@
 from launch import LaunchDescription
 from launch.actions import (
+    RegisterEventHandler,
     DeclareLaunchArgument,
     IncludeLaunchDescription,
 )
 from launch.conditions import IfCondition
+from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     Command,
@@ -171,14 +173,14 @@ def generate_launch_description():
     )
 
     # Delay start of robot_controller after `joint_state_broadcaster`
-    # delay_robot_controller_spawner_after_joint_state_broadcaster_spawner = (
-    #     RegisterEventHandler(
-    #         event_handler=OnProcessExit(
-    #             target_action=joint_state_broadcaster,
-    #             on_exit=[robot_controller_node],
-    #         )
-    #     )
-    # )
+    delay_robot_controller_spawner_after_joint_state_broadcaster_spawner = (
+        RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=joint_state_broadcaster,
+                on_exit=[robot_controller_node],
+            )
+        )
+    )
 
     rviz_node = Node(
         package="rviz2",
@@ -270,10 +272,9 @@ def generate_launch_description():
     description.add_action(robot_state_pub)
     description.add_action(joint_state_pub)
     description.add_action(joint_state_broadcaster)
-    description.add_action(robot_controller_node)
-    # description.add_action(
-    #    delay_robot_controller_spawner_after_joint_state_broadcaster_spawner
-    # )
+    description.add_action(
+       delay_robot_controller_spawner_after_joint_state_broadcaster_spawner
+    )
 
     # UI nodes
     description.add_action(rviz_node)

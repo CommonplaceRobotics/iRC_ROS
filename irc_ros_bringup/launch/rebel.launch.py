@@ -3,17 +3,27 @@ from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler
 from launch.conditions import IfCondition, LaunchConfigurationEquals
 from launch.substitutions import LaunchConfiguration
+from launch.event_handlers import OnProcessExit
 
 
 def generate_launch_description():
-    namespace_arg = DeclareLaunchArgument("namespace", default_value="")
-    prefix_arg = DeclareLaunchArgument("prefix", default_value="")
-    controller_manager_name_arg = DeclareLaunchArgument(
-        "controller_manager_name", default_value="/controller_manager"
+    namespace_arg = DeclareLaunchArgument(
+        "namespace",
+        default_value=""
     )
+    prefix_arg = DeclareLaunchArgument(
+        "prefix",
+        default_value=""
+    )
+    controller_manager_name_arg = DeclareLaunchArgument(
+        "controller_manager_name",
+        default_value=[LaunchConfiguration("namespace"), "/controller_manager"] 
+
+    )
+
     default_rviz_file = PathJoinSubstitution(
         [FindPackageShare("irc_ros_description"), "rviz", "rebel.rviz"]
     )
@@ -157,7 +167,7 @@ def generate_launch_description():
         parameters=[
             {
                 "source_list": [
-                    "/joint_states",
+                    "/joint_states", # TODO: Does this need a namespace as well?
                 ],
                 "rate": 30,
             }
@@ -223,20 +233,20 @@ def generate_launch_description():
     )
 
     # Delay start of robot_controller after `joint_state_broadcaster`
-    # delay_robot_controller_spawner_after_joint_state_broadcaster_spawner = (
-    #     RegisterEventHandler(
-    #         event_handler=OnProcessExit(
-    #             target_action=joint_state_broadcaster,
-    #             on_exit=[
-    #                 robot_controller_node,
-    #                 dio_controller_node,
-    #                 external_dio_controller_node,
-    #                 ecbpmi_controller_node,
-    #                 dashboard_controller_node,
-    #             ],
-    #         )
-    #     )
-    # )
+    delay_robot_controller_spawner_after_joint_state_broadcaster_spawner = (
+        RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=joint_state_broadcaster,
+                on_exit=[
+                    robot_controller_node,
+                    dio_controller_node,
+                    external_dio_controller_node,
+                    ecbpmi_controller_node,
+                    dashboard_controller_node,
+                ],
+            )
+        )
+    )
 
     rviz_node = Node(
         package="rviz2",
@@ -272,16 +282,9 @@ def generate_launch_description():
     description.add_action(joint_state_pub)
     description.add_action(joint_state_broadcaster)
 
-    # Robot nodes that were previously started after JSB
-    description.add_action(robot_controller_node)
-    description.add_action(dio_controller_node)
-    description.add_action(external_dio_controller_node)
-    description.add_action(ecbpmi_controller_node)
-    description.add_action(dashboard_controller_node)
-
-    #    description.add_action(
-    #        delay_robot_controller_spawner_after_joint_state_broadcaster_spawner
-    #    )
+    description.add_action(
+        delay_robot_controller_spawner_after_joint_state_broadcaster_spawner
+    )
 
     # UI nodes
     description.add_action(rviz_node)
