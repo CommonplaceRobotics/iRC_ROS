@@ -374,6 +374,10 @@ hardware_interface::return_type IrcRosCan::read(
     module->read_can();
     module->update_double_copies();
     module->dashboard_command();
+  
+    if(module->errorState.any() && !module->may_reset_){
+      return hardware_interface::return_type::ERROR;
+    }
   }
 
   return hardware_interface::return_type::OK;
