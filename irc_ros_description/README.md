@@ -18,6 +18,15 @@ As explained above instead of a single static urdf file all kinematics use xacro
 ### Kinematic chain
 The package aims to be as modular as possible. As such you can combine a mobile platform, robot arm and gripper into a single kinematic. For this start with the highest level kinematic and select the child-kinematics with xacro parameters (via launch parameters). Currently this causes issues with duplicate link names and root links, but this issue should be resolved once this repository is set to public.
 
+#### Xacro arguments
+ - `prefix`
+ - `gripper`
+ - `continuous_last_joint` (only for robots, not platforms)
+ - `rebel_version` (igus ReBeL only)
+
+All of these are set via launch arguments from the respective launch files.
+Use `ros2 launch irc_ros_[...] [...].launch.py --show-args` for more information about the available arguments for a launch file.
+
 ### Interface selection
 Either use 
 `<plugin>irc_hardware/IrcRosCan</plugin>`
@@ -25,7 +34,9 @@ or
 `<plugin>irc_hardware/IrcRosCri</plugin>`
 at the beginning of the robots `.ros2_control.xacro` file to select which interface to use by default. In the future this could also be done over launch arguments/files.
 
-#### CAN Parameters
+Specific settings are set in the respective ros2_control files:
+
+#### CAN settings
  - `can_socket` can interface (defaults to `can0`)
  - Per axis/module:
    - `can_id` At which can_id the module can be found
@@ -34,7 +45,7 @@ at the beginning of the robots `.ros2_control.xacro` file to select which interf
    - `referencing_required` if set to true the joint will be referenced on startup.
    - `referencing_priority` The order in which joints are referenced. Same numbers should be referenced simultaniously. If no number is given, the joint will be referenced last.
 
-#### CRI Parameters
+#### CRI settings
  - `ip` IP address of the EmbeddedControl/TinyCtrl device (defaults to "192.168.3.11")
 
 ## How to add new robots/grippers/...
