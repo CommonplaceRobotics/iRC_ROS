@@ -16,11 +16,11 @@
   ros__parameters:
     controller_name: "platform_1/cpr_platform_controller"
 
-    left_wheel_names: ["joint_wheel_1"]
-    right_wheel_names: ["joint_wheel_2"]
+    left_wheel_names: ["platform_1_joint_wheel_1"]
+    right_wheel_names: ["platform_1_joint_wheel_2"]
 
-    odom_frame_id: odom
-    base_frame_id: base_link
+    odom_frame_id: odom # TODO: platform specific or global odom for multiple platforms?
+    base_frame_id: platform_1_base_link
 
     enable_odom_tf: true    
 
