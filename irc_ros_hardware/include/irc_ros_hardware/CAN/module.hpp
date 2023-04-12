@@ -127,6 +127,7 @@ public:
   // meaning that the heartbeat is interrupted and the controller goes into a COM error.
   bool may_reset_ = false;
 
+  ResetState resetState = ResetState::not_reset;
 protected:
   std::bitset<8> digital_in_;
   std::bitset<8> digital_out_;
@@ -139,7 +140,6 @@ protected:
   ErrorState lastErrorState;
   SetToZeroState setToZeroState = SetToZeroState::not_zeroed;
   RotorAlignmentState rotorAlignmentState = RotorAlignmentState::unaligned;
-  ResetState resetState = ResetState::not_reset;
 
   // TimePoints for timeouting failed commands
   std::chrono::time_point<std::chrono::steady_clock> motor_state_time_point_;
