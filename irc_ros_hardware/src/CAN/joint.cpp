@@ -497,7 +497,6 @@ void Joint::read_can()
   }
 
   //control cmd received
-
   while (can_interface_->get_next_message(can_id_ + 2, message)) {
     if (message.data == cprcan::reset_error_response) {
       reset_error_callback(message.data);
@@ -555,27 +554,26 @@ void Joint::write_can()
 
   if (commandMode == CommandMode::none) {
     // Start a heartbeat position command
-    if (motorState != MotorState::enabled) {
-      // Since the motor won't move yet and pos might not been read yet, send 0.0 as the goal.
-      if (std::isnan(pos_)) {
-        set_pos_ = 0.0;
-      } else {
-        set_pos_ = pos_;
-      }
 
+    if (std::isnan(pos_)) {
+      set_pos_ = 0.0;
+      position_cmd();
+
+      // Reset set_pos_ so this is not taken as an input from the hardware
+      set_pos_ = std::numeric_limits<double>::quiet_NaN();
+    } else {
+      set_pos_ = pos_;
       position_cmd();
     }
-
-    // Reset set_pos_ so this is not taken as an input from the hardware
-    set_pos_ = std::numeric_limits<double>::quiet_NaN();
   } else {
-    // Command mode chosen, try move
+    // Command mode chosen, try to move
     if (
+      !errorState.any() &&
       motorState == MotorState::enabled &&
       positioningReadyState != PositioningReadyState::not_ready) {
       // Ready to move
 
-      // Thus no more automatic resets
+      // Thus no more automatic resets are allowed unless a command mode switch occurs
       may_reset_ = false;
 
       if (commandMode == CommandMode::position && !std::isnan(set_pos_)) {
@@ -585,9 +583,9 @@ void Joint::write_can()
       } else if (commandMode == CommandMode::torque && !std::isnan(set_torque_)) {
         torque_cmd();
       } else {
-        RCLCPP_ERROR(
+        RCLCPP_DEBUG(
           rclcpp::get_logger("iRC_ROS"),
-          "Module 0x%02x: command mode set but no joint goal provided.", can_id_);
+          "Module 0x%02x: Command mode set but no joint goal provided.", can_id_);
       }
     } else {
       // This should not normally happen, as the activate function should have prepared the
@@ -598,9 +596,9 @@ void Joint::write_can()
       if (may_reset_) {
         prepare_movement();
       } else {
-        RCLCPP_ERROR(
+        RCLCPP_WARN(
           rclcpp::get_logger("iRC_ROS"),
-          "Module 0x%02x: command mode set but no joint goal provided.", can_id_);
+          "Module 0x%02x: Module is in error state and may not reset automatically", can_id_);
       }
 
       if (commandMode == CommandMode::position) {
