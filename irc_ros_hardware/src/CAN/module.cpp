@@ -134,7 +134,7 @@ void Module::prepare_movement()
     set_pos_ = pos_;
   }
 
-  if (errorState.any_except_mne()) {
+  if (errorState.any()) {
     RCLCPP_INFO(
       rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Errors%s detected, resetting", can_id_,
       errorState.str().c_str());
@@ -144,7 +144,7 @@ void Module::prepare_movement()
     reset_error(true);
   }
 
-  if (motorState != MotorState::enabled) {
+  if (!errorState.any_except_mne() && motorState != MotorState::enabled) {
     RCLCPP_DEBUG(
       rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Motor not enabled, enabling before movement",
       can_id_);
