@@ -37,10 +37,7 @@
   </xacro:if>
 
   <!-- Grippers -->
-  <xacro:include filename="$(find irc_ros_description)/urdf/grippers/$(arg gripper).urdf.xacro" />
-  <joint name="$(arg prefix)flange_to_gripper" type="fixed">
-    <parent link="$(arg prefix)flange" />
-    <child link = "$(arg prefix)gripper_mount" />
-    <origin xyz="0.0 0.0 0.0" rpy="0.0 ${-pi/2} 0.0" />
-  </joint>
+  <xacro:include filename="$(find irc_ros_description)/urdf/grippers/grippers.macro.xacro" />
+  <xacro:gripper prefix="$(arg prefix)" gripper_type="$(arg gripper)" parent_link="$(arg prefix)flange" />
+
 </robot>
