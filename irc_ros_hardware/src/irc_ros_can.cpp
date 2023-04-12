@@ -374,6 +374,16 @@ hardware_interface::return_type IrcRosCan::read(
     module->read_can();
     module->update_double_copies();
     module->dashboard_command();
+  
+    // If an error occurs (except MNE because that seems buggy with some modules ATM, TODO: FIX)
+    // and we are neither in the process of fixing the error nor have the option to reset the error
+    // then stop the hardware interface to avoid unforseen movements.
+    if(module->errorState.any() && module->resetState != ResetState::resetting && module->motorState != MotorState::enabling && !module->may_reset_){
+      RCLCPP_ERROR(
+        rclcpp::get_logger("iRC_ROS"), "0x%2x: Error detected with no recovery option, stopping entire hardware interface for safety reasons", module->can_id_);
+
+      return hardware_interface::return_type::ERROR;
+    }
   }
 
   return hardware_interface::return_type::OK;
