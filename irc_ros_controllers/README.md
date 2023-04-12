@@ -60,16 +60,16 @@ To see all available output controllers you can use:
 ``` console
 $ ros2 topic list
 [...]
-/dio_controller/outputs
+/dio_controller/set_outputs
 [...]
-/external_dio_controller/outputs
+/external_dio_controller/set_outputs
 [...]
 
 $ ros2 service list
 [...]
-/dio_controller/outputs
+/dio_controller/set_outputs
 [...]
-/external_dio_controller/outputs
+/external_dio_controller/set_outputs
 [...]
 ```
 
@@ -78,9 +78,9 @@ Currently you can only see which outputs are available via the controller config
 Setting states works like the following:
 
 ``` console 
-$ ros2 topic pub --once /dio_controller/outputs irc_ros_msgs/msg/DioCommand '{names:[dio_arm/digital_output_0, ],outputs: [False, ]}'
+$ ros2 topic pub --once /dio_controller/set_outputs irc_ros_msgs/msg/DioCommand '{names:[dio_arm/digital_output_0, ],outputs: [False, ]}'
 
-$ ros2 service call /dio_controller/outputs irc_ros_msgs/srv/DioCommand '{names:[dio_arm/digital_output_0, ],outputs: [False, ]}'
+$ ros2 service call /dio_controller/set_outputs irc_ros_msgs/srv/DioCommand '{names:[dio_arm/digital_output_0, ],outputs: [False, ]}'
 ```
 
 The service call will respond with success unless the number of outputs names and states do not match.
@@ -92,9 +92,9 @@ The available controllers can be seen with the following command:
 ``` console
 $ ros2 topic list
 [...]
-/dio_controller/inputs
+/dio_controller/get_inputs
 [...]
-/external_dio_controller/inputs
+/external_dio_controller/get_inputs
 [...]
 ```
 
@@ -102,7 +102,7 @@ $ ros2 topic list
 A gripper connected to the CAN bus via an external DIO-Module is also controlled over the dio controller as follows:
 
 ``` console
-$ ros2 topic pub --once /external_dio_controller/outputs irc_ros_msgs/msg/DioCommand '{names:[dio_ext/digital_output_0, ],outputs: [True, ]}'
+$ ros2 topic pub --once /external_dio_controller/set_outputs irc_ros_msgs/msg/DioCommand '{names:[dio_ext/digital_output_0, ],outputs: [True, ]}'
 ```
 
 Note: The meshes included by the respective urdf files are not correct, instead the same as the ones for the ECBPMI are used temporarily.
