@@ -124,9 +124,7 @@ def generate_launch_description():
         executable="robot_state_publisher",
         name="robot_state_publisher",
         namespace=namespace,
-        output="screen",
         parameters=[{"robot_description": robot_description}],
-        # arguments=['--ros-args', '--log-level', 'DEBUG'],
     )
     joint_state_pub = Node(
         package="joint_state_publisher",
@@ -150,19 +148,16 @@ def generate_launch_description():
             {"robot_description": robot_description},
             platform_controller_config,
         ],
-        output="both",
     )
     joint_state_broadcaster = Node(
         package="controller_manager",
         executable="spawner",
         namespace=namespace,
-        # arguments=['joint_state_broadcaster'],
         arguments=[
             "joint_state_broadcaster",
             "--controller-manager",
             "/controller_manager",
         ],
-        output="screen",
     )
 
     robot_controller_node = Node(
@@ -186,7 +181,6 @@ def generate_launch_description():
         package="rviz2",
         executable="rviz2",
         name="rviz2",
-        output="log",
         arguments=["-d", rviz_file],
         condition=IfCondition(use_rviz),
     )

@@ -12,19 +12,19 @@ def generate_launch_description():
         ]
     )
 
-    # We need a different controller config for this setup
+    # We need different controller configs for this setup
     robot_controller_file_1 = PathJoinSubstitution(
         [
             FindPackageShare("irc_ros_bringup"),
             "config",
-            "controller_two_igus_rebel_6dof_first.yaml",
+            "controller_igus_rebel_6dof_namespace_1.yaml",
         ]
     )
     robot_controller_file_2 = PathJoinSubstitution(
         [
             FindPackageShare("irc_ros_bringup"),
             "config",
-            "controller_two_igus_rebel_6dof_second.yaml",
+            "controller_igus_rebel_6dof_namespace_2.yaml",
         ]
     )
     rebel_1_nodes = GroupAction([IncludeLaunchDescription(
@@ -39,7 +39,9 @@ def generate_launch_description():
             "launch_dio_controller": "false",
             "use_rviz": "false",
         }.items(),
-    )]) 
+    )],
+    scoped=True
+    ) 
     rebel_2_nodes = GroupAction([IncludeLaunchDescription(
         PythonLaunchDescriptionSource([irc_ros_bringup_launch_dir, "/rebel.launch.py"]),
         launch_arguments={
@@ -52,7 +54,9 @@ def generate_launch_description():
             "launch_dio_controller": "false",
             "use_rviz": "false",
         }.items(),
-    )]) 
+    )],
+    scoped=True
+    ) 
 
     description = LaunchDescription()
     description.add_action(rebel_1_nodes)

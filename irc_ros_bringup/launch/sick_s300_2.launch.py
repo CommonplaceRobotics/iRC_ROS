@@ -45,7 +45,6 @@ def generate_launch_description():
         name=laserscanner_name,
         parameters=[params_file],
         emulate_tty=True,
-        # arguments=['--ros-args', '--log-level', 'DEBUG'],
     )
 
     # When the sick node reaches the 'inactive' state, make it take the 'activate' transition.

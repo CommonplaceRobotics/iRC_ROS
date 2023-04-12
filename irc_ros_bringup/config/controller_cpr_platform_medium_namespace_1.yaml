@@ -1,0 +1,41 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100 # 100Hz for CAN and 10Hz for CRI
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    cpr_platform_controller:
+      type: diff_drive_controller/DiffDriveController
+
+cpr_platform_controller:
+  ros__parameters:
+
+    left_wheel_names: ["joint_wheel_1"]
+    right_wheel_names: ["joint_wheel_2"]
+
+    odom_frame_id: odom
+    base_frame_id: base_link
+
+    enable_odom_tf: true    
+
+    wheel_separation: 0.47285
+    wheel_radius: 0.07457 # Measured, should be 0.07308 according to the CPRog settings
+
+    command_interfaces:
+      - velocity
+
+    state_interfaces:
+      - position
+      - velocity
+
+    state_publish_rate: 100.0 # Defaults to 50
+    action_monitor_rate: 100.0 # Defaults to 20
+
+    open_loop_control: true
+    allow_partial_joints_goal: true
+
+    # FIXME: Goal_pose commands from Rviz2 send Twist instead of TwistStamped
+    # See if it is possible to change the rviz behaviour as TwistStamped is 
+    # becoming the new standard
+    use_stamped_vel: false

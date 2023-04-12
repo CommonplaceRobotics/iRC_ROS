@@ -16,24 +16,15 @@ def generate_launch_description():
         ]
     )
     default_rviz_file = PathJoinSubstitution(
-        [FindPackageShare("irc_ros_description"), "rviz", "platform.rviz"]
+        [
+            FindPackageShare("irc_ros_description"),
+            "rviz",
+            "platform.rviz"
+        ]
     )
-    # default_urdf_filename_arg = DeclareLaunchArgument(
-    #     "default_urdf_filename",
-    #     default_value=["rebel_on_platform.urdf.xacro"],
-    #     description="Name of the robot description file",
-    # )
-    # default_urdf_file = PathJoinSubstitution(
-    #     [
-    #         FindPackageShare("irc_ros_description"),
-    #         "urdf",
-    #         LaunchConfiguration("default_urdf_filename"),
-    #     ]
-    # )
     default_robot_controller_filename_arg = DeclareLaunchArgument(
         "default_robot_controller_filename",
-        # default_value=["controller_", LaunchConfiguration("robot_name"), ".yaml"],
-        default_value=["controller_two_igus_rebel_6dof_first.yaml"],
+        default_value="controller_igus_rebel_6dof_namespace_1",
         description="Name of the robot controller configuration file",
     )
     default_robot_controller_file = PathJoinSubstitution(
@@ -84,11 +75,6 @@ def generate_launch_description():
         choices=["cpr_platform_medium"],
         description="The product name of the mobile platform. Currently only one model is available",
     )
-    # platform_urdf_arg = DeclareLaunchArgument(
-    #     "platform_urdf",
-    #     default_value=default_urdf_file,
-    #     description="Path of the robot description file",
-    # )
     platform_controller_config_arg = DeclareLaunchArgument(
         "platform_controller_config",
         default_value=default_platform_controller_file,
@@ -119,11 +105,9 @@ def generate_launch_description():
         description="Which hardware protocol or mock hardware should be used",
     )
 
-    use_rqt_robot_steering = LaunchConfiguration("use_rqt_robot_steering")
     use_rviz = LaunchConfiguration("use_rviz")
     rviz_file = LaunchConfiguration("rviz_file")
     robot_controller_config = LaunchConfiguration("robot_controller_config")
-    use_laserscanners = LaunchConfiguration("use_laserscanners")
     hardware_protocol = LaunchConfiguration("hardware_protocol")
 
     # Use GroupActions for scoping the launch arguments, e.g. to not overwrite rviz arg
@@ -141,6 +125,7 @@ def generate_launch_description():
                     "hardware_protocol": hardware_protocol,
                     "launch_dashboard_controller": "false",
                     "launch_dio_controller": "false",
+                    "hardware_protocol": "cprcanv2",
                 }.items(),
     )
 
@@ -157,11 +142,9 @@ def generate_launch_description():
                     # "platform_controller_config": platform_controller_config,
                     "launch_dashboard_controller": "false",
                     "launch_dio_controller": "false",
-                    # "use_laserscanners": use_laserscanners,
                     "use_rviz": "false",
-                    # "rviz_file": rviz_file,
-                    "use_rqt_robot_steering": "true", #use_rqt_robot_steering,
-                    "hardware_protocol": "cprcanv2", #hardware_protocol,
+                    "use_rqt_robot_steering": "true",
+                    "hardware_protocol": "cprcanv2",
                 }.items(),
     )],
     forwarding=False
@@ -171,7 +154,6 @@ def generate_launch_description():
         package="rviz2",
         executable="rviz2",
         name="rviz2",
-        output="log",
         arguments=["-d", rviz_file],
         condition=IfCondition(use_rviz),
     )
@@ -180,16 +162,12 @@ def generate_launch_description():
     # Launch args
     description.add_action(platform_name_arg)
     description.add_action(robot_name_arg)
-
-    # description.add_action(default_urdf_filename_arg)
     description.add_action(default_robot_controller_filename_arg)
     description.add_action(default_platform_controller_filename_arg)
-
     description.add_action(namespace_arg)
     description.add_action(use_rviz_arg)
     description.add_action(rviz_file_arg)
     description.add_action(use_rqt_robot_steering_arg)
-    # description.add_action(platform_urdf_arg)
     description.add_action(platform_controller_config_arg)
     description.add_action(robot_controller_config_arg)
     description.add_action(use_laserscanners_arg)
@@ -198,6 +176,6 @@ def generate_launch_description():
     description.add_action(rebel_stack)
     description.add_action(platform_stack)
 
-
+    # UI nodes
     description.add_action(rviz_node)
     return description
