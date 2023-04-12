@@ -118,15 +118,14 @@ def generate_launch_description():
         condition=IfCondition(use_rviz),
     )
 
-    return LaunchDescription(
-        [
-            use_rviz_arg,
-            hardware_protocol_arg,
-            control_node,
-            robot_state_pub,
-            joint_state_pub,
-            joint_state_broadcaster,
-            delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
-            rviz_node,
-        ]
-    )
+    description = LaunchDescription()
+    description.add_action(use_rviz_arg)
+    description.add_action(hardware_protocol_arg)
+    description.add_action(control_node)
+    description.add_action(robot_state_pub)
+    description.add_action(joint_state_pub)
+    description.add_action(joint_state_broadcaster)
+    description.add_action(delay_robot_controller_spawner_after_joint_state_broadcaster_spawner)
+    description.add_action(rviz_node)
+    return description
+
