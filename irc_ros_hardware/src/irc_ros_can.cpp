@@ -376,6 +376,9 @@ hardware_interface::return_type IrcRosCan::read(
     module->dashboard_command();
   
     if(module->errorState.any() && !module->may_reset_){
+      RCLCPP_ERROR(
+        rclcpp::get_logger("iRC_ROS"), "0x%2x: Error detected, stopping hardware interface", module->can_id_);
+
       return hardware_interface::return_type::ERROR;
     }
   }
