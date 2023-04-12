@@ -51,6 +51,15 @@ def generate_launch_description():
         default_value="",
         description="The namespace to use for all nodes started by this launch file",
     )
+    prefix_arg = DeclareLaunchArgument(
+        "prefix",
+        default_value=""
+    )
+    controller_manager_name_arg = DeclareLaunchArgument(
+        "controller_manager_name",
+        default_value=[LaunchConfiguration("namespace"), "/controller_manager"] 
+
+    )
     use_rviz_arg = DeclareLaunchArgument(
         "use_rviz",
         default_value="true",
@@ -96,7 +105,9 @@ def generate_launch_description():
         choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
         description="Which hardware protocol or mock hardware should be used",
     )
-
+    namespace = LaunchConfiguration("namespace")
+    prefix = LaunchConfiguration("prefix")
+    controller_manager_name = LaunchConfiguration("controller_manager_name")
     use_rviz = LaunchConfiguration("use_rviz")
     rviz_file = LaunchConfiguration("rviz_file")
     use_rqt_robot_steering = LaunchConfiguration("use_rqt_robot_steering")
@@ -105,14 +116,16 @@ def generate_launch_description():
     platform_urdf = LaunchConfiguration("platform_urdf")
     platform_controller_config = LaunchConfiguration("platform_controller_config")
     use_laserscanners = LaunchConfiguration("use_laserscanners")
-    namespace = LaunchConfiguration("namespace")
     hardware_protocol = LaunchConfiguration("hardware_protocol")
+
 
     robot_description = Command(
         [
             FindExecutable(name="xacro"),
             " ",
             platform_urdf,
+            " prefix:=",
+            prefix,
             " hardware_protocol:=",
             hardware_protocol,
         ]
@@ -153,18 +166,14 @@ def generate_launch_description():
         package="controller_manager",
         executable="spawner",
         namespace=namespace,
-        arguments=[
-            "joint_state_broadcaster",
-            "--controller-manager",
-            "/controller_manager",
-        ],
+        arguments=["joint_state_broadcaster", "-c", controller_manager_name],
     )
 
     robot_controller_node = Node(
         package="controller_manager",
         executable="spawner",
         namespace=namespace,
-        arguments=["cpr_platform_controller", "-c", "/controller_manager"],
+        arguments=["cpr_platform_controller", "-c", controller_manager_name],
     )
 
     # Delay start of robot_controller after `joint_state_broadcaster`
@@ -253,6 +262,9 @@ def generate_launch_description():
     description.add_action(default_platform_controller_filename_arg)
 
     description.add_action(namespace_arg)
+    description.add_action(prefix_arg)
+    description.add_action(controller_manager_name_arg)
+
     description.add_action(use_rviz_arg)
     description.add_action(rviz_file_arg)
     description.add_action(use_rqt_robot_steering_arg)
