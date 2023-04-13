@@ -150,13 +150,22 @@ def generate_launch_description():
         ]
     )
 
-    external_dio_controllers = PathJoinSubstitution(
+    external_dio_controllers_file = PathJoinSubstitution(
         [
             FindPackageShare("irc_ros_bringup"),
             "config",
             "controller_dio_module.yaml",
         ]
     )
+
+    external_dio_controllers = ReplaceString(
+        source_file=external_dio_controllers_file,
+        replacements={
+            "<namespace>": namespace,
+            "<prefix>": prefix,
+        }
+    )
+
 
     # Node declarations:
     robot_state_pub = Node(

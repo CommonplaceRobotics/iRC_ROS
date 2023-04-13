@@ -1,4 +1,4 @@
-controller_manager:
+<namespace>/controller_manager:
   ros__parameters:
     update_rate: 100 # 100Hz for CAN and 10Hz for CRI
 
@@ -11,13 +11,13 @@ controller_manager:
     dio_controller:
       type: irc_ros_controllers/DIOController
 
-joint_trajectory_controller:
+<namespace>/joint_trajectory_controller:
   ros__parameters:
     joints: 
-      - joint1
-      - joint2
-      - joint3
-      - joint4
+      - <prefix>joint1
+      - <prefix>joint2
+      - <prefix>joint3
+      - <prefix>joint4
 
     command_interfaces:
       - position
@@ -31,26 +31,26 @@ joint_trajectory_controller:
     open_loop_control: true
     allow_partial_joints_goal: true
 
-dio_controller:
+<namespace>/dio_controller:
   ros__parameters:
     digital_inputs: 
-      - dio_arm/digital_input_0
-      - dio_arm/digital_input_1
-      - dio_base/digital_input_0
-      - dio_base/digital_input_1
-      - dio_base/digital_input_2
-      - dio_base/digital_input_3
-      - dio_base/digital_input_4
-      - dio_base/digital_input_5
-      - dio_base/digital_input_6
+      - <prefix>dio_arm/digital_input_0
+      - <prefix>dio_arm/digital_input_1
+      - <prefix>dio_base/digital_input_0
+      - <prefix>dio_base/digital_input_1
+      - <prefix>dio_base/digital_input_2
+      - <prefix>dio_base/digital_input_3
+      - <prefix>dio_base/digital_input_4
+      - <prefix>dio_base/digital_input_5
+      - <prefix>dio_base/digital_input_6
 
     digital_outputs:
-      - dio_arm/digital_output_0
-      - dio_arm/digital_output_1
-      - dio_base/digital_output_0
-      - dio_base/digital_output_1
-      - dio_base/digital_output_2
-      - dio_base/digital_output_3
-      - dio_base/digital_output_4
-      - dio_base/digital_output_5
-      - dio_base/digital_output_6
+      - <prefix>dio_arm/digital_output_0
+      - <prefix>dio_arm/digital_output_1
+      - <prefix>dio_base/digital_output_0
+      - <prefix>dio_base/digital_output_1
+      - <prefix>dio_base/digital_output_2
+      - <prefix>dio_base/digital_output_3
+      - <prefix>dio_base/digital_output_4
+      - <prefix>dio_base/digital_output_5
+      - <prefix>dio_base/digital_output_6

@@ -1,4 +1,4 @@
-controller_manager:
+<namespace>/controller_manager:
   ros__parameters:
     update_rate: 100 # 100Hz for CAN and 10Hz for CRI
 
@@ -6,21 +6,21 @@ controller_manager:
       type: irc_ros_controllers/DIOController
 
 
-external_dio_controller:
+<namespace>/external_dio_controller:
   ros__parameters:
     digital_inputs: 
-      - dio_ext/digital_input_0
-      - dio_ext/digital_input_1
-      - dio_ext/digital_input_2
-      - dio_ext/digital_input_3
-      - dio_ext/digital_input_4
-      - dio_ext/digital_input_5
-      - dio_ext/digital_input_6
+      - <prefix>dio_ext/digital_input_0
+      - <prefix>dio_ext/digital_input_1
+      - <prefix>dio_ext/digital_input_2
+      - <prefix>dio_ext/digital_input_3
+      - <prefix>dio_ext/digital_input_4
+      - <prefix>dio_ext/digital_input_5
+      - <prefix>dio_ext/digital_input_6
     digital_outputs:
-      - dio_ext/digital_output_0
-      - dio_ext/digital_output_1
-      - dio_ext/digital_output_2
-      - dio_ext/digital_output_3
-      - dio_ext/digital_output_4
-      - dio_ext/digital_output_5
-      - dio_ext/digital_output_6
+      - <prefix>dio_ext/digital_output_0
+      - <prefix>dio_ext/digital_output_1
+      - <prefix>dio_ext/digital_output_2
+      - <prefix>dio_ext/digital_output_3
+      - <prefix>dio_ext/digital_output_4
+      - <prefix>dio_ext/digital_output_5
+      - <prefix>dio_ext/digital_output_6

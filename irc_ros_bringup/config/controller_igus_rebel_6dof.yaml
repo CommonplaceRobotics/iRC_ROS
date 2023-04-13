@@ -19,8 +19,6 @@
 
 <namespace>/joint_trajectory_controller:
   ros__parameters:
-    controller_name: "<namespace>/joint_trajectory_controller"
-
     joints: 
       - <prefix>joint1
       - <prefix>joint2
