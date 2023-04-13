@@ -128,6 +128,7 @@ public:
   bool may_reset_ = false;
 
   ResetState resetState = ResetState::not_reset;
+
 protected:
   std::bitset<8> digital_in_;
   std::bitset<8> digital_out_;

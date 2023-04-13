@@ -125,7 +125,8 @@ def generate_launch_description():
     description.add_action(robot_state_pub)
     description.add_action(joint_state_pub)
     description.add_action(joint_state_broadcaster)
-    description.add_action(delay_robot_controller_spawner_after_joint_state_broadcaster_spawner)
+    description.add_action(
+        delay_robot_controller_spawner_after_joint_state_broadcaster_spawner
+    )
     description.add_action(rviz_node)
     return description
-

@@ -1,6 +1,5 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
 from launch_ros.actions import Node
@@ -15,7 +14,13 @@ def generate_launch_description():
     )
     in_topics_arg = DeclareLaunchArgument(
         "in_topics",
-        default_value=[LaunchConfiguration("namespace"), "/scan_front", " ", LaunchConfiguration("namespace"), "/scan_back"],
+        default_value=[
+            LaunchConfiguration("namespace"),
+            "/scan_front",
+            " ",
+            LaunchConfiguration("namespace"),
+            "/scan_back",
+        ],
         description="TODO",
     )
     out_topic_arg = DeclareLaunchArgument(
@@ -24,7 +29,7 @@ def generate_launch_description():
         description="TODO",
     )
     namespace = LaunchConfiguration("namespace")
-    prefix = LaunchConfiguration("prefix")
+    # prefix = LaunchConfiguration("prefix")
 
     destination_frame = LaunchConfiguration("destination_frame_arg")
     in_topics = LaunchConfiguration("in_topics")

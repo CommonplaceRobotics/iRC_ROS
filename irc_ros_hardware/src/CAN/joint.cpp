@@ -568,8 +568,7 @@ void Joint::write_can()
   } else {
     // Command mode chosen, try to move
     if (
-      !errorState.any() &&
-      motorState == MotorState::enabled &&
+      !errorState.any() && motorState == MotorState::enabled &&
       positioningReadyState != PositioningReadyState::not_ready) {
       // Ready to move
 

@@ -25,15 +25,15 @@ def generate_launch_description():
     tray1_tf_node = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
-        name='tray_1_static_broadcaster',
-        arguments=['0.209', '-0.090', '0.318', '0', '0', '0', 'base_link', 'tray_1'],
+        name="tray_1_static_broadcaster",
+        arguments=["0.209", "-0.090", "0.318", "0", "0", "0", "base_link", "tray_1"],
     )
 
     tray2_tf_node = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
-        name='tray_2_static_broadcaster',
-        arguments=['0.209', '-0.015', '0.318', '0', '0', '0', 'base_link', 'tray_2'],
+        name="tray_2_static_broadcaster",
+        arguments=["0.209", "-0.015", "0.318", "0", "0", "0", "base_link", "tray_2"],
     )
 
     pick_and_place_node = Node(

@@ -10,18 +10,11 @@ from launch.event_handlers import OnProcessExit
 
 
 def generate_launch_description():
-    namespace_arg = DeclareLaunchArgument(
-        "namespace",
-        default_value=""
-    )
-    prefix_arg = DeclareLaunchArgument(
-        "prefix",
-        default_value=""
-    )
+    namespace_arg = DeclareLaunchArgument("namespace", default_value="")
+    prefix_arg = DeclareLaunchArgument("prefix", default_value="")
     controller_manager_name_arg = DeclareLaunchArgument(
         "controller_manager_name",
-        default_value=[LaunchConfiguration("namespace"), "/controller_manager"] 
-
+        default_value=[LaunchConfiguration("namespace"), "/controller_manager"],
     )
 
     default_rviz_file = PathJoinSubstitution(
@@ -166,7 +159,7 @@ def generate_launch_description():
         parameters=[
             {
                 "source_list": [
-                    "/joint_states", # TODO: Does this need a namespace as well?
+                    "/joint_states",  # TODO: Does this need a namespace as well?
                 ],
                 "rate": 30,
             }

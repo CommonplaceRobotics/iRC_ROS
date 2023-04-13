@@ -51,14 +51,10 @@ def generate_launch_description():
         default_value="",
         description="The namespace to use for all nodes started by this launch file",
     )
-    prefix_arg = DeclareLaunchArgument(
-        "prefix",
-        default_value=""
-    )
+    prefix_arg = DeclareLaunchArgument("prefix", default_value="")
     controller_manager_name_arg = DeclareLaunchArgument(
         "controller_manager_name",
-        default_value=[LaunchConfiguration("namespace"), "/controller_manager"] 
-
+        default_value=[LaunchConfiguration("namespace"), "/controller_manager"],
     )
     use_rviz_arg = DeclareLaunchArgument(
         "use_rviz",
@@ -81,7 +77,7 @@ def generate_launch_description():
         "platform_name",
         default_value="cpr_platform_medium",
         choices=["cpr_platform_medium"],
-        description="The product name of the mobile platform. Currently only one model is available",
+        description="The product name of the mobile platform",
     )
     platform_urdf_arg = DeclareLaunchArgument(
         "platform_urdf",
@@ -117,7 +113,6 @@ def generate_launch_description():
     platform_controller_config = LaunchConfiguration("platform_controller_config")
     use_laserscanners = LaunchConfiguration("use_laserscanners")
     hardware_protocol = LaunchConfiguration("hardware_protocol")
-
 
     robot_description = Command(
         [
@@ -227,15 +222,33 @@ def generate_launch_description():
     odom_tf_node = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
-        name='tray_1_static_broadcaster',
-        arguments=['0', '0', '0', '0', '0', '0', 'platform_1/platform_1_base_link', 'platform_1_base_link' ],
+        name="tray_1_static_broadcaster",
+        arguments=[
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "platform_1/platform_1_base_link",
+            "platform_1_base_link",
+        ],
     )
 
     base_link_tf_node = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
-        name='tray_2_static_broadcaster',
-        arguments=['0', '0', '0', '0', '0', '0', 'platform_1/platform_1_odom', 'platform_1_odom'],
+        name="tray_2_static_broadcaster",
+        arguments=[
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "platform_1/platform_1_odom",
+            "platform_1_odom",
+        ],
     )
     description = LaunchDescription()
 
@@ -263,7 +276,7 @@ def generate_launch_description():
     description.add_action(joint_state_pub)
     description.add_action(joint_state_broadcaster)
     description.add_action(
-       delay_robot_controller_spawner_after_joint_state_broadcaster_spawner
+        delay_robot_controller_spawner_after_joint_state_broadcaster_spawner
     )
 
     # UI nodes

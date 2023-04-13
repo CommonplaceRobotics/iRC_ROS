@@ -48,7 +48,6 @@ public:
         pick_and_place_vacuum();
       }
     });
-
   }
 
   /**
@@ -67,7 +66,7 @@ public:
     const std::chrono::duration<int64_t, std::milli> timeout = std::chrono::milliseconds(1000);
 
     while (std::chrono::steady_clock::now() - start < timeout) {
-      if (result.future.valid()){ //  == rclcpp::FutureReturnCode::SUCCESS) {
+      if (result.future.valid()) {  //  == rclcpp::FutureReturnCode::SUCCESS) {
         return (result.get()->gripped == state);
       }
       std::this_thread::yield();
@@ -83,7 +82,7 @@ public:
    * @param objects_x Number of objects in x direction 
    * @param objects_y Number of objects in y direction 
    */
-  void outline_tray (std::string frame_id, int objects_x, int objects_y)
+  void outline_tray(std::string frame_id, int objects_x, int objects_y)
   {
     geometry_msgs::msg::PoseStamped posestamped;
     posestamped.header.frame_id = frame_id;
@@ -95,29 +94,29 @@ public:
     posestamped.pose.orientation.w = 0;
     posestamped.pose.orientation.x = 0;
     posestamped.pose.orientation.y = 1;
-    posestamped.pose.orientation.z = 0;   
+    posestamped.pose.orientation.z = 0;
 
     geometry_msgs::msg::PoseStamped target_pose;
 
-    target_pose= buffer_->transform(posestamped, planning_frame_);
+    target_pose = buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
 
     posestamped.pose.position.x = (objects_x - 1) * slot_offset_;
-    target_pose= buffer_->transform(posestamped, planning_frame_);
+    target_pose = buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
- 
+
     posestamped.pose.position.y = (objects_y - 1) * slot_offset_;
-    target_pose= buffer_->transform(posestamped, planning_frame_);
+    target_pose = buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
 
     posestamped.pose.position.x = 0;
-    target_pose= buffer_->transform(posestamped, planning_frame_);
+    target_pose = buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
- 
+
     posestamped.pose.position.y = 0;
-    target_pose= buffer_->transform(posestamped, planning_frame_);
+    target_pose = buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
-  } 
+  }
 
   /**
    * @brief Picks up an object from the given position
@@ -137,26 +136,26 @@ public:
     posestamped.pose.orientation.w = 0;
     posestamped.pose.orientation.x = 0;
     posestamped.pose.orientation.y = 1;
-    posestamped.pose.orientation.z = 0;   
+    posestamped.pose.orientation.z = 0;
 
     geometry_msgs::msg::PoseStamped target_pose;
 
     // Move over the object
-    target_pose= buffer_->transform(posestamped, planning_frame_);
+    target_pose = buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
 
     // Slowly touch the object
     posestamped.pose.position.z -= height_offsetheight_offset_;
-    target_pose= buffer_->transform(posestamped, planning_frame_);
+    target_pose = buffer_->transform(posestamped, planning_frame_);
     lin(target_pose, 0.1, 0.1);
 
     set_gripper(true);
 
     // Lift the object
     posestamped.pose.position.z += height_offsetheight_offset_;
-    target_pose= buffer_->transform(posestamped, planning_frame_);
+    target_pose = buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
-  } 
+  }
 
   /**
    * @brief Places an object in the given position
@@ -176,17 +175,17 @@ public:
     posestamped.pose.orientation.w = 0;
     posestamped.pose.orientation.x = 0;
     posestamped.pose.orientation.y = 1;
-    posestamped.pose.orientation.z = 0;   
-    
+    posestamped.pose.orientation.z = 0;
+
     geometry_msgs::msg::PoseStamped target_pose;
 
     // Move over the slot
-    target_pose= buffer_->transform(posestamped, planning_frame_);
+    target_pose = buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
 
     // Slowly touch the object
     posestamped.pose.position.z -= height_offsetheight_offset_;
-    target_pose= buffer_->transform(posestamped, planning_frame_);
+    target_pose = buffer_->transform(posestamped, planning_frame_);
     lin(target_pose, 0.1, 0.1);
 
     set_gripper(false);
@@ -196,13 +195,12 @@ public:
 
     //Move back up again
     posestamped.pose.position.z += height_offsetheight_offset_;
-    target_pose= buffer_->transform(posestamped, planning_frame_);
+    target_pose = buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
-  } 
+  }
 
   void pick_and_place_vacuum()
   {
-
     // Number of objects to grip, assumes that both trays are identical
     const int objects_y = 3;
     const int objects_x = 5;
@@ -246,15 +244,15 @@ private:
   std::shared_ptr<rclcpp::Client<irc_ros_msgs::srv::GripperCommand>> gripper_client;
   std::shared_ptr<irc_ros_msgs::srv::GripperCommand::Request> request =
     std::make_shared<irc_ros_msgs::srv::GripperCommand::Request>();
-   
+
   // TF2 transform objects
   std::shared_ptr<tf2_ros::Buffer> buffer_;
   std::shared_ptr<tf2_ros::TransformListener> listener_;
 
   // Scene parameters
-  const double height_offsetheight_offset_ = 0.03;  // z offset of how much to lift the objects out of the trays
-  const double slot_offset_ = 0.035;   // x and y offset between different slots in the tray
-
+  const double height_offsetheight_offset_ =
+    0.03;                             // z offset of how much to lift the objects out of the trays
+  const double slot_offset_ = 0.035;  // x and y offset between different slots in the tray
 };
 
 int main(int argc, char ** argv)

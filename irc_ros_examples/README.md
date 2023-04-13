@@ -19,7 +19,7 @@ There are two ways to start this example:
 # Start MoveIt and the example node together
 $ LC_NUMERIC=en_US.UTF-8 ros2 launch irc_ros_examples pick_and_place.launch.py
 
-# Alternativly first start moveit with the right gripper parameter
+# Alternatively first start moveit with the right gripper parameter
 $ LC_NUMERIC=en_US.UTF-8 ros2 launch irc_ros_moveit_config rebel.launch.py gripper:="ext_dio_gripper"
 
 # Then, once the startup is complete, run:
@@ -43,7 +43,7 @@ There are two ways to start this example:
 # Start MoveIt and the example node together
 $ LC_NUMERIC=en_US.UTF-8 ros2 launch irc_ros_examples pick_and_place_vacuum.launch.py
 
-# Alternativly first start moveit with the right gripper parameter
+# Alternatively first start moveit with the right gripper parameter
 $ LC_NUMERIC=en_US.UTF-8 ros2 launch irc_ros_moveit_config rebel.launch.py gripper:="schmalz_ecbpmi"
 
 # Publish the tfs to tray_1 and tray_2
