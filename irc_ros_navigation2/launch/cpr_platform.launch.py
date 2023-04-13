@@ -20,9 +20,9 @@ def generate_launch_description():
 
     irc_ros_stack = IncludeLaunchDescription(
         # TODO: Launch file selection somehow?
-        # PythonLaunchDescriptionSource([irc_ros_launch_file_dir, '/cpr_platform.launch.py']),
         PythonLaunchDescriptionSource(
-            [irc_ros_launch_file_dir, "/rebel_on_platform.launch.py"]
+            # [irc_ros_launch_file_dir, "/rebel_on_platform.launch.py"]
+            [irc_ros_launch_file_dir, "/cpr_platform.launch.py"]
         ),
         launch_arguments={
             "use_rviz": "true",

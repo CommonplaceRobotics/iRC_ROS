@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="cpr_platform_medium" >
+  
+  <!-- Include relevant macros -->
+  <xacro:include filename="$(find irc_ros_description)/urdf/platforms/cpr_platform_medium.description.xacro" />
+  <xacro:include filename="$(find irc_ros_description)/urdf/platforms/cpr_platform_medium.ros2_control.xacro" />
+
+  <xacro:macro name="cpr_platform_medium" params="prefix hardware_protocol">
+    <!-- Call macros once -->
+    <xacro:cpr_platform_medium_description prefix="${prefix}"/>
+    <xacro:cpr_platform_medium_ros2_control prefix="${prefix}" hardware_protocol="${hardware_protocol}"/>
+  </xacro:macro>
+</robot>

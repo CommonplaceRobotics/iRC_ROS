@@ -46,7 +46,7 @@ def generate_launch_description():
         "rebel_version",
         default_value="01",
         choices=["pre", "00", "01"],
-        description="If visualizing an igus ReBel, chose which version to use"
+        description="If visualizing an igus ReBel, chose which version to use",
     )
 
     gripper_arg = DeclareLaunchArgument(
@@ -82,7 +82,6 @@ def generate_launch_description():
         package="robot_state_publisher",
         executable="robot_state_publisher",
         name="robot_state_publisher",
-        output="screen",
         parameters=[{"robot_description": robot_description}],
     )
 

@@ -15,15 +15,13 @@ def generate_launch_description():
     laserscanner_name = LaunchConfiguration("laserscanner_name")
     laserscanner_name_arg = DeclareLaunchArgument(
         "laserscanner_name",
-        default_value="",
-        description="Name of the laserscanner node"
+        default_value="sick_s300",
+        description="Name of the laserscanner node",
     )
 
     namespace = LaunchConfiguration("namespace")
     namespace_arg = DeclareLaunchArgument(
-        "namespace",
-        default_value="",
-        description="Namespace for the laserscanner node"
+        "namespace", default_value="", description="Namespace for the laserscanner node"
     )
 
     default_param_file = PathJoinSubstitution(
@@ -47,7 +45,6 @@ def generate_launch_description():
         name=laserscanner_name,
         parameters=[params_file],
         emulate_tty=True,
-        # arguments=['--ros-args', '--log-level', 'DEBUG'],
     )
 
     # When the sick node reaches the 'inactive' state, make it take the 'activate' transition.

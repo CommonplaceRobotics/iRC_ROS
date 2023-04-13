@@ -1,5 +1,0 @@
-<?xml version="1.0" ?>
-
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-<xacro:include filename="$(find irc_ros_description)/urdf/igus_rebel_6dof_00.xacro" />
-</robot>

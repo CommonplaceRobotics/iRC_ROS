@@ -19,7 +19,15 @@ def generate_launch_description():
         choices=["0", "1", "false", "true", "False", "True"],
         description="Whether to start rviz with the launch file",
     )
+    hardware_protocol_arg = DeclareLaunchArgument(
+        "hardware_protocol",
+        default_value="cprcanv2",
+        choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
+        description="Which hardware protocol or mock hardware should be used",
+    )
+
     use_rviz = LaunchConfiguration("use_rviz")
+    hardware_protocol = LaunchConfiguration("hardware_protocol")
 
     xacro_file = PathJoinSubstitution(
         [
@@ -34,7 +42,8 @@ def generate_launch_description():
             FindExecutable(name="xacro"),
             " ",
             xacro_file,
-            " use_cprcanv2:=true"
+            " hardware_protocol:=",
+            hardware_protocol,
         ]
     )
 
@@ -55,9 +64,7 @@ def generate_launch_description():
         package="robot_state_publisher",
         executable="robot_state_publisher",
         name="robot_state_publisher",
-        output="screen",
         parameters=[{"robot_description": robot_description}],
-        # arguments=['--ros-args', '--log-level', 'DEBUG'],
     )
     joint_state_pub = Node(
         package="joint_state_publisher",
@@ -76,18 +83,15 @@ def generate_launch_description():
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[{"robot_description": robot_description}, igus_rebel_controllers],
-        output="both",
     )
     joint_state_broadcaster = Node(
         package="controller_manager",
         executable="spawner",
-        # arguments=['joint_state_broadcaster'],
         arguments=[
             "joint_state_broadcaster",
             "--controller-manager",
             "/controller_manager",
         ],
-        output="screen",
     )
 
     robot_controller_node = Node(
@@ -110,19 +114,18 @@ def generate_launch_description():
         package="rviz2",
         executable="rviz2",
         name="rviz2",
-        output="log",
         arguments=["-d", rviz_file],
         condition=IfCondition(use_rviz),
     )
 
-    return LaunchDescription(
-        [
-            use_rviz_arg,
-            control_node,
-            robot_state_pub,
-            joint_state_pub,
-            joint_state_broadcaster,
-            delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
-            rviz_node,
-        ]
-    )
+    description = LaunchDescription()
+    description.add_action(use_rviz_arg)
+    description.add_action(hardware_protocol_arg)
+    description.add_action(control_node)
+    description.add_action(robot_state_pub)
+    description.add_action(joint_state_pub)
+    description.add_action(joint_state_broadcaster)
+    description.add_action(delay_robot_controller_spawner_after_joint_state_broadcaster_spawner)
+    description.add_action(rviz_node)
+    return description
+

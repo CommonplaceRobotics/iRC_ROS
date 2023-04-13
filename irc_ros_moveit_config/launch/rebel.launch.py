@@ -64,7 +64,6 @@ def generate_launch_description():
     move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
-        output="screen",
         parameters=[
             moveit_config.to_dict(),
             {"publish_robot_description_semantic": True},
@@ -86,7 +85,6 @@ def generate_launch_description():
         executable="robot_state_publisher",
         name="robot_state_publisher",
         # namespace=namespace,
-        output="screen",
         parameters=[moveit_config.robot_description],
     )
 
@@ -144,7 +142,6 @@ def generate_launch_description():
         package="rviz2",
         executable="rviz2",
         name="rviz2",
-        output="log",
         arguments=["-d", rviz_file],
         parameters=[
             moveit_config.robot_description,

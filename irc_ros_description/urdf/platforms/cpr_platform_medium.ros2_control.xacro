@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="cpr_platform_medium_ros2_control" params="prefix hardware_protocol">
+    <ros2_control name="cpr_platform_medium" type="system">
+      <hardware>
+        <xacro:if value="${hardware_protocol == 'mock_hardware'}">
+          <plugin>mock_components/GenericSystem</plugin>
+        </xacro:if>
+        <xacro:if value="${hardware_protocol == 'gazebo'}">
+            <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+        </xacro:if>
+        <xacro:if value="${hardware_protocol == 'cprcanv2'}">
+          <plugin>irc_hardware/IrcRosCan</plugin>
+          <param name="can_socket">can0</param>
+        </xacro:if>
+        <xacro:if value="${hardware_protocol == 'cri'}">
+          <plugin>irc_hardware/IrcRosCri</plugin>
+          <param name="ip">192.168.3.11</param>
+        </xacro:if>
+      </hardware>
+
+      <!-- Include the joint module macro -->
+      <xacro:include filename="$(find irc_ros_description)/urdf/modules/din_rail.ros2_control.xacro" />
+
+      <xacro:din_rail_module name="${prefix}joint_wheel_1" can_id="0x18" gear_scale="33.33" continuous_joint="true" />
+      <xacro:din_rail_module name="${prefix}joint_wheel_2" can_id="0x28" gear_scale="-33.33" continuous_joint="true" />
+    </ros2_control>
+  </xacro:macro>
+</robot>

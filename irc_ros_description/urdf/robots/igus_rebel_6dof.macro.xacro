@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="igus_rebel_6dof" >
+
+  <!-- Include all igus_rebel_6dof macros -->
+  <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_rebel_6dof_pre.description.xacro" />
+  <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_rebel_6dof_pre.ros2_control.xacro" />
+
+  <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_rebel_6dof_00.description.xacro" />
+  <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_rebel_6dof_00.ros2_control.xacro" />
+
+  <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_rebel_6dof_01.description.xacro" />
+  <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_rebel_6dof_01.ros2_control.xacro" />
+
+  <xacro:macro name="igus_rebel_6dof" params="prefix hardware_protocol continuous_last_joint=false rebel_version">
+    <!-- Call macros once -->
+    <xacro:if value="${rebel_version == 'pre'}">
+      <xacro:igus_rebel_6dof_pre_description prefix="${prefix}" continuous_last_joint="${continuous_last_joint}" />
+      <xacro:igus_rebel_6dof_pre_ros2_control prefix="${prefix}" hardware_protocol="${hardware_protocol}" continuous_last_joint="${continuous_last_joint}" />
+    </xacro:if>
+    <xacro:if value="${rebel_version == '00'}">
+      <xacro:igus_rebel_6dof_00_description prefix="${prefix}" continuous_last_joint="${continuous_last_joint}" />
+      <xacro:igus_rebel_6dof_00_ros2_control prefix="${prefix}" hardware_protocol="${hardware_protocol}" continuous_last_joint="${continuous_last_joint}" />
+    </xacro:if>
+    <xacro:if value="${rebel_version == '01'}">
+      <xacro:igus_rebel_6dof_00_description prefix="${prefix}" continuous_last_joint="${continuous_last_joint}" />
+      <xacro:igus_rebel_6dof_01_ros2_control prefix="${prefix}" hardware_protocol="${hardware_protocol}" continuous_last_joint="${continuous_last_joint}" />
+    </xacro:if>
+  </xacro:macro>
+</robot>

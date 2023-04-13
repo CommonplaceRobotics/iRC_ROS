@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="igus_rebel_6dof_pre_ros2_control" params="prefix hardware_protocol continuous_last_joint">
+    <ros2_control name="igus_rebel_6dof" type="system">
+      <hardware>
+        <xacro:if value="${hardware_protocol == 'mock_hardware'}">
+          <plugin>mock_components/GenericSystem</plugin>
+        </xacro:if>
+        <xacro:if value="${hardware_protocol == 'gazebo'}">
+            <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+        </xacro:if>
+        <xacro:if value="${hardware_protocol == 'cprcanv2'}">
+          <plugin>irc_hardware/IrcRosCan</plugin>
+          <param name="can_socket">can0</param>
+        </xacro:if>
+        <xacro:if value="${hardware_protocol == 'cri'}">
+          <plugin>irc_hardware/IrcRosCri</plugin>
+          <param name="ip">192.168.3.11</param>
+        </xacro:if>
+      </hardware>
+
+      <!-- Include the joint module macro -->
+      <xacro:include filename="$(find irc_ros_description)/urdf/modules/rebel.ros2_control.xacro" />
+
+      <xacro:rebel_joint name="${prefix}joint1" can_id="0x10" position_min="${-pi*179/180}" position_max="${pi*179/180}" gear_scale="1031.11" />
+      <xacro:rebel_joint name="${prefix}joint2" can_id="0x20" position_min="${-pi*4/9}" position_max="${pi*7/9}" gear_scale="1031.11" />
+      <xacro:rebel_joint name="${prefix}joint3" can_id="0x30" position_min="${-pi*4/9}" position_max="${pi*7/9}" gear_scale="1031.11" />
+      <xacro:rebel_joint name="${prefix}joint4" can_id="0x40" position_min="${-pi*179/180}" position_max="${pi*179/180}" gear_scale="-1031.11" />
+      <xacro:rebel_joint name="${prefix}joint5" can_id="0x50" position_min="${-pi*19/36}" position_max="${pi*19/36}" gear_scale="1031.11" />
+      <xacro:rebel_joint name="${prefix}joint6" can_id="0x60" position_min="${-pi*179/180}" position_max="${pi*179/180}" gear_scale="-1031.11" continuous_joint="${continuous_last_joint}" />
+
+      <!-- Pre version does not have GPIOs -->
+    </ros2_control>
+  </xacro:macro>
+</robot>

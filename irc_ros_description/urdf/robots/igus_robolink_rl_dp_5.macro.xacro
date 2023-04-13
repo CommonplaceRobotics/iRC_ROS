@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="igus_robolink_rl_dp_5" >
+  
+  <!-- Include relevant macros -->
+  <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_robolink_rl_dp_5.description.xacro" />
+  <xacro:include filename="$(find irc_ros_description)/urdf/robots/igus_robolink_rl_dp_5.ros2_control.xacro" />
+
+  <xacro:macro name="igus_robolink_rl_dp_5" params="prefix hardware_protocol continuous_last_joint=false">
+    <!-- Call macros once -->
+    <xacro:igus_robolink_rl_dp_5_description prefix="${prefix}" continuous_last_joint="${continuous_last_joint}" />
+    <xacro:igus_robolink_rl_dp_5_ros2_control prefix="${prefix}" hardware_protocol="${hardware_protocol}" continuous_last_joint="${continuous_last_joint}" />
+  </xacro:macro>
+</robot>

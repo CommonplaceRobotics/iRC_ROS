@@ -67,7 +67,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        chassis:
+        base_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -82,7 +82,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        hand:
+        flange:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -153,13 +153,13 @@ Visualization Manager:
         All Enabled: false
         base_link:
           Value: true
-        chassis:
+        base_link:
           Value: true
         gripper_base:
           Value: true
         gripper_mount:
           Value: true
-        hand:
+        flange:
           Value: true
         laser_back:
           Value: true
@@ -195,7 +195,7 @@ Visualization Manager:
       Tree:
         map:
           odom:
-            chassis:
+            base_link:
               base_link:
                 {}
               laser_back:

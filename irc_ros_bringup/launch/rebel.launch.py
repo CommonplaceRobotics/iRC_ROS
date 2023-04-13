@@ -1,16 +1,29 @@
 from launch import LaunchDescription
-from launch.actions import RegisterEventHandler
-from launch.event_handlers import OnProcessExit
 from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler
 from launch.conditions import IfCondition, LaunchConfigurationEquals
 from launch.substitutions import LaunchConfiguration
+from launch.event_handlers import OnProcessExit
 
 
 def generate_launch_description():
+    namespace_arg = DeclareLaunchArgument(
+        "namespace",
+        default_value=""
+    )
+    prefix_arg = DeclareLaunchArgument(
+        "prefix",
+        default_value=""
+    )
+    controller_manager_name_arg = DeclareLaunchArgument(
+        "controller_manager_name",
+        default_value=[LaunchConfiguration("namespace"), "/controller_manager"] 
+
+    )
+
     default_rviz_file = PathJoinSubstitution(
         [FindPackageShare("irc_ros_description"), "rviz", "rebel.rviz"]
     )
@@ -71,7 +84,7 @@ def generate_launch_description():
         "rebel_version",
         default_value="01",
         choices=["pre", "00", "01"],
-        description="Which version of the igus ReBeL to use"
+        description="Which version of the igus ReBeL to use",
     )
     gripper_arg = DeclareLaunchArgument(
         "gripper",
@@ -84,16 +97,34 @@ def generate_launch_description():
         default_value="",
         description="The namespace to use for all nodes started by this launch file",
     )
+    launch_dashboard_controller_arg = DeclareLaunchArgument(
+        "launch_dashboard_controller", default_value="true"
+    )
+    launch_dio_controller_arg = DeclareLaunchArgument(
+        "launch_dio_controller", default_value="true"
+    )
+    hardware_protocol_arg = DeclareLaunchArgument(
+        "hardware_protocol",
+        default_value="cprcanv2",
+        choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
+        description="Which hardware protocol or mock hardware should be used",
+    )
 
     namespace = LaunchConfiguration("namespace")
+    prefix = LaunchConfiguration("prefix")
+    controller_manager_name = LaunchConfiguration("controller_manager_name")
     use_rviz = LaunchConfiguration("use_rviz")
     rviz_file = LaunchConfiguration("rviz_file")
-    # Not required as variable
-    # robot_name = LaunchConfiguration('robot_name')
     robot_urdf = LaunchConfiguration("robot_urdf")
     robot_controller_config = LaunchConfiguration("robot_controller_config")
     rebel_version = LaunchConfiguration("rebel_version")
     gripper = LaunchConfiguration("gripper")
+    hardware_protocol = LaunchConfiguration("hardware_protocol")
+
+    # Not required as variables
+    # robot_name = LaunchConfiguration('robot_name')
+    # launch_dashboard_controller = LaunchConfiguration("launch_dashboard_controller")
+    # launch_dio_controller = LaunchConfiguration("launch_dio_controller")
 
     robot_description = Command(
         [
@@ -104,7 +135,10 @@ def generate_launch_description():
             rebel_version,
             " gripper:=",
             gripper,
-            " use_cprcanv2:=true"
+            " prefix:=",
+            prefix,
+            " hardware_protocol:=",
+            hardware_protocol,
         ]
     )
 
@@ -122,7 +156,6 @@ def generate_launch_description():
         executable="robot_state_publisher",
         name="robot_state_publisher",
         namespace=namespace,
-        output="screen",
         parameters=[{"robot_description": robot_description}],
     )
     joint_state_pub = Node(
@@ -133,7 +166,7 @@ def generate_launch_description():
         parameters=[
             {
                 "source_list": [
-                    "/joint_states",
+                    "/joint_states", # TODO: Does this need a namespace as well?
                 ],
                 "rate": 30,
             }
@@ -148,41 +181,35 @@ def generate_launch_description():
             robot_controller_config,
             external_dio_controllers,
         ],
-        output="both",
     )
 
     joint_state_broadcaster = Node(
         package="controller_manager",
         executable="spawner",
         namespace=namespace,
-        arguments=[
-            "joint_state_broadcaster",
-            "--controller-manager",
-            "/controller_manager",
-        ],
-        output="screen",
+        arguments=["joint_state_broadcaster", "-c", controller_manager_name],
     )
 
     robot_controller_node = Node(
         package="controller_manager",
         executable="spawner",
         namespace=namespace,
-        arguments=["joint_trajectory_controller", "-c", "/controller_manager"],
+        arguments=["joint_trajectory_controller", "-c", controller_manager_name],
     )
 
     dio_controller_node = Node(
         package="controller_manager",
         executable="spawner",
         namespace=namespace,
-        arguments=["dio_controller", "-c", "/controller_manager"],
-        condition=LaunchConfigurationEquals("gripper", "none"),
+        arguments=["dio_controller", "-c", controller_manager_name],
+        condition=LaunchConfigurationEquals("launch_dio_controller", "true"),
     )
 
     external_dio_controller_node = Node(
         package="controller_manager",
         executable="spawner",
         namespace=namespace,
-        arguments=["external_dio_controller", "-c", "/controller_manager"],
+        arguments=["external_dio_controller", "-c", controller_manager_name],
         condition=LaunchConfigurationEquals("gripper", "ext_dio_gripper"),
     )
 
@@ -190,7 +217,7 @@ def generate_launch_description():
         package="controller_manager",
         executable="spawner",
         namespace=namespace,
-        arguments=["ecbpmi_controller", "-c", "/controller_manager"],
+        arguments=["ecbpmi_controller", "-c", controller_manager_name],
         condition=LaunchConfigurationEquals("gripper", "schmalz_ecbpmi"),
     )
 
@@ -198,7 +225,8 @@ def generate_launch_description():
         package="controller_manager",
         executable="spawner",
         namespace=namespace,
-        arguments=["dashboard_controller", "-c", "/controller_manager"],
+        arguments=["dashboard_controller", "-c", controller_manager_name],
+        condition=LaunchConfigurationEquals("launch_dashboard_controller", "true"),
     )
 
     # Delay start of robot_controller after `joint_state_broadcaster`
@@ -221,7 +249,6 @@ def generate_launch_description():
         package="rviz2",
         executable="rviz2",
         name="rviz2",
-        output="log",
         arguments=["-d", rviz_file],
         condition=IfCondition(use_rviz),
     )
@@ -229,22 +256,28 @@ def generate_launch_description():
     description = LaunchDescription()
 
     # Launch args
+    description.add_action(namespace_arg)
+    description.add_action(prefix_arg)
+    description.add_action(controller_manager_name_arg)
     description.add_action(robot_name_arg)
     description.add_action(default_urdf_filename_arg)
     description.add_action(default_robot_controller_filename_arg)
-    description.add_action(namespace_arg)
     description.add_action(use_rviz_arg)
     description.add_action(rviz_file_arg)
     description.add_action(robot_urdf_arg)
     description.add_action(robot_controller_config_arg)
     description.add_action(rebel_version_arg)
     description.add_action(gripper_arg)
+    description.add_action(launch_dashboard_controller_arg)
+    description.add_action(launch_dio_controller_arg)
+    description.add_action(hardware_protocol_arg)
 
     # Robot nodes
     description.add_action(control_node)
     description.add_action(robot_state_pub)
     description.add_action(joint_state_pub)
     description.add_action(joint_state_broadcaster)
+
     description.add_action(
         delay_robot_controller_spawner_after_joint_state_broadcaster_spawner
     )

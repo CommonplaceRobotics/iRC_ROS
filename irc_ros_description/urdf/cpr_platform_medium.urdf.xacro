@@ -3,14 +3,11 @@
        name="cpr_platform_medium" >
 
   <!-- Controller settings -->  
-  <xacro:arg name="use_mock_hardware" default="false"/>
-  <xacro:arg name="use_gazebo" default="false"/>
-  <xacro:arg name="use_cprcanv2" default="false"/>
-  <xacro:arg name="use_cri" default="false"/>
+  <xacro:arg name="hardware_protocol" default="cprcanv2"/>
 
-  <xacro:include filename="$(find irc_ros_description)/urdf/din_rail_module.ros2_control.xacro" />
+  <xacro:arg name="prefix" default="" />
 
-  <xacro:include filename="$(find irc_ros_description)/urdf/cpr_platform_medium.xacro" />
-  <xacro:include filename="$(find irc_ros_description)/urdf/cpr_platform_medium.ros2_control.xacro" />
+  <xacro:include filename="$(find irc_ros_description)/urdf/platforms/cpr_platform_medium.macro.xacro" />
+  <xacro:cpr_platform_medium prefix="$(arg prefix)" hardware_protocol="$(arg hardware_protocol)" />
 
 </robot>

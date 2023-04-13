@@ -51,6 +51,15 @@ def generate_launch_description():
         default_value="",
         description="The namespace to use for all nodes started by this launch file",
     )
+    prefix_arg = DeclareLaunchArgument(
+        "prefix",
+        default_value=""
+    )
+    controller_manager_name_arg = DeclareLaunchArgument(
+        "controller_manager_name",
+        default_value=[LaunchConfiguration("namespace"), "/controller_manager"] 
+
+    )
     use_rviz_arg = DeclareLaunchArgument(
         "use_rviz",
         default_value="true",
@@ -90,7 +99,15 @@ def generate_launch_description():
         choices=["0", "1", "false", "true", "False", "True"],
         description="Whether to launch the laserscanner specific nodes",
     )
-
+    hardware_protocol_arg = DeclareLaunchArgument(
+        "hardware_protocol",
+        default_value="cprcanv2",
+        choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
+        description="Which hardware protocol or mock hardware should be used",
+    )
+    namespace = LaunchConfiguration("namespace")
+    prefix = LaunchConfiguration("prefix")
+    controller_manager_name = LaunchConfiguration("controller_manager_name")
     use_rviz = LaunchConfiguration("use_rviz")
     rviz_file = LaunchConfiguration("rviz_file")
     use_rqt_robot_steering = LaunchConfiguration("use_rqt_robot_steering")
@@ -99,14 +116,18 @@ def generate_launch_description():
     platform_urdf = LaunchConfiguration("platform_urdf")
     platform_controller_config = LaunchConfiguration("platform_controller_config")
     use_laserscanners = LaunchConfiguration("use_laserscanners")
-    namespace = LaunchConfiguration("namespace")
+    hardware_protocol = LaunchConfiguration("hardware_protocol")
+
 
     robot_description = Command(
         [
             FindExecutable(name="xacro"),
             " ",
             platform_urdf,
-            " use_cprcanv2:=true"
+            " prefix:=",
+            prefix,
+            " hardware_protocol:=",
+            hardware_protocol,
         ]
     )
 
@@ -116,9 +137,7 @@ def generate_launch_description():
         executable="robot_state_publisher",
         name="robot_state_publisher",
         namespace=namespace,
-        output="screen",
         parameters=[{"robot_description": robot_description}],
-        # arguments=['--ros-args', '--log-level', 'DEBUG'],
     )
     joint_state_pub = Node(
         package="joint_state_publisher",
@@ -142,26 +161,19 @@ def generate_launch_description():
             {"robot_description": robot_description},
             platform_controller_config,
         ],
-        output="both",
     )
     joint_state_broadcaster = Node(
         package="controller_manager",
         executable="spawner",
         namespace=namespace,
-        # arguments=['joint_state_broadcaster'],
-        arguments=[
-            "joint_state_broadcaster",
-            "--controller-manager",
-            "/controller_manager",
-        ],
-        output="screen",
+        arguments=["joint_state_broadcaster", "-c", controller_manager_name],
     )
 
     robot_controller_node = Node(
         package="controller_manager",
         executable="spawner",
         namespace=namespace,
-        arguments=["cpr_platform_controller", "-c", "/controller_manager"],
+        arguments=["cpr_platform_controller", "-c", controller_manager_name],
     )
 
     # Delay start of robot_controller after `joint_state_broadcaster`
@@ -178,7 +190,6 @@ def generate_launch_description():
         package="rviz2",
         executable="rviz2",
         name="rviz2",
-        output="log",
         arguments=["-d", rviz_file],
         condition=IfCondition(use_rviz),
     )
@@ -198,50 +209,34 @@ def generate_launch_description():
         ]
     )
 
-    sick_s300_params = PathJoinSubstitution(
-        [
-            FindPackageShare("irc_ros_bringup"),
-            "params",
-            "sick_s300.yaml",
-        ]
-    )
-
-    sicks300_2_stack_front = IncludeLaunchDescription(
+    sicks300_2_stack = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [irc_ros_bringup_launch_dir, "/sick_s300_2.launch.py"]
+            [irc_ros_bringup_launch_dir, "/sick_s300_2_two_scanners_merged.launch.py"]
         ),
         launch_arguments={
-            "params_file": sick_s300_params,
-            "name": "laserscanner_front",
+            "namespace": namespace,
+            "prefix": prefix,
         }.items(),
         condition=IfCondition(use_laserscanners),
     )
 
-    sicks300_2_stack_back = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [irc_ros_bringup_launch_dir, "/sick_s300_2.launch.py"]
-        ),
-        launch_arguments={
-            "name": "laserscanner_back",
-            "params_file": sick_s300_params,
-        }.items(),
-        condition=IfCondition(use_laserscanners),
-    )
-    laser_merger_node = Node(
-        package="ira_laser_tools",
-        namespace=namespace,
-        executable="laserscan_multi_merger",
-        name="laserscan_multi_merger",
-        parameters=[
-            {
-                "destination_frame": "chassis",
-                "scan_destination_topic": "/scan",
-                "laserscan_topics": "/scan_front /scan_back",
-            }
-        ],
-        condition=IfCondition(use_laserscanners),
+    # Since the odometry topics from the diffdrive controllers output to frames with a
+    # namespace instead the prefix we need tfs between those two if we use a namespace
+    # TODO: Use namespace & prefix LaunchConfiguration instead of hardcoding it
+    # TODO: Remove once https://github.com/ros-controls/ros2_controllers/pull/533 is merged
+    odom_tf_node = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name='tray_1_static_broadcaster',
+        arguments=['0', '0', '0', '0', '0', '0', 'platform_1/platform_1_base_link', 'platform_1_base_link' ],
     )
 
+    base_link_tf_node = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name='tray_2_static_broadcaster',
+        arguments=['0', '0', '0', '0', '0', '0', 'platform_1/platform_1_odom', 'platform_1_odom'],
+    )
     description = LaunchDescription()
 
     # Launch args
@@ -251,12 +246,16 @@ def generate_launch_description():
     description.add_action(default_platform_controller_filename_arg)
 
     description.add_action(namespace_arg)
+    description.add_action(prefix_arg)
+    description.add_action(controller_manager_name_arg)
+
     description.add_action(use_rviz_arg)
     description.add_action(rviz_file_arg)
     description.add_action(use_rqt_robot_steering_arg)
     description.add_action(platform_urdf_arg)
     description.add_action(platform_controller_config_arg)
     description.add_action(use_laserscanners_arg)
+    description.add_action(hardware_protocol_arg)
 
     # Robot nodes
     description.add_action(control_node)
@@ -264,7 +263,7 @@ def generate_launch_description():
     description.add_action(joint_state_pub)
     description.add_action(joint_state_broadcaster)
     description.add_action(
-        delay_robot_controller_spawner_after_joint_state_broadcaster_spawner
+       delay_robot_controller_spawner_after_joint_state_broadcaster_spawner
     )
 
     # UI nodes
@@ -272,12 +271,10 @@ def generate_launch_description():
     description.add_action(rqt_robot_steering_node)
 
     # Laser scan front
-    description.add_action(sicks300_2_stack_front)
+    description.add_action(sicks300_2_stack)
 
-    # Laser scan back
-    description.add_action(sicks300_2_stack_back)
-
-    # Laser scan merger
-    description.add_action(laser_merger_node)
+    # Diff drive tfs
+    description.add_action(odom_tf_node)
+    description.add_action(base_link_tf_node)
 
     return description
