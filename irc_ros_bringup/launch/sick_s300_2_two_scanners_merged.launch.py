@@ -4,7 +4,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-
+from nav2_common.launch import ReplaceString
 
 def generate_launch_description():
     destination_frame_arg = DeclareLaunchArgument(
@@ -29,7 +29,7 @@ def generate_launch_description():
         description="TODO",
     )
     namespace = LaunchConfiguration("namespace")
-    # prefix = LaunchConfiguration("prefix")
+    prefix = LaunchConfiguration("prefix")
 
     destination_frame = LaunchConfiguration("destination_frame_arg")
     in_topics = LaunchConfiguration("in_topics")
@@ -43,12 +43,20 @@ def generate_launch_description():
         ]
     )
 
-    sick_s300_params = PathJoinSubstitution(
+    sick_s300_params_file = PathJoinSubstitution(
         [
             FindPackageShare("irc_ros_bringup"),
             "params",
             "sick_s300.yaml",
         ]
+    )
+    
+    sick_s300_params = ReplaceString(
+        source_file=sick_s300_params_file,
+        replacements={
+            "<namespace>": namespace,
+            "<prefix>": prefix,
+        }
     )
 
     sicks300_2_stack_front = IncludeLaunchDescription(
