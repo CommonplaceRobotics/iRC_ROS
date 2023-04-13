@@ -59,7 +59,7 @@
       <axis xyz="0 -1 0"/>
       <!-- <limit effort="330.0" lower="-3.12414" upper="3.12414" velocity="2.16"/> -->
     </joint>
-    <link name="wheel_2">
+    <link name="${prefix}wheel_2">
       <visual>
         <geometry>
           <mesh filename="package://irc_ros_description/meshes/cpr_platform_medium/wheel.dae"/>
@@ -85,8 +85,8 @@
     </link>
 
     <joint name="${prefix}joint_laser_back" type="fixed">
-      <parent link="base_link"/>
-      <child link="laser_back"/>
+      <parent link="${prefix}base_link"/>
+      <child link="${prefix}laser_back"/>
       <origin rpy="0.0 0.0 ${pi}" xyz="-0.54 0 0"/>
     </joint>
     <link name="${prefix}laser_back">
