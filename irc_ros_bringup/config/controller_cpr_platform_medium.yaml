@@ -1,4 +1,4 @@
-controller_manager:
+<namespace>/controller_manager:
   ros__parameters:
     update_rate: 100 # 100Hz for CAN and 10Hz for CRI
 
@@ -8,14 +8,14 @@ controller_manager:
     cpr_platform_controller:
       type: diff_drive_controller/DiffDriveController
 
-cpr_platform_controller:
+<namespace>/cpr_platform_controller:
   ros__parameters:
 
-    left_wheel_names: ["joint_wheel_1"]
-    right_wheel_names: ["joint_wheel_2"]
+    left_wheel_names: ["<prefix>joint_wheel_1"]
+    right_wheel_names: ["<prefix>joint_wheel_2"]
 
-    odom_frame_id: odom
-    base_frame_id: base_link
+    odom_frame_id: <prefix>odom
+    base_frame_id: <prefix>base_link
 
     enable_odom_tf: true    
 

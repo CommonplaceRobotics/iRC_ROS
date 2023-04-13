@@ -14,6 +14,12 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler
+from launch.conditions import IfCondition, LaunchConfigurationEquals
+from launch.substitutions import LaunchConfiguration
+from launch.event_handlers import OnProcessExit
+
+from nav2_common.launch import ReplaceString
 
 def generate_launch_description():
     namespace_arg = DeclareLaunchArgument("namespace", default_value="")
@@ -110,7 +116,7 @@ def generate_launch_description():
     use_rviz = LaunchConfiguration("use_rviz")
     rviz_file = LaunchConfiguration("rviz_file")
     robot_urdf = LaunchConfiguration("robot_urdf")
-    robot_controller_config = LaunchConfiguration("robot_controller_config")
+    robot_controller_config_file = LaunchConfiguration("robot_controller_config")
     rebel_version = LaunchConfiguration("rebel_version")
     gripper = LaunchConfiguration("gripper")
     hardware_protocol = LaunchConfiguration("hardware_protocol")
@@ -119,6 +125,14 @@ def generate_launch_description():
     # robot_name = LaunchConfiguration('robot_name')
     # launch_dashboard_controller = LaunchConfiguration("launch_dashboard_controller")
     # launch_dio_controller = LaunchConfiguration("launch_dio_controller")
+
+    robot_controller_config = ReplaceString(
+        source_file=robot_controller_config_file,
+        replacements={
+            "<namespace>": namespace,
+            "<prefix>": prefix,
+        }
+    )
 
     robot_description = Command(
         [
