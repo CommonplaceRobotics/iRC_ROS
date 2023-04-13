@@ -209,50 +209,34 @@ def generate_launch_description():
         ]
     )
 
-    sick_s300_params = PathJoinSubstitution(
-        [
-            FindPackageShare("irc_ros_bringup"),
-            "params",
-            "sick_s300.yaml",
-        ]
-    )
-
-    sicks300_2_stack_front = IncludeLaunchDescription(
+    sicks300_2_stack = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [irc_ros_bringup_launch_dir, "/sick_s300_2.launch.py"]
+            [irc_ros_bringup_launch_dir, "/sick_s300_2_two_scanners_merged.launch.py"]
         ),
         launch_arguments={
-            "laserscanner_name": "laserscanner_front",
-            "params_file": sick_s300_params,
+            "namespace": namespace,
+            "prefix": prefix,
         }.items(),
         condition=IfCondition(use_laserscanners),
     )
 
-    sicks300_2_stack_back = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [irc_ros_bringup_launch_dir, "/sick_s300_2.launch.py"]
-        ),
-        launch_arguments={
-            "laserscanner_name": "laserscanner_back",
-            "params_file": sick_s300_params,
-        }.items(),
-        condition=IfCondition(use_laserscanners),
-    )
-    laser_merger_node = Node(
-        package="ira_laser_tools",
-        namespace=namespace,
-        executable="laserscan_multi_merger",
-        name="laserscan_multi_merger",
-        parameters=[
-            {
-                "destination_frame": "base_link",
-                "scan_destination_topic": "/scan",
-                "laserscan_topics": "/scan_front /scan_back",
-            }
-        ],
-        condition=IfCondition(use_laserscanners),
+    # Since the odometry topics from the diffdrive controllers output to frames with a
+    # namespace instead the prefix we need tfs between those two if we use a namespace
+    # TODO: Use namespace & prefix LaunchConfiguration instead of hardcoding it
+    # TODO: Remove once https://github.com/ros-controls/ros2_controllers/pull/533 is merged
+    odom_tf_node = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name='tray_1_static_broadcaster',
+        arguments=['0', '0', '0', '0', '0', '0', 'platform_1/platform_1_base_link', 'platform_1_base_link' ],
     )
 
+    base_link_tf_node = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name='tray_2_static_broadcaster',
+        arguments=['0', '0', '0', '0', '0', '0', 'platform_1/platform_1_odom', 'platform_1_odom'],
+    )
     description = LaunchDescription()
 
     # Launch args
@@ -287,12 +271,10 @@ def generate_launch_description():
     description.add_action(rqt_robot_steering_node)
 
     # Laser scan front
-    description.add_action(sicks300_2_stack_front)
+    description.add_action(sicks300_2_stack)
 
-    # Laser scan back
-    description.add_action(sicks300_2_stack_back)
-
-    # Laser scan merger
-    description.add_action(laser_merger_node)
+    # Diff drive tfs
+    description.add_action(odom_tf_node)
+    description.add_action(base_link_tf_node)
 
     return description
