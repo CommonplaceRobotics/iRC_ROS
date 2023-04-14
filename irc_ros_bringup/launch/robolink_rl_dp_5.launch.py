@@ -13,6 +13,7 @@ from launch_ros.substitutions import FindPackageShare
 
 from nav2_common.launch import ReplaceString
 
+
 def generate_launch_description():
     namespace_arg = DeclareLaunchArgument("namespace", default_value="")
     prefix_arg = DeclareLaunchArgument("prefix", default_value="")
@@ -33,6 +34,9 @@ def generate_launch_description():
         description="Which hardware protocol or mock hardware should be used",
     )
 
+    namespace = LaunchConfiguration("namespace")
+    prefix = LaunchConfiguration("prefix")
+    controller_manager_name = LaunchConfiguration("controller_manager_name")
     use_rviz = LaunchConfiguration("use_rviz")
     hardware_protocol = LaunchConfiguration("hardware_protocol")
 
@@ -49,6 +53,8 @@ def generate_launch_description():
             FindExecutable(name="xacro"),
             " ",
             xacro_file,
+            " prefix:=",
+            prefix,
             " hardware_protocol:=",
             hardware_protocol,
         ]
@@ -66,18 +72,13 @@ def generate_launch_description():
         ]
     )
 
-    namespace = LaunchConfiguration("namespace")
-    prefix = LaunchConfiguration("prefix")
-    controller_manager_name = LaunchConfiguration("controller_manager_name")
-
     robot_controller_config = ReplaceString(
         source_file=robot_controller_config_file,
         replacements={
             "<namespace>": namespace,
             "<prefix>": prefix,
-        }
+        },
     )
-
 
     # Node declarations:
     robot_state_pub = Node(
