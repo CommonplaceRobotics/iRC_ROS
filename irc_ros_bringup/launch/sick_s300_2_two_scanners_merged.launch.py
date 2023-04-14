@@ -6,6 +6,7 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from nav2_common.launch import ReplaceString
 
+
 def generate_launch_description():
     destination_frame_arg = DeclareLaunchArgument(
         "destination_frame_arg",
@@ -25,7 +26,9 @@ def generate_launch_description():
     )
     out_topic_arg = DeclareLaunchArgument(
         "out_topic",
-        default_value=[LaunchConfiguration("namespace"), "/scan"],
+        # FIXME: Temporary workaround since slam_toolbox settings dont seem to work
+        # default_value=[LaunchConfiguration("namespace"), "/scan"],
+        default_value=["/scan"],
         description="TODO",
     )
     namespace = LaunchConfiguration("namespace")
@@ -50,13 +53,13 @@ def generate_launch_description():
             "sick_s300.yaml",
         ]
     )
-    
+
     sick_s300_params = ReplaceString(
         source_file=sick_s300_params_file,
         replacements={
             "<namespace>": namespace,
             "<prefix>": prefix,
-        }
+        },
     )
 
     sicks300_2_stack_front = IncludeLaunchDescription(
