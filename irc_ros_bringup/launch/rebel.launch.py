@@ -163,7 +163,7 @@ def generate_launch_description():
         parameters=[
             {
                 "source_list": [
-                    "/joint_states",  # TODO: Does this need a namespace as well?
+                    "/joint_states",
                 ],
                 "rate": 30,
             }
@@ -256,10 +256,6 @@ def generate_launch_description():
         executable="spawner",
         namespace=namespace,
         arguments=["dashboard_controller", "-c", controller_manager_name],
-        # condition=AndSubstitution(
-        #    LaunchConfigurationEquals("hardware_protocol", "cprcanv2"),
-        #    LaunchConfigurationEquals("launch_dashboard_controller", "true"),
-        # ),
         condition=IfCondition(
             PythonExpression(
                 [
