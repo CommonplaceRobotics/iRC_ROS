@@ -49,12 +49,19 @@ def generate_launch_description():
     namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value="",
+        choices=["", "/platform_1"],
         description="The namespace to use for all nodes started by this launch file",
     )
-    prefix_arg = DeclareLaunchArgument("prefix", default_value="")
+    prefix_arg = DeclareLaunchArgument(
+        "prefix",
+        default_value="",
+        choices=["", "platform_1_"],
+        description="Prefix for joints and links",
+    )
     controller_manager_name_arg = DeclareLaunchArgument(
         "controller_manager_name",
         default_value=[LaunchConfiguration("namespace"), "/controller_manager"],
+        description="Name of the controller manager, changes with the namespace",
     )
     use_rviz_arg = DeclareLaunchArgument(
         "use_rviz",
