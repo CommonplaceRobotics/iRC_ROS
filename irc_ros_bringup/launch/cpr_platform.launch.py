@@ -11,6 +11,7 @@ from launch.substitutions import (
     Command,
     FindExecutable,
     PathJoinSubstitution,
+    PythonExpression,
     LaunchConfiguration,
 )
 from launch_ros.actions import Node
@@ -118,7 +119,7 @@ def generate_launch_description():
     # platform_name = LaunchConfiguration('platform_name')
     platform_urdf = LaunchConfiguration("platform_urdf")
     platform_controller_config = LaunchConfiguration("platform_controller_config")
-    use_laserscanners = LaunchConfiguration("use_laserscanners")
+    # use_laserscanners = LaunchConfiguration("use_laserscanners")
     hardware_protocol = LaunchConfiguration("hardware_protocol")
 
     robot_description = Command(
@@ -219,7 +220,18 @@ def generate_launch_description():
             "namespace": namespace,
             "prefix": prefix,
         }.items(),
-        condition=IfCondition(use_laserscanners),
+        condition=IfCondition(
+            PythonExpression(
+                [
+                    "'",
+                    LaunchConfiguration("hardware_protocol"),
+                    "' == 'cprcanv2' ",
+                    "and '",
+                    LaunchConfiguration("use_laserscanners"),
+                    "' in ['1', 'true', 'True']",
+                ]
+            )
+        ),
     )
 
     # Since the odometry topics from the diffdrive controllers output to frames with a
