@@ -1,5 +1,9 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, RegisterEventHandler
+from launch.actions import (
+    DeclareLaunchArgument,
+    RegisterEventHandler,
+    IncludeLaunchDescription,
+)
 from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
 from launch.substitutions import (
@@ -7,8 +11,8 @@ from launch.substitutions import (
     FindExecutable,
     LaunchConfiguration,
     PathJoinSubstitution,
-    PythonExpression,
 )
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -94,12 +98,7 @@ def generate_launch_description():
         default_value="",
         description="The namespace to use for all nodes started by this launch file",
     )
-    launch_dashboard_controller_arg = DeclareLaunchArgument(
-        "launch_dashboard_controller", default_value="true"
-    )
-    launch_dio_controller_arg = DeclareLaunchArgument(
-        "launch_dio_controller", default_value="true"
-    )
+
     hardware_protocol_arg = DeclareLaunchArgument(
         "hardware_protocol",
         default_value="cprcanv2",
@@ -194,79 +193,15 @@ def generate_launch_description():
         arguments=["joint_trajectory_controller", "-c", controller_manager_name],
     )
 
-    dio_controller_node = Node(
-        package="controller_manager",
-        executable="spawner",
-        namespace=namespace,
-        arguments=["dio_controller", "-c", controller_manager_name],
-        condition=IfCondition(
-            PythonExpression(
-                [
-                    "'",
-                    LaunchConfiguration("hardware_protocol"),
-                    "' == 'cprcanv2' ",
-                    "and '",
-                    LaunchConfiguration("launch_dio_controller"),
-                    "' in ['1', 'true', 'True']",
-                ]
-            )
-        ),
+    irc_ros_bringup_launch_dir = PathJoinSubstitution(
+        [
+            FindPackageShare("irc_ros_bringup"),
+            "launch",
+        ]
     )
-
-    external_dio_controller_node = Node(
-        package="controller_manager",
-        executable="spawner",
-        namespace=namespace,
-        arguments=["external_dio_controller", "-c", controller_manager_name],
-        condition=IfCondition(
-            PythonExpression(
-                [
-                    "'",
-                    LaunchConfiguration("hardware_protocol"),
-                    "' == 'cprcanv2' ",
-                    "and '",
-                    LaunchConfiguration("gripper"),
-                    "' == 'ext_dio_gripper' ",
-                ]
-            )
-        ),
-    )
-
-    ecbpmi_controller_node = Node(
-        package="controller_manager",
-        executable="spawner",
-        namespace=namespace,
-        arguments=["ecbpmi_controller", "-c", controller_manager_name],
-        condition=IfCondition(
-            PythonExpression(
-                [
-                    "'",
-                    LaunchConfiguration("hardware_protocol"),
-                    "' == 'cprcanv2' ",
-                    "and '",
-                    LaunchConfiguration("gripper"),
-                    "' == 'schmalz_ecbpmi' ",
-                ]
-            )
-        ),
-    )
-
-    dashboard_controller_node = Node(
-        package="controller_manager",
-        executable="spawner",
-        namespace=namespace,
-        arguments=["dashboard_controller", "-c", controller_manager_name],
-        condition=IfCondition(
-            PythonExpression(
-                [
-                    "'",
-                    LaunchConfiguration("hardware_protocol"),
-                    "' == 'cprcanv2' ",
-                    "and '",
-                    LaunchConfiguration("launch_dashboard_controller"),
-                    "' in ['1', 'true', 'True']",
-                ]
-            )
+    additional_controllers = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [irc_ros_bringup_launch_dir, "/additional_controllers.launch.py"]
         ),
     )
 
@@ -277,10 +212,7 @@ def generate_launch_description():
                 target_action=joint_state_broadcaster,
                 on_exit=[
                     robot_controller_node,
-                    dio_controller_node,
-                    external_dio_controller_node,
-                    ecbpmi_controller_node,
-                    dashboard_controller_node,
+                    additional_controllers,
                 ],
             )
         )
@@ -309,8 +241,7 @@ def generate_launch_description():
     description.add_action(robot_controller_config_arg)
     description.add_action(rebel_version_arg)
     description.add_action(gripper_arg)
-    description.add_action(launch_dashboard_controller_arg)
-    description.add_action(launch_dio_controller_arg)
+
     description.add_action(hardware_protocol_arg)
 
     # Robot nodes

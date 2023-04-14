@@ -2,14 +2,18 @@
 # https://github.com/ros-planning/moveit_resources/blob/humble/panda_moveit_config/launch/demo.launch.py
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, RegisterEventHandler
+from launch.actions import (
+    DeclareLaunchArgument,
+    RegisterEventHandler,
+    IncludeLaunchDescription,
+)
 from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
 from launch.substitutions import (
     LaunchConfiguration,
     PathJoinSubstitution,
-    PythonExpression,
 )
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -119,79 +123,15 @@ def generate_launch_description():
         arguments=["rebel_6dof_controller", "-c", "/controller_manager"],
     )
 
-    dio_controller_node = Node(
-        package="controller_manager",
-        executable="spawner",
-        # namespace=namespace,
-        arguments=["dio_controller", "-c", "/controller_manager"],
-        condition=IfCondition(
-            PythonExpression(
-                [
-                    "'",
-                    LaunchConfiguration("hardware_protocol"),
-                    "' == 'cprcanv2' ",
-                    "and '",
-                    LaunchConfiguration("launch_dio_controller"),
-                    "' in ['1', 'true', 'True']",
-                ]
-            )
-        ),
+    irc_ros_bringup_launch_dir = PathJoinSubstitution(
+        [
+            FindPackageShare("irc_ros_bringup"),
+            "launch",
+        ]
     )
-
-    external_dio_controller_node = Node(
-        package="controller_manager",
-        executable="spawner",
-        # namespace=namespace,
-        arguments=["external_dio_controller", "-c", "/controller_manager"],
-        condition=IfCondition(
-            PythonExpression(
-                [
-                    "'",
-                    LaunchConfiguration("hardware_protocol"),
-                    "' == 'cprcanv2' ",
-                    "and '",
-                    LaunchConfiguration("gripper"),
-                    "' == 'ext_dio_gripper' ",
-                ]
-            )
-        ),
-    )
-
-    ecbpmi_controller_node = Node(
-        package="controller_manager",
-        executable="spawner",
-        # namespace=namespace,
-        arguments=["ecbpmi_controller", "-c", "/controller_manager"],
-        condition=IfCondition(
-            PythonExpression(
-                [
-                    "'",
-                    LaunchConfiguration("hardware_protocol"),
-                    "' == 'cprcanv2' ",
-                    "and '",
-                    LaunchConfiguration("gripper"),
-                    "' == 'schmalz_ecbpmi' ",
-                ]
-            )
-        ),
-    )
-
-    dashboard_controller_node = Node(
-        package="controller_manager",
-        executable="spawner",
-        # namespace=namespace,
-        arguments=["dashboard_controller", "-c", "/controller_manager"],
-        condition=IfCondition(
-            PythonExpression(
-                [
-                    "'",
-                    LaunchConfiguration("hardware_protocol"),
-                    "' == 'cprcanv2' ",
-                    "and '",
-                    LaunchConfiguration("launch_dashboard_controller"),
-                    "' in ['1', 'true', 'True']",
-                ]
-            )
+    additional_controllers = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [irc_ros_bringup_launch_dir, "/additional_controllers.launch.py"]
         ),
     )
 
@@ -202,10 +142,7 @@ def generate_launch_description():
                 target_action=joint_state_broadcaster_node,
                 on_exit=[
                     rebel_6dof_controller_node,
-                    dio_controller_node,
-                    external_dio_controller_node,
-                    ecbpmi_controller_node,
-                    dashboard_controller_node,
+                    additional_controllers,
                 ],
             )
         )
