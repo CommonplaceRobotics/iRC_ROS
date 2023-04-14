@@ -1,12 +1,16 @@
 from launch import LaunchDescription
-from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler
+from launch.conditions import IfCondition
+from launch.event_handlers import OnProcessExit
+from launch.substitutions import (
+    Command,
+    FindExecutable,
+    LaunchConfiguration,
+    PathJoinSubstitution,
+    PythonExpression,
+)
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-
-from launch.actions import DeclareLaunchArgument, RegisterEventHandler
-from launch.conditions import IfCondition, LaunchConfigurationEquals
-from launch.substitutions import LaunchConfiguration
-from launch.event_handlers import OnProcessExit
 
 
 def generate_launch_description():
@@ -195,7 +199,18 @@ def generate_launch_description():
         executable="spawner",
         namespace=namespace,
         arguments=["dio_controller", "-c", controller_manager_name],
-        condition=LaunchConfigurationEquals("launch_dio_controller", "true"),
+        condition=IfCondition(
+            PythonExpression(
+                [
+                    "'",
+                    LaunchConfiguration("hardware_protocol"),
+                    "' == 'cprcanv2' ",
+                    "and '",
+                    LaunchConfiguration("launch_dio_controller"),
+                    "' in ['1', 'true', 'True']",
+                ]
+            )
+        ),
     )
 
     external_dio_controller_node = Node(
@@ -203,7 +218,18 @@ def generate_launch_description():
         executable="spawner",
         namespace=namespace,
         arguments=["external_dio_controller", "-c", controller_manager_name],
-        condition=LaunchConfigurationEquals("gripper", "ext_dio_gripper"),
+        condition=IfCondition(
+            PythonExpression(
+                [
+                    "'",
+                    LaunchConfiguration("hardware_protocol"),
+                    "' == 'cprcanv2' ",
+                    "and '",
+                    LaunchConfiguration("gripper"),
+                    "' == 'ext_dio_gripper' ",
+                ]
+            )
+        ),
     )
 
     ecbpmi_controller_node = Node(
@@ -211,7 +237,18 @@ def generate_launch_description():
         executable="spawner",
         namespace=namespace,
         arguments=["ecbpmi_controller", "-c", controller_manager_name],
-        condition=LaunchConfigurationEquals("gripper", "schmalz_ecbpmi"),
+        condition=IfCondition(
+            PythonExpression(
+                [
+                    "'",
+                    LaunchConfiguration("hardware_protocol"),
+                    "' == 'cprcanv2' ",
+                    "and '",
+                    LaunchConfiguration("gripper"),
+                    "' == 'schmalz_ecbpmi' ",
+                ]
+            )
+        ),
     )
 
     dashboard_controller_node = Node(
@@ -219,7 +256,22 @@ def generate_launch_description():
         executable="spawner",
         namespace=namespace,
         arguments=["dashboard_controller", "-c", controller_manager_name],
-        condition=LaunchConfigurationEquals("launch_dashboard_controller", "true"),
+        # condition=AndSubstitution(
+        #    LaunchConfigurationEquals("hardware_protocol", "cprcanv2"),
+        #    LaunchConfigurationEquals("launch_dashboard_controller", "true"),
+        # ),
+        condition=IfCondition(
+            PythonExpression(
+                [
+                    "'",
+                    LaunchConfiguration("hardware_protocol"),
+                    "' == 'cprcanv2' ",
+                    "and '",
+                    LaunchConfiguration("launch_dashboard_controller"),
+                    "' in ['1', 'true', 'True']",
+                ]
+            )
+        ),
     )
 
     # Delay start of robot_controller after `joint_state_broadcaster`
