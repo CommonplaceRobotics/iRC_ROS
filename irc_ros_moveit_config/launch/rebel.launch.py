@@ -3,9 +3,13 @@
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, RegisterEventHandler
-from launch.conditions import IfCondition, LaunchConfigurationEquals
+from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import (
+    LaunchConfiguration,
+    PathJoinSubstitution,
+    PythonExpression,
+)
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -25,7 +29,22 @@ def generate_launch_description():
         choices=["none", "schmalz_ecbpmi", "ext_dio_gripper"],
         description="Which gripper to attach to the flange",
     )
-
+    launch_dashboard_controller_arg = DeclareLaunchArgument(
+        "launch_dashboard_controller",
+        default_value="false",
+        description="NOTE: Requires adding settings to ros2_controllers.yaml",
+    )
+    launch_dio_controller_arg = DeclareLaunchArgument(
+        "launch_dio_controller",
+        default_value="true",
+        description="Whether to launch the DIO controller",
+    )
+    hardware_protocol_arg = DeclareLaunchArgument(
+        "hardware_protocol",
+        default_value="cprcanv2",
+        choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
+        description="Which hardware protocol or mock hardware should be used",
+    )
     use_rviz = LaunchConfiguration("use_rviz")
     # gripper = LaunchConfiguration("gripper")
 
@@ -88,6 +107,12 @@ def generate_launch_description():
         parameters=[moveit_config.robot_description],
     )
 
+    joint_state_broadcaster_node = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["joint_state_broadcaster", "-c", "/controller_manager"],
+    )
+
     rebel_6dof_controller_node = Node(
         package="controller_manager",
         executable="spawner",
@@ -99,7 +124,18 @@ def generate_launch_description():
         executable="spawner",
         # namespace=namespace,
         arguments=["dio_controller", "-c", "/controller_manager"],
-        condition=LaunchConfigurationEquals("gripper", "none"),
+        condition=IfCondition(
+            PythonExpression(
+                [
+                    "'",
+                    LaunchConfiguration("hardware_protocol"),
+                    "' == 'cprcanv2' ",
+                    "and '",
+                    LaunchConfiguration("launch_dio_controller"),
+                    "' in ['1', 'true', 'True']",
+                ]
+            )
+        ),
     )
 
     external_dio_controller_node = Node(
@@ -107,7 +143,18 @@ def generate_launch_description():
         executable="spawner",
         # namespace=namespace,
         arguments=["external_dio_controller", "-c", "/controller_manager"],
-        condition=LaunchConfigurationEquals("gripper", "ext_dio_gripper"),
+        condition=IfCondition(
+            PythonExpression(
+                [
+                    "'",
+                    LaunchConfiguration("hardware_protocol"),
+                    "' == 'cprcanv2' ",
+                    "and '",
+                    LaunchConfiguration("gripper"),
+                    "' == 'ext_dio_gripper' ",
+                ]
+            )
+        ),
     )
 
     ecbpmi_controller_node = Node(
@@ -115,26 +162,52 @@ def generate_launch_description():
         executable="spawner",
         # namespace=namespace,
         arguments=["ecbpmi_controller", "-c", "/controller_manager"],
-        condition=LaunchConfigurationEquals("gripper", "schmalz_ecbpmi"),
+        condition=IfCondition(
+            PythonExpression(
+                [
+                    "'",
+                    LaunchConfiguration("hardware_protocol"),
+                    "' == 'cprcanv2' ",
+                    "and '",
+                    LaunchConfiguration("gripper"),
+                    "' == 'schmalz_ecbpmi' ",
+                ]
+            )
+        ),
     )
 
-    joint_state_broadcaster_node = Node(
+    dashboard_controller_node = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["joint_state_broadcaster", "-c", "/controller_manager"],
+        # namespace=namespace,
+        arguments=["dashboard_controller", "-c", "/controller_manager"],
+        condition=IfCondition(
+            PythonExpression(
+                [
+                    "'",
+                    LaunchConfiguration("hardware_protocol"),
+                    "' == 'cprcanv2' ",
+                    "and '",
+                    LaunchConfiguration("launch_dashboard_controller"),
+                    "' in ['1', 'true', 'True']",
+                ]
+            )
+        ),
     )
 
     # Delay start of robot_controller after `joint_state_broadcaster`
-    delay_robot_controller_spawner_after_joint_state_broadcaster_spawner = RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=joint_state_broadcaster_node,
-            on_exit=[
-                rebel_6dof_controller_node,
-                dio_controller_node,
-                external_dio_controller_node,
-                ecbpmi_controller_node,
-                # dashboard_controller_node,
-            ],
+    delay_robot_controller_spawner_after_joint_state_broadcaster_spawner = (
+        RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=joint_state_broadcaster_node,
+                on_exit=[
+                    rebel_6dof_controller_node,
+                    dio_controller_node,
+                    external_dio_controller_node,
+                    ecbpmi_controller_node,
+                    dashboard_controller_node,
+                ],
+            )
         )
     )
 
@@ -155,6 +228,9 @@ def generate_launch_description():
 
     ld.add_action(use_rviz_arg)
     ld.add_action(gripper_arg)
+    ld.add_action(launch_dashboard_controller_arg)
+    ld.add_action(launch_dio_controller_arg)
+    ld.add_action(hardware_protocol_arg)
 
     # Robot nodes
     ld.add_action(move_group_node)
