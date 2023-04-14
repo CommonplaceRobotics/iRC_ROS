@@ -1,19 +1,22 @@
 # MoveIt uses this configuration for controller management
 
-moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+/**:
+  ros__parameters:
+    moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
 
 moveit_simple_controller_manager:
-  controller_names:
-    - rebel_6dof_controller
+  ros__parameters:
+    controller_names:
+      - rebel_6dof_controller
 
-  rebel_6dof_controller:
-    type: FollowJointTrajectory
-    action_ns: follow_joint_trajectory
-    default: true
-    joints:
-      - joint1
-      - joint2
-      - joint3
-      - joint4
-      - joint5
-      - joint6
+    rebel_6dof_controller:
+      type: FollowJointTrajectory
+      action_ns: follow_joint_trajectory
+      default: true
+      joints:
+        - <prefix>joint1
+        - <prefix>joint2
+        - <prefix>joint3
+        - <prefix>joint4
+        - <prefix>joint5
+        - <prefix>joint6

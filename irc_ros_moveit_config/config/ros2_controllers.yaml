@@ -1,5 +1,5 @@
 # This config file is used by ros2_control
-controller_manager:
+<namespace>/controller_manager:
   ros__parameters:
     update_rate: 100  # Hz
 
@@ -18,67 +18,67 @@ controller_manager:
     ecbpmi_controller:
       type: irc_ros_controllers/EcbpmiController
 
-rebel_6dof_controller:
+<namespace>/rebel_6dof_controller:
   ros__parameters:
     joints:
-      - joint1
-      - joint2
-      - joint3
-      - joint4
-      - joint5
-      - joint6
+      - <prefix>joint1
+      - <prefix>joint2
+      - <prefix>joint3
+      - <prefix>joint4
+      - <prefix>joint5
+      - <prefix>joint6
     command_interfaces:
       - position
     state_interfaces:
       - position
       - velocity
 
-dio_controller:
+<namespace>/dio_controller:
   ros__parameters:
     digital_inputs: 
-      - dio_arm/digital_input_0
-      - dio_arm/digital_input_1
-      - dio_base/digital_input_0
-      - dio_base/digital_input_1
-      - dio_base/digital_input_2
-      - dio_base/digital_input_3
-      - dio_base/digital_input_4
-      - dio_base/digital_input_5
-      - dio_base/digital_input_6
+      - <prefix>dio_arm/digital_input_0
+      - <prefix>dio_arm/digital_input_1
+      - <prefix>dio_base/digital_input_0
+      - <prefix>dio_base/digital_input_1
+      - <prefix>dio_base/digital_input_2
+      - <prefix>dio_base/digital_input_3
+      - <prefix>dio_base/digital_input_4
+      - <prefix>dio_base/digital_input_5
+      - <prefix>dio_base/digital_input_6
 
     digital_outputs:
-      - dio_arm/digital_output_0
-      - dio_arm/digital_output_1
-      - dio_base/digital_output_0
-      - dio_base/digital_output_1
-      - dio_base/digital_output_2
-      - dio_base/digital_output_3
-      - dio_base/digital_output_4
-      - dio_base/digital_output_5
-      - dio_base/digital_output_6
+      - <prefix>dio_arm/digital_output_0
+      - <prefix>dio_arm/digital_output_1
+      - <prefix>dio_base/digital_output_0
+      - <prefix>dio_base/digital_output_1
+      - <prefix>dio_base/digital_output_2
+      - <prefix>dio_base/digital_output_3
+      - <prefix>dio_base/digital_output_4
+      - <prefix>dio_base/digital_output_5
+      - <prefix>dio_base/digital_output_6
 
-external_dio_controller:
+<namespace>/external_dio_controller:
   ros__parameters:
     digital_inputs: 
-      - dio_ext/digital_input_0
-      - dio_ext/digital_input_1
-      - dio_ext/digital_input_2
-      - dio_ext/digital_input_3
-      - dio_ext/digital_input_4
-      - dio_ext/digital_input_5
-      - dio_ext/digital_input_6
+      - <prefix>dio_ext/digital_input_0
+      - <prefix>dio_ext/digital_input_1
+      - <prefix>dio_ext/digital_input_2
+      - <prefix>dio_ext/digital_input_3
+      - <prefix>dio_ext/digital_input_4
+      - <prefix>dio_ext/digital_input_5
+      - <prefix>dio_ext/digital_input_6
     digital_outputs:
-      - dio_ext/digital_output_0
-      - dio_ext/digital_output_1
-      - dio_ext/digital_output_2
-      - dio_ext/digital_output_3
-      - dio_ext/digital_output_4
-      - dio_ext/digital_output_5
-      - dio_ext/digital_output_6
+      - <prefix>dio_ext/digital_output_0
+      - <prefix>dio_ext/digital_output_1
+      - <prefix>dio_ext/digital_output_2
+      - <prefix>dio_ext/digital_output_3
+      - <prefix>dio_ext/digital_output_4
+      - <prefix>dio_ext/digital_output_5
+      - <prefix>dio_ext/digital_output_6
 
-ecbpmi_controller:
+<namespace>/ecbpmi_controller:
   ros__parameters:
-    output_grip: dio_arm/digital_output_0
-    output_release: dio_arm/digital_output_1
-    input_grasped: dio_arm/digital_input_0
+    output_grip: <prefix>dio_arm/digital_output_0
+    output_release: <prefix>dio_arm/digital_output_1
+    input_grasped: <prefix>dio_arm/digital_input_0
  
