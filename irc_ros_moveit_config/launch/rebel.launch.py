@@ -10,6 +10,7 @@ from launch.actions import (
     IncludeLaunchDescription,
 )
 from launch.conditions import IfCondition
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     Command,
     FindExecutable,
@@ -174,6 +175,7 @@ def generate_launch_description():
     move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
+        namespace=namespace,
         parameters=[
             {"robot_description": robot_description},
             {"robot_description_semantic": robot_description_semantic},
@@ -188,6 +190,7 @@ def generate_launch_description():
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
+        namespace=namespace,
         parameters=[
             {"robot_description": robot_description},
             ros2_controllers,
@@ -198,7 +201,7 @@ def generate_launch_description():
         package="robot_state_publisher",
         executable="robot_state_publisher",
         name="robot_state_publisher",
-        # namespace=namespace,
+        namespace=namespace,
         parameters=[
             {"robot_description": robot_description},
         ],
@@ -207,13 +210,15 @@ def generate_launch_description():
     joint_state_broadcaster_node = Node(
         package="controller_manager",
         executable="spawner",
+        namespace=namespace,
         arguments=["joint_state_broadcaster", "-c", controller_manager_name],
     )
 
     rebel_6dof_controller_node = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["rebel_6dof_controller", "-c", "/controller_manager"],
+        namespace=namespace,
+        arguments=["rebel_6dof_controller", "-c", controller_manager_name],
     )
 
     irc_ros_bringup_launch_dir = PathJoinSubstitution(
