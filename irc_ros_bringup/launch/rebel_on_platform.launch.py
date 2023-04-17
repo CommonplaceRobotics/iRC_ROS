@@ -51,7 +51,6 @@ def generate_launch_description():
 
     use_rviz = LaunchConfiguration("use_rviz")
     rviz_file = LaunchConfiguration("rviz_file")
-    robot_controller_config = LaunchConfiguration("robot_controller_config")
 
     # Use GroupActions for scoping the launch arguments, e.g. to not overwrite rviz arg
     rebel_stack = GroupAction(
@@ -64,7 +63,6 @@ def generate_launch_description():
                     "namespace": "/rebel_1",
                     "prefix": "rebel_1_",
                     "controller_manager_name": "/rebel_1/controller_manager",
-                    "robot_controller_config": robot_controller_config,
                     "gripper": "none",
                     "use_rviz": "false",
                     "launch_dashboard_controller": "false",
