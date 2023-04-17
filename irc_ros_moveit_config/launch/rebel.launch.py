@@ -7,12 +7,9 @@ from pathlib import Path
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
-    RegisterEventHandler,
     IncludeLaunchDescription,
 )
 from launch.conditions import IfCondition
-from launch.event_handlers import OnProcessExit
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     Command,
     FindExecutable,
@@ -65,6 +62,7 @@ def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
     prefix = LaunchConfiguration("prefix")
     controller_manager_name = LaunchConfiguration("controller_manager_name")
+    hardware_protocol = LaunchConfiguration("hardware_protocol")
 
     rviz_file = PathJoinSubstitution(
         [FindPackageShare("irc_ros_moveit_config"), "rviz", "moveit.rviz"]
@@ -100,7 +98,7 @@ def generate_launch_description():
             " prefix:=",
             prefix,
             " hardware_protocol:=",
-            "cprcanv2",
+            hardware_protocol,
         ]
     )
     robot_description_semantic_file = PathJoinSubstitution(
@@ -230,19 +228,6 @@ def generate_launch_description():
         ),
     )
 
-    # Delay start of robot_controller after `joint_state_broadcaster`
-    delay_robot_controller_spawner_after_joint_state_broadcaster_spawner = (
-        RegisterEventHandler(
-            event_handler=OnProcessExit(
-                target_action=joint_state_broadcaster_node,
-                on_exit=[
-                    rebel_6dof_controller_node,
-                    additional_controllers,
-                ],
-            )
-        )
-    )
-
     rviz_node = Node(
         package="rviz2",
         executable="rviz2",
@@ -271,7 +256,9 @@ def generate_launch_description():
     ld.add_action(control_node)
     ld.add_action(robot_state_publisher)
     ld.add_action(joint_state_broadcaster_node)
-    ld.add_action(delay_robot_controller_spawner_after_joint_state_broadcaster_spawner)
+
+    ld.add_action(rebel_6dof_controller_node)
+    ld.add_action(additional_controllers)
 
     # UI nodes
     ld.add_action(rviz_node)
