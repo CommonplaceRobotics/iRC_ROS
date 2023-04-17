@@ -104,13 +104,14 @@ def generate_launch_description():
     use_rviz = LaunchConfiguration("use_rviz")
     rviz_file = LaunchConfiguration("rviz_file")
     robot_controller_config = LaunchConfiguration("robot_controller_config")
-    # hardware_protocol = LaunchConfiguration("hardware_protocol")
 
     # Use GroupActions for scoping the launch arguments, e.g. to not overwrite rviz arg
     rebel_stack = GroupAction(
         [
             IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([irc_ros_bringup_launch_dir, "/rebel.launch.py"]),
+                PythonLaunchDescriptionSource(
+                    [irc_ros_bringup_launch_dir, "/rebel.launch.py"]
+                ),
                 launch_arguments={
                     "namespace": "/rebel_1",
                     "prefix": "rebel_1_",
@@ -122,7 +123,7 @@ def generate_launch_description():
                     "launch_dio_controller": "false",
                 }.items(),
             )
-        ] 
+        ]
     )
 
     platform_stack = GroupAction(
@@ -132,7 +133,6 @@ def generate_launch_description():
                     [irc_ros_bringup_launch_dir, "/cpr_platform.launch.py"]
                 ),
                 launch_arguments={
-                    "namespace": "",
                     # "namespace": "/platform",
                     # "prefix": "platform_",
                     # "controller_manager_name" : "/platform/controller_manager",
