@@ -15,6 +15,10 @@
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
+      <!-- Velocity is required for moveit+mock_components -->
+      <state_interface name="velocity">
+        <param name="initial_value">0.0</param>
+      </state_interface>
       <param name="can_id">${can_id}</param>
       <param name="gear_scale">${gear_scale}</param>
       <param name="controller_type">closed_loop</param>
