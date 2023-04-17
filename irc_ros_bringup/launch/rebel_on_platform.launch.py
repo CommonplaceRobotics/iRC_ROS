@@ -20,7 +20,7 @@ def generate_launch_description():
     )
     default_robot_controller_filename_arg = DeclareLaunchArgument(
         "default_robot_controller_filename",
-        default_value="controller_igus_rebel_6dof_namespace_1",
+        default_value="controller_igus_rebel_6dof_namespace_1.yaml",
         description="Name of the robot controller configuration file",
     )
     default_robot_controller_file = PathJoinSubstitution(
@@ -107,20 +107,22 @@ def generate_launch_description():
     # hardware_protocol = LaunchConfiguration("hardware_protocol")
 
     # Use GroupActions for scoping the launch arguments, e.g. to not overwrite rviz arg
-    rebel_stack = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([irc_ros_bringup_launch_dir, "/rebel.launch.py"]),
-        launch_arguments={
-            "namespace": "/rebel_1",
-            "prefix": "rebel_1_",
-            "controller_manager_name": "/rebel_1/controller_manager",
-            "use_rviz": "false",
-            "robot_controller_config": robot_controller_config,
-            "gripper": "none",
-            # "hardware_protocol": hardware_protocol,
-            "launch_dashboard_controller": "false",
-            "launch_dio_controller": "false",
-            "hardware_protocol": "cprcanv2",
-        }.items(),
+    rebel_stack = GroupAction(
+        [
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([irc_ros_bringup_launch_dir, "/rebel.launch.py"]),
+                launch_arguments={
+                    "namespace": "/rebel_1",
+                    "prefix": "rebel_1_",
+                    "controller_manager_name": "/rebel_1/controller_manager",
+                    "robot_controller_config": robot_controller_config,
+                    "gripper": "none",
+                    "use_rviz": "false",
+                    "launch_dashboard_controller": "false",
+                    "launch_dio_controller": "false",
+                }.items(),
+            )
+        ] 
     )
 
     platform_stack = GroupAction(
@@ -140,11 +142,9 @@ def generate_launch_description():
                     "launch_dio_controller": "false",
                     "use_rviz": "false",
                     "use_rqt_robot_steering": "true",
-                    "hardware_protocol": "cprcanv2",
                 }.items(),
             )
-        ],
-        forwarding=False,
+        ]
     )
 
     rviz_node = Node(
