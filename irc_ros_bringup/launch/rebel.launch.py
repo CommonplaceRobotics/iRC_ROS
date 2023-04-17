@@ -1,11 +1,9 @@
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
-    RegisterEventHandler,
     IncludeLaunchDescription,
 )
 from launch.conditions import IfCondition
-from launch.event_handlers import OnProcessExit
 from launch.substitutions import (
     Command,
     FindExecutable,
@@ -205,19 +203,6 @@ def generate_launch_description():
         ),
     )
 
-    # Delay start of robot_controller after `joint_state_broadcaster`
-    delay_robot_controller_spawner_after_joint_state_broadcaster_spawner = (
-        RegisterEventHandler(
-            event_handler=OnProcessExit(
-                target_action=joint_state_broadcaster,
-                on_exit=[
-                    robot_controller_node,
-                    additional_controllers,
-                ],
-            )
-        )
-    )
-
     rviz_node = Node(
         package="rviz2",
         executable="rviz2",
@@ -245,14 +230,16 @@ def generate_launch_description():
     description.add_action(hardware_protocol_arg)
 
     # Robot nodes
-    description.add_action(control_node)
     description.add_action(robot_state_pub)
     description.add_action(joint_state_pub)
-    description.add_action(joint_state_broadcaster)
 
-    description.add_action(
-        delay_robot_controller_spawner_after_joint_state_broadcaster_spawner
-    )
+    # ROS2 Control nodes
+    description.add_action(control_node)
+    description.add_action(joint_state_broadcaster)
+    # Dont delay start of the following nodes after `joint_state_broadcaster` as the EventHandler
+    # causes issues with LaunchConfigurations
+    description.add_action(robot_controller_node)
+    description.add_action(additional_controllers)
 
     # UI nodes
     description.add_action(rviz_node)
