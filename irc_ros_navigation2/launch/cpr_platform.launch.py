@@ -71,6 +71,8 @@ def generate_launch_description():
             "map": map_file,
             "params_file": params,
             "slam": "True",
+            "namespace": "/platform_1",
+            "use_namespace": "True",
         }.items(),
     )
 
@@ -80,7 +82,10 @@ def generate_launch_description():
             # /cmd_vel (comes from either rqt_robot_steering, Navigation2 goal_pose)
             # ->
             # /cpr_platform_controller/cmd_vel_unstamped (ros2_control input)
-            SetRemap(src="/cmd_vel", dst="/cpr_platform_controller/cmd_vel_unstamped"),
+            SetRemap(
+                src="/cmd_vel",
+                dst="/platform_1/cpr_platform_controller/cmd_vel_unstamped",
+            ),
             # SetRemap(src="amcl/get_state", dst="/amcl/get_state"),
             nav2_stack,
         ]
