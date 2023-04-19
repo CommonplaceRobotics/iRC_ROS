@@ -43,9 +43,9 @@ General requirements:
  - [ROS2 Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
    - Might work with ROS2 Iron out of the box as well, but is untested
  - Direct access to the robots CAN bus or an ethernet connection to the `TinyCtrl` host
+ - [Navigation2](https://navigation.ros.org/build_instructions/index.html) (Most launch files use Nav2 functions for yaml processing)
  - Optional, only required for parts of the project:
    - [Moveit2 (stable)](https://moveit.ros.org/install-moveit2/binary/)
-   - [Navigation2](https://navigation.ros.org/build_instructions/index.html)
    - [RQT Robot Steering](https://github.com/cpr-fer/rqt_robot_steering/tree/twiststamped)
    - [Sick S300_2](https://github.com/ajtudela/sicks300_2/tree/humble)
    - [IRA Laser Tools](https://github.com/nakai-omer/ira_laser_tools/tree/humble)
