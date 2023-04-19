@@ -12,3 +12,11 @@ rebel_6dof_controller:
     - joint4
     - joint5
     - joint6
+   # TODO: This is just a temporary hardcoded prefix, once the launch file works
+   # Replace it with <prefix> and do search-and-replace
+    - rebel_1_joint1
+    - rebel_1_joint2
+    - rebel_1_joint3
+    - rebel_1_joint4
+    - rebel_1_joint5
+    - rebel_1_joint6
