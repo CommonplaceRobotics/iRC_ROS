@@ -5,8 +5,6 @@ from launch_ros.substitutions import FindPackageShare
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
-from nav2_common.launch import ReplaceString
-
 
 def generate_launch_description():
     rviz_file = PathJoinSubstitution(
@@ -27,8 +25,6 @@ def generate_launch_description():
             [irc_ros_launch_file_dir, "/cpr_platform.launch.py"]
         ),
         launch_arguments={
-            "namespace": "/platform_1",
-            "prefix": "platform_1_",
             "use_rviz": "true",
             "rviz_file": rviz_file,
         }.items(),
@@ -40,13 +36,6 @@ def generate_launch_description():
             "params",
             "cpr_platform_medium.yaml",
         ]
-    )
-    params = ReplaceString(
-        source_file=params_file,
-        replacements={
-            "<namespace>": "/platform_1",
-            "<prefix>": "platform_1_",
-        },
     )
 
     map_file = PathJoinSubstitution(
@@ -69,10 +58,8 @@ def generate_launch_description():
         launch_arguments={
             # While we use SLAM and dont use this map, it is required to pass this argument
             "map": map_file,
-            "params_file": params,
+            "params_file": params_file,
             "slam": "True",
-            "namespace": "/platform_1",
-            "use_namespace": "True",
         }.items(),
     )
 
@@ -82,10 +69,7 @@ def generate_launch_description():
             # /cmd_vel (comes from either rqt_robot_steering, Navigation2 goal_pose)
             # ->
             # /cpr_platform_controller/cmd_vel_unstamped (ros2_control input)
-            SetRemap(
-                src="/cmd_vel",
-                dst="/platform_1/cpr_platform_controller/cmd_vel_unstamped",
-            ),
+            SetRemap(src="/cmd_vel", dst="/cpr_platform_controller/cmd_vel_unstamped"),
             # SetRemap(src="amcl/get_state", dst="/amcl/get_state"),
             nav2_stack,
         ]
