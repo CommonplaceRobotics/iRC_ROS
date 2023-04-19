@@ -4,7 +4,7 @@
   <name>irc_ros_moveit_config</name>
   <version>0.1.0</version>
   <description>
-    The files necessary to use MoveIt with an igus ReBeL 6DOF 01.
+    The files necessary to use MoveIt with a igus ReBeLs.
   </description>
 
   <maintainer email="fer@cpr-robots.com">Felix Reuter</maintainer>
