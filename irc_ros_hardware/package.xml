@@ -7,7 +7,7 @@
   <maintainer email="fer@cpr-robots.com">Felix Reuter</maintainer>
   <license>Apache-2.0</license>
   <url type="website">cpr-robots.com</url>
-  <url type="repository">https://github.com/CommonplaceRobotics/SW_ROS2-Nodes</url>
+  <url type="repository">https://github.com/CommonplaceRobotics/iRC_ROS</url>
   <author email="schenke@truphysics.com">Björn Schenke</author>
   <author email="fer@cpr-robots.com">Felix Reuter</author>
     
