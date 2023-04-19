@@ -1,4 +1,5 @@
 # MoveIt uses this configuration for controller management
+# Currently controllers.yaml is used instead, as the intended loading of this file does not work
 
 /**:
   ros__parameters:
