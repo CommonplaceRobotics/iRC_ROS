@@ -1,4 +1,4 @@
-controller_manager:
+<namespace>/controller_manager:
   ros__parameters:
     update_rate: 100 # 100Hz for CAN and 10Hz for CRI
 
@@ -8,14 +8,14 @@ controller_manager:
     joint_trajectory_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
-joint_trajectory_controller:
+<namespace>/joint_trajectory_controller:
   ros__parameters:
     joints: 
-      - joint1
-      - joint2
-      - joint3
-      - joint4
-      - joint5
+      - <prefix>joint1
+      - <prefix>joint2
+      - <prefix>joint3
+      - <prefix>joint4
+      - <prefix>joint5
 
     command_interfaces:
       - position

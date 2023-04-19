@@ -11,8 +11,16 @@ from launch.substitutions import (
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
+from nav2_common.launch import ReplaceString
+
 
 def generate_launch_description():
+    namespace_arg = DeclareLaunchArgument("namespace", default_value="")
+    prefix_arg = DeclareLaunchArgument("prefix", default_value="")
+    controller_manager_name_arg = DeclareLaunchArgument(
+        "controller_manager_name",
+        default_value=[LaunchConfiguration("namespace"), "/controller_manager"],
+    )
     use_rviz_arg = DeclareLaunchArgument(
         "use_rviz",
         default_value="true",
@@ -26,6 +34,9 @@ def generate_launch_description():
         description="Which hardware protocol or mock hardware should be used",
     )
 
+    namespace = LaunchConfiguration("namespace")
+    prefix = LaunchConfiguration("prefix")
+    controller_manager_name = LaunchConfiguration("controller_manager_name")
     use_rviz = LaunchConfiguration("use_rviz")
     hardware_protocol = LaunchConfiguration("hardware_protocol")
 
@@ -42,6 +53,8 @@ def generate_launch_description():
             FindExecutable(name="xacro"),
             " ",
             xacro_file,
+            " prefix:=",
+            prefix,
             " hardware_protocol:=",
             hardware_protocol,
         ]
@@ -51,12 +64,20 @@ def generate_launch_description():
         [FindPackageShare("irc_ros_description"), "rviz", "rebel.rviz"]
     )
 
-    igus_rebel_controllers = PathJoinSubstitution(
+    robot_controller_config_file = PathJoinSubstitution(
         [
             FindPackageShare("irc_ros_bringup"),
             "config",
             "controller_igus_robolink_rl_dp_5.yaml",
         ]
+    )
+
+    robot_controller_config = ReplaceString(
+        source_file=robot_controller_config_file,
+        replacements={
+            "<namespace>": namespace,
+            "<prefix>": prefix,
+        },
     )
 
     # Node declarations:
@@ -82,22 +103,18 @@ def generate_launch_description():
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        parameters=[{"robot_description": robot_description}, igus_rebel_controllers],
+        parameters=[{"robot_description": robot_description}, robot_controller_config],
     )
     joint_state_broadcaster = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=[
-            "joint_state_broadcaster",
-            "--controller-manager",
-            "/controller_manager",
-        ],
+        arguments=["joint_state_broadcaster", "-c", controller_manager_name],
     )
 
     robot_controller_node = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["joint_trajectory_controller", "-c", "/controller_manager"],
+        arguments=["joint_trajectory_controller", "-c", controller_manager_name],
     )
 
     # Delay start of robot_controller after `joint_state_broadcaster`
@@ -119,6 +136,9 @@ def generate_launch_description():
     )
 
     description = LaunchDescription()
+    description.add_action(namespace_arg)
+    description.add_action(prefix_arg)
+    description.add_action(controller_manager_name_arg)
     description.add_action(use_rviz_arg)
     description.add_action(hardware_protocol_arg)
     description.add_action(control_node)

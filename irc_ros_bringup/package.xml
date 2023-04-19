@@ -23,6 +23,7 @@
   <depend>rviz</depend>
   <depend>ros2_control</depend>
   <depend>ira_laser_tools</depend>
+  <depend>nav2_common</depend>
 
   <exec_depend>ros2_controllers_test_nodes</exec_depend>
   <exec_depend>irc_ros_hardware</exec_depend>

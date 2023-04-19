@@ -37,9 +37,7 @@ def generate_launch_description():
                 launch_arguments={
                     "namespace": "/rebel_1",
                     "prefix": "rebel_1_",
-                    "controller_manager_name": "/rebel_1/controller_manager",
                     "gripper": "none",
-                    "robot_controller_config": robot_controller_file_1,
                     "launch_dashboard_controller": "false",
                     "launch_dio_controller": "false",
                     "use_rviz": "false",
@@ -57,9 +55,7 @@ def generate_launch_description():
                 launch_arguments={
                     "namespace": "/rebel_2",
                     "prefix": "rebel_2_",
-                    "controller_manager_name": "/rebel_2/controller_manager",
                     "gripper": "none",
-                    "robot_controller_config": robot_controller_file_2,
                     "launch_dashboard_controller": "false",
                     "launch_dio_controller": "false",
                     "use_rviz": "false",

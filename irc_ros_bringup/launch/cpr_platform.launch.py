@@ -14,7 +14,7 @@ from launch.substitutions import (
 )
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-
+from nav2_common.launch import ReplaceString
 
 def generate_launch_description():
     default_rviz_file = PathJoinSubstitution(
@@ -116,10 +116,17 @@ def generate_launch_description():
     # Not required as variable
     # platform_name = LaunchConfiguration('platform_name')
     platform_urdf = LaunchConfiguration("platform_urdf")
-    platform_controller_config = LaunchConfiguration("platform_controller_config")
-    # use_laserscanners = LaunchConfiguration("use_laserscanners")
+    platform_controller_config_file = LaunchConfiguration("platform_controller_config")
+    use_laserscanners = LaunchConfiguration("use_laserscanners")
     hardware_protocol = LaunchConfiguration("hardware_protocol")
 
+    platform_controller_config = ReplaceString(
+        source_file=platform_controller_config_file,
+        replacements={
+            "<namespace>": namespace,
+            "<prefix>": prefix,
+        }
+    )
     robot_description = Command(
         [
             FindExecutable(name="xacro"),
@@ -229,7 +236,7 @@ def generate_launch_description():
     odom_tf_node = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
-        name="tray_1_static_broadcaster",
+        name="odom_tf_static_broadcaster",
         arguments=[
             "0",
             "0",
@@ -245,7 +252,7 @@ def generate_launch_description():
     base_link_tf_node = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
-        name="tray_2_static_broadcaster",
+        name="base_link_tf_static_broadcaster",
         arguments=[
             "0",
             "0",

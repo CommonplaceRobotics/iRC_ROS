@@ -6,7 +6,8 @@
 Start MoveIt with rviz with the following command:
 
 ``` bash
-$ LC_NUMERIC=en_US.UTF-8 ros2 launch irc_ros_moveit_config rebel.launch.py gripper:="ext_dio_gripper"
+$ LC_NUMERIC=en_US.UTF-8 ros2 launch irc_ros_moveit_config rebel.launch.py
 ```
 
-Only gripper and use_rviz parameters are currently supported. The gripper argument changes which controllers are loaded, but the robot model is not channged at the moment.
+### Namespaces and prefixes
+Most of the package supports the parameters, only the controllers.yaml does not. For using th erviz plugin successfully change the topic names to match the namespaces and add the moveit namespace parameter. Save the config and restart rviz without rebuilding.
