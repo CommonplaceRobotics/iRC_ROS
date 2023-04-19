@@ -59,7 +59,7 @@ def generate_launch_description():
         description="Which hardware protocol or mock hardware should be used",
     )
     use_rviz = LaunchConfiguration("use_rviz")
-    # gripper = LaunchConfiguration("gripper")
+    gripper = LaunchConfiguration("gripper")
     namespace = LaunchConfiguration("namespace")
     prefix = LaunchConfiguration("prefix")
     controller_manager_name = LaunchConfiguration("controller_manager_name")
@@ -100,6 +100,8 @@ def generate_launch_description():
             prefix,
             " hardware_protocol:=",
             hardware_protocol,
+            " gripper:=",
+            gripper,
         ]
     )
     robot_description_semantic_file = PathJoinSubstitution(
@@ -125,7 +127,7 @@ def generate_launch_description():
         "config",
         "controllers.yaml",
     )
-    # TODO: This needs to return a path or the line below it wont accept it
+    # TODO: This needs to return a path or the line below it won't accept it
     # Until then the namespace/prefix replacements won't work
     # controllers = ReplaceString(
     #     source_file=controllers_file,
@@ -138,7 +140,8 @@ def generate_launch_description():
 
     moveit_controllers = {
         "moveit_simple_controller_manager": controllers_dict,
-        "moveit_controller_manager": "moveit_simple_controller_manager/MoveItSimpleControllerManager",
+        "moveit_controller_manager":
+            "moveit_simple_controller_manager/MoveItSimpleControllerManager",
     }
 
     robot_description_kinematics_file = PathJoinSubstitution(
@@ -156,7 +159,7 @@ def generate_launch_description():
         },
     )
 
-    # TODO: Stolen from UR ROS2 for testing purposes:
+    # TODO: Copied from UR ROS2 for testing purposes, update configuration for the rebel
     planning_pipeline = {
         "move_group": {
             "planning_plugin": "ompl_interface/OMPLPlanner",
