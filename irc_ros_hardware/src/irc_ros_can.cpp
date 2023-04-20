@@ -234,7 +234,7 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
         return hardware_interface::CallbackReturn::FAILURE;
       }
 
-      module->reset_error(true);
+      module->reset_error();
 
       module->read_can();
       module->write_can();
@@ -249,7 +249,7 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
       // Enable the motors for referencing
       while (module->motorState != MotorState::enabled) {
         if (module->errorState.any_except_mne()) {
-          module->reset_error(true);
+          module->reset_error();
         }
         module->enable_motor();
 

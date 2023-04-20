@@ -53,7 +53,7 @@ public:
   virtual void velocity_cmd() = 0;
   virtual void torque_cmd() = 0;
 
-  virtual void reset_error(bool force = false);
+  virtual void reset_error();
   virtual void reset_error_callback(cprcan::bytevec response);
   virtual void set_position_to_zero() = 0;
   virtual void enable_motor();
