@@ -15,8 +15,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 
-// #include "CAN/module.hpp"
-
 namespace irc_hardware
 {
 
@@ -114,8 +112,7 @@ hardware_interface::CallbackReturn IrcRosCan::on_init(const hardware_interface::
 
     // Referencing required?
 
-    // Default value
-    j->referenceState = ReferenceState::not_required;
+    j->referenceState = ReferenceState::not_required;  // Default value
 
     if (joint.parameters.count("referencing_required") > 0) {
       std::string referencing_required = joint.parameters.at("referencing_required");
@@ -278,28 +275,32 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
 }
 
 /**
- * @brief Changes the command mode (part 1)
+ * @brief Changes the command mode (part 1). This sets the command modes anew, while the second
+ * method resets the modules.
+ *
+ * TODO: dont return OK on failure, check if all interfaces are found and no duplicates
  */
 hardware_interface::return_type IrcRosCan::prepare_command_mode_switch(
   const std::vector<std::string> & start_interfaces,
   const std::vector<std::string> & stop_interfaces)
 {
-  // TODO: Check if duplicate modules in start_interfaces
-
+  // Reset command mode and goal states
   for (auto stop : stop_interfaces) {
-    // TODO: Only change interfaces that are not inside start_interfaces again
-
-    // TODO: Set motor goal to stop?
     for (auto && [module_name, module] : modules_) {
-      if (
-        stop == module->get_name() + "/" + hardware_interface::HW_IF_POSITION ||
-        stop == module->get_name() + "/" + hardware_interface::HW_IF_VELOCITY ||
-        stop == module->get_name() + "/" + hardware_interface::HW_IF_EFFORT) {
+      if (stop == module->get_name() + "/" + hardware_interface::HW_IF_POSITION) {
         module->commandMode = CommandMode::none;
+        module->set_pos_ = std::numeric_limits<double>::quiet_NaN();
+      } else if (stop == module->get_name() + "/" + hardware_interface::HW_IF_VELOCITY) {
+        module->commandMode = CommandMode::none;
+        module->set_vel_ = std::numeric_limits<double>::quiet_NaN();
+      } else if (stop == module->get_name() + "/" + hardware_interface::HW_IF_EFFORT) {
+        module->commandMode = CommandMode::none;
+        module->set_torque_ = std::numeric_limits<double>::quiet_NaN();
       }
     }
   }
 
+  // Set command modes for starting interfaces
   for (auto start : start_interfaces) {
     for (auto && [module_name, module] : modules_) {
       if (start == module->get_name() + "/" + hardware_interface::HW_IF_POSITION) {
@@ -318,7 +319,7 @@ hardware_interface::return_type IrcRosCan::prepare_command_mode_switch(
  * @brief Changes the command mode (part 2). This does not block, so the error reset and
  * motor enable might fail.
  * 
- * TODO: dont return OK on failure, check if all interfaces are found
+ * TODO: dont return OK on failure, check if all interfaces are found and no duplicates
  */
 hardware_interface::return_type IrcRosCan::perform_command_mode_switch(
   const std::vector<std::string> & start_interfaces,
