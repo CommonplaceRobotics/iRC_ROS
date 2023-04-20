@@ -11,6 +11,7 @@ from moveit.planning import MoveItPy
 from geometry_msgs.msg import PoseStamped
 from irc_ros_msgs.msg import DioCommand
 
+
 class NavigationInterface:
     def __init__(self) -> None:
         self.nav = BasicNavigator()
@@ -31,13 +32,13 @@ class NavigationInterface:
         self.pose_serving_area.header.frame_id = self.frame_id
         self.pose_serving_area.pose.position.x = 2.0
         self.pose_serving_area.pose.position.y = 0.0
-        self.pose_serving_area.pose.position.z = 0.0 
+        self.pose_serving_area.pose.position.z = 0.0
 
     def move_to_pose(self, pose: PoseStamped) -> None:
         self.nav.goToPose(pose)
 
         while not self.nav.isTaskComplete():
-            #feedback = self.nav.getFeedback()
+            # feedback = self.nav.getFeedback()
             # if feedback.navigation_time > 600:
             #     nav.cancelTask()
 
@@ -49,9 +50,10 @@ class NavigationInterface:
             elif result == TaskResult.FAILED:
                 self.get_logger().info("Goal failed")
 
+
 class MoveItInterface:
     def __init__(self) -> None:
-        time.sleep(10)
+        time.sleep(1)
         self.moveit_py_instance = MoveItPy(node_name="moveit_py")
         self.rebel = self.moveit_py_instance.get_planning_component("rebel_6dof")
 
@@ -82,30 +84,53 @@ class MoveItInterface:
 
         if plan_result:
             robot_trajectory = plan_result.trajectory
-            self.moveit_py_instance.execute(robot_trajectory, blocking=True, controllers=[])
+            self.moveit_py_instance.execute(
+                robot_trajectory, blocking=True, controllers=[]
+            )
+
 
 class GripperInterface(Node):
     def __init__(self) -> None:
         super().__init__("Node")
-        self.publisher_ = self.create_publisher(DioCommand, "external_dio_controller/outputs", 10)
-
+        self.publisher_ = self.create_publisher(
+            DioCommand, "external_dio_controller/outputs", 10
+        )
 
     def set_gripper(self, state: bool) -> None:
         msg = DioCommand()
-        msg.names = ["dio_ext/digital_output_1", ]
-        msg.outputs= [state, ]
+        msg.names = [
+            "dio_ext/digital_output_1",
+        ]
+        msg.outputs = [
+            state,
+        ]
 
         self.publisher_.publish(msg)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     rclpy.init()
-    nav_int = NavigationInterface()
-    moveit_int = MoveItInterface()
-    gripper_int = GripperInterface()
+
+    node = Node("baristabot_param_checker")
+
+    node.declare_parameter("planning_pipelines.pipeline_names")
+    out = node.get_parameter("planning_pipelines.pipeline_names")
+    node.get_logger().error(str(out.value))
+    # while rclpy.ok():
+    #     rclpy.spin(node)
+    rclpy.shutdown()
+
+    moveit_py_instance = MoveItPy(node_name="moveit_py")
+
+    # nav_int = NavigationInterface()
+    # moveit_int = MoveItInterface()
+    # gripper_int = GripperInterface()
+
+    exit(0)
 
     while rclpy.ok():
         # TODO: Battery low?
-    
+
         # TODO: If coffee machine (cm) not ready notify assistant to refill, empty machine
 
         # TODO: Coffee ordered? (Via web ui?)
@@ -114,15 +139,15 @@ if __name__ == '__main__':
         moveit_int.move_to_pose(moveit_int.pose_cup_pickup)
         gripper_int.set_gripper(True)
         time.sleep(1)
-        
+
         # Set arm to transport position
         moveit_int.move_to_pose(moveit_int.pose_transport)
         time.sleep(1)
 
         # TODO: No empty cups left? Notify assistant
-        
+
         # Move to CM
-        #nav_int.move_to_pose(nav_int.pose_coffee_maker)
+        # nav_int.move_to_pose(nav_int.pose_coffee_maker)
 
         # TODO: Bring empty cup in position
         moveit_int.move_to_pose(moveit_int.pose_coffee_maker)
@@ -130,23 +155,23 @@ if __name__ == '__main__':
         time.sleep(1)
 
         # TODO: Move arm back out of spil range
-    
+
         # TODO: Start selected CM program
-        
+
         # Wait for CM
-    
+
         # Grab cup again#
         moveit_int.move_to_pose(moveit_int.pose_coffee_maker)
         gripper_int.set_gripper(True)
         time.sleep(1)
-    
+
         # Drive slowly to counter
-        #nav_int.move_to_pose(nav_int.pose_serving_area)
+        # nav_int.move_to_pose(nav_int.pose_serving_area)
 
         # TODO: Place cup there
-        #moveit_int.move_to_pose(moveit_int.pose_serving_tray)
+        # moveit_int.move_to_pose(moveit_int.pose_serving_tray)
         gripper_int.set_gripper(False)
         time.sleep(1)
 
         # Drive back to waiting position
-        #nav_int.move_to_pose(nav_int.pose_waiting_area)
+        # nav_int.move_to_pose(nav_int.pose_waiting_area)
