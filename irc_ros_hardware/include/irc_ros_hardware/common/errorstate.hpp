@@ -92,6 +92,9 @@ public:
    */
   bool operator==(const ErrorState & cmp) { return this->make_tuple() == cmp.make_tuple(); }
 
+  /**
+   * @brief Sets the states according to the provided bitset
+   */
   void parse(std::bitset<8> error_code)
   {
     oc = error_code[7];
@@ -104,6 +107,9 @@ public:
     temp = error_code[0];
   }
 
+  /**
+   * @brief Converts the ErrorState back into a 8 bit number
+   */
   uint8_t to_uint8()
   {
     uint8_t out = 0;
@@ -119,6 +125,9 @@ public:
     return out;
   }
 
+  /**
+   * @brief Returns a string containing the error names present
+   */
   std::string str()
   {
     std::string error_msg = "";
@@ -149,6 +158,9 @@ public:
     return error_msg;
   }
 
+  /**
+   * @brief Returns a string containing a description of errors present
+   */
   std::string str_verbose()
   {
     std::string error_msg = "";
