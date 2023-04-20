@@ -2,6 +2,7 @@
 
 #include <bitset>
 #include <string>
+#include <tuple>
 
 class ErrorState
 {
@@ -78,17 +79,18 @@ public:
   bool any_except_mne() const { return (temp || estop || com || lag || enc || drv || oc); }
 
   /**
+   * @brief Returns a tuple of all errorstates to simplify comparisons
+   */
+  const std::tuple<bool, bool, bool, bool, bool, bool, bool, bool> make_tuple() const
+  {
+    return std::make_tuple(temp, estop, mne, com, lag, enc, drv, oc);
+  }
+
+  /**
    * @brief Returns true if the errors are exactly the same for both ErrorStates. Used to check if
    * a change in the error responses has occurred.
    */
-  bool operator==(const ErrorState & cmp)
-  {
-    // TODO: use std::tie
-    return (
-      (this->temp == cmp.temp) && (this->estop == cmp.estop) && (this->mne == cmp.mne) &&
-      (this->com == cmp.com) && (this->lag == cmp.lag) && (this->enc == cmp.enc) &&
-      (this->drv == cmp.drv) && (this->oc == cmp.oc));
-  }
+  bool operator==(const ErrorState & cmp) { return this->make_tuple() == cmp.make_tuple(); }
 
   void parse(std::bitset<8> error_code)
   {
