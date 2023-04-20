@@ -318,19 +318,36 @@ hardware_interface::return_type IrcRosCan::prepare_command_mode_switch(
  * @brief Changes the command mode (part 2). This does not block, so the error reset and
  * motor enable might fail.
  * 
- * TODO: dont return OK on failure
+ * TODO: dont return OK on failure, check if all interfaces are found
  */
 hardware_interface::return_type IrcRosCan::perform_command_mode_switch(
   const std::vector<std::string> & start_interfaces,
   const std::vector<std::string> & stop_interfaces)
 {
-  // TODO: interfaces which are only stopping should be reset
+  // Make sure that a module that is stopped and not started again is reset, thus not moving
+  for (auto stop : stop_interfaces) {
+    for (auto && [module_name, module] : modules_) {
+      if (
+        stop == module->get_name() + "/" + hardware_interface::HW_IF_POSITION ||
+        stop == module->get_name() + "/" + hardware_interface::HW_IF_VELOCITY ||
+        stop == module->get_name() + "/" + hardware_interface::HW_IF_EFFORT) {
+        module->reset_error();
+      }
+    }
+  }
+
+  // Start the modules that are used with the new interfaces again
   for (auto start : start_interfaces) {
     for (auto && [module_name, module] : modules_) {
-      module->prepare_movement();
+      if (
+        start == module->get_name() + "/" + hardware_interface::HW_IF_POSITION ||
+        start == module->get_name() + "/" + hardware_interface::HW_IF_VELOCITY ||
+        start == module->get_name() + "/" + hardware_interface::HW_IF_EFFORT) {
+        module->prepare_movement();
 
-      // Allow resetting during the start of the loop
-      module->may_reset_ = true;
+        // Allow resetting during the start of the loop
+        module->may_reset_ = true;
+      }
     }
   }
 
