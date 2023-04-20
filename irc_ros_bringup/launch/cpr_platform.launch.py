@@ -214,6 +214,9 @@ def generate_launch_description():
         launch_arguments={
             "namespace": namespace,
             "prefix": prefix,
+            # FIXME: Temporary workaround since slam_toolbox settings dont seem to work
+            "out_topic": "/scan",
+
         }.items(),
         condition=IfCondition(
             PythonExpression(
