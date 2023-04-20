@@ -4,6 +4,11 @@
 #include <string>
 #include <tuple>
 
+/**
+ * @brief A class for handling module errors, both for the CPRCANv2 and CRI implementations. The
+ * error descriptions are taken from the CPRCANv2 protocol description, which should also be
+ * consulted for more information.
+ */
 class ErrorState
 {
 public:
@@ -23,7 +28,7 @@ public:
 
   /**
    * @brief Motor not enabled
-   * The movement of the motor is not enabled, it is not in control-
+   * The movement of the motor is not enabled, it is not in control
    */
   bool mne = true;
 
@@ -31,7 +36,7 @@ public:
    * @brief Communication Failure
    * The motor controller requires CAN messages at regular intervals. If the
    * distance between the messages is too large or the messages do not
-   * arrive, the motor controller stops the movement-
+   * arrive, the motor controller stops the movement
    */
   bool com = true;
 
