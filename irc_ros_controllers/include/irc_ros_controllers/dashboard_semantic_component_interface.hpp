@@ -72,7 +72,7 @@ public:
       } else {
         // Unexpected StateInterface
         // TODO: Once only the fitting interfaces are assigned in the dashboard controller return
-        // false and handle the error.
+        // false and handle the error. (Issue #75)
         // return false;
       }
     }

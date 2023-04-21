@@ -98,7 +98,7 @@ controller_interface::CallbackReturn DashboardController::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   for (auto && module_interface : module_interfaces_) {
-    // TODO: Currently assigns all state interfaces even if they dont belong to that module
+    // TODO: Currently assigns all state interfaces even if they dont belong to that module (Issue #75)
     module_interface->assign_loaned_state_interfaces(state_interfaces_);
   }
 
