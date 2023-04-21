@@ -23,8 +23,6 @@ public:
   int32_t encoder_pos_;
   double tics_over_degree_ = 1.0;  // [tics]/[deg]
 
-  bool is_ready_to_move() override;
-
   void position_cmd() override;
   void velocity_cmd() override;
   void torque_cmd() override;

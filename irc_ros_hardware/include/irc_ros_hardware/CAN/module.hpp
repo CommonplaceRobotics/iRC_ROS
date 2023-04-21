@@ -47,7 +47,6 @@ public:
   const std::string get_name() { return name_; };
 
   virtual void prepare_movement();
-  virtual bool is_ready_to_move() = 0;
 
   virtual void position_cmd() = 0;
   virtual void velocity_cmd() = 0;
