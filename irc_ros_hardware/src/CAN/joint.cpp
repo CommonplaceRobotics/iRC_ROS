@@ -8,6 +8,7 @@ Joint::Joint(std::string name, std::shared_ptr<CAN::CanInterface> can_interface,
 : Module::Module(name, can_interface, can_id)
 {
   // Calculate the weighted moving average weights
+  // https://en.wikiversity.org/wiki/Moving_Average/Weighted
   double divider = 0.0;
   for (int i = 0; i < velocity_buffer_size_; i++) {
     divider += i + 1;
@@ -16,16 +17,10 @@ Joint::Joint(std::string name, std::shared_ptr<CAN::CanInterface> can_interface,
   for (int i = 0; i < velocity_buffer_size_; i++) {
     velocity_buffer_weights_[i] = (i + 1) / divider;
 
-    // Also fill the deque until it reaches its max size.
-    // Otherwise the queue size would need to be handled dynamically.
+    // Also fill the deque until it reaches its max size. Otherwise the queue size would need to
+    // be handled dynamically. 0.0 is a reasonable assumption for the velocity as the motor should
+    // be at standstill when initialising.
     velocity_buffer_.push_front(0.0);
-  }
-
-  if (hardwareIdent == HardwareIdent::undefined) {
-    RCLCPP_INFO(
-      rclcpp::get_logger("iRC_ROS"),
-      "Module 0x%02x: Hardware ID not set yet, sending ping to request id.", can_id_);
-    ping();
   }
 }
 
@@ -60,7 +55,6 @@ void Joint::position_cmd()
   int32_t set_pos_tics = set_pos_ * 180.0 / (M_PI)*tics_over_degree_;
 
   CAN::CanMessage message(can_id_, cprcan::position_msg(set_pos_tics, msg_counter_, digital_out_));
-
   can_interface_->write_message(message);
 
   msg_counter_ = (++msg_counter_) % 256;
@@ -177,7 +171,6 @@ void Joint::referencing()
 
     CAN::CanMessage message(can_id_, cprcan::referencing);
     can_interface_->write_message(message);
-    // can_interface_->write_message(message);
 
     referenceState = ReferenceState::referencing_step1;
   } else {
@@ -215,7 +208,8 @@ void Joint::referencing_callback(cprcan::bytevec response)
     RCLCPP_WARN(
       rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Referencing: ACK 2 received too early",
       can_id_);
-    // Legacy fix, some FW+module combinations send the second ACK to early and we still need to send the second referencing command
+    // Legacy fix, some FW+module combinations send the second ACK to early and we still need to
+    // send the second referencing command.
     referencing();
   } else if (response == cprcan::referencing_response_error) {
     RCLCPP_ERROR(
@@ -459,6 +453,16 @@ void Joint::environmental_message_callback(cprcan::bytevec data)
     rclcpp::get_logger("iRC_ROS"),
     "Module 0x%02x: Environmental parameters: %i mV, Motor %.1lf °C, Board %.1lf °C", can_id_,
     supply_voltage_, temperature_motor_, temperature_board_);
+
+  // Ensure the hardware id is requested again
+  // TODO: Does not really fit in the callback, but it is called about once a second if the can bus
+  // is working. Still, we should find a better place for the fn.
+  if (hardwareIdent == HardwareIdent::undefined) {
+    RCLCPP_INFO(
+      rclcpp::get_logger("iRC_ROS"),
+      "Module 0x%02x: Hardware ID not set yet, sending ping to request id.", can_id_);
+    ping();
+  }
 }
 
 /**
