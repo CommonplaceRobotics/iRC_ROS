@@ -3,30 +3,26 @@
 # and the moveit_py example
 # https://github.com/peterdavidfagan/moveit2_tutorials/blob/moveit_py_motion_planning_python_api_tutorial/doc/examples/motion_planning_python_api/launch/motion_planning_python_api_tutorial.launch.py
 
+import os
+from pathlib import Path
+
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, RegisterEventHandler
-from launch.conditions import IfCondition, LaunchConfigurationEquals
-from launch.event_handlers import OnProcessExit
-from launch.substitutions import (
-    Command,
-    FindExecutable,
-    LaunchConfiguration,
-    PathJoinSubstitution,
-)
-from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
 from launch.actions import (
     DeclareLaunchArgument,
     IncludeLaunchDescription,
 )
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from moveit_configs_utils import MoveItConfigsBuilder
-
-import os
-from pathlib import Path
-from ament_index_python.packages import get_package_share_directory
+from launch.substitutions import (
+    Command,
+    FindExecutable,
+    LaunchConfiguration,
+    PathJoinSubstitution,
+)
 from launch_param_builder import load_yaml
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 from nav2_common.launch import ReplaceString
 
 
@@ -41,7 +37,7 @@ def generate_launch_description():
     print(moveitpy)
 
     ###
-    # From moveit_config pacakge
+    # From moveit_config package
     namespace_arg = DeclareLaunchArgument("namespace", default_value="")
     prefix_arg = DeclareLaunchArgument("prefix", default_value="")
     controller_manager_name_arg = DeclareLaunchArgument(
@@ -322,6 +318,9 @@ def generate_launch_description():
         ],
     )
 
+    # TODO: Once the above works see how to get the config files loaded in an elegant way and pass
+    # them to the moveit base launch file:
+
     # moveit_stack = IncludeLaunchDescription(
     #     PythonLaunchDescriptionSource(
     #         PathJoinSubstitution(
@@ -338,7 +337,6 @@ def generate_launch_description():
 
     ###
     # From moveit pkg
-
     ld.add_action(namespace_arg)
     ld.add_action(prefix_arg)
     ld.add_action(controller_manager_name_arg)
@@ -364,11 +362,9 @@ def generate_launch_description():
 
     # Robot nodes
     # ld.add_action(moveit_stack)
+
     # Baristabot
     ld.add_action(baristabot_node)
 
     # UI nodes
     return ld
-
-
-#
