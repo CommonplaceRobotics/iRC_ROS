@@ -35,7 +35,7 @@
     open_loop_control: true
     allow_partial_joints_goal: true
 
-    # FIXME: Goal_pose commands from Rviz2 send Twist instead of TwistStamped
+    # TODO: Goal_pose commands from Rviz2 send Twist instead of TwistStamped
     # See if it is possible to change the rviz behaviour as TwistStamped is 
     # becoming the new standard
     use_stamped_vel: false

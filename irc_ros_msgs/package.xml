@@ -3,7 +3,7 @@
 <package format="3">
   <name>irc_ros_msgs</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>This package contains the messages required for the interaction between other irc_ros packages</description>
 
   <maintainer email="fer@cpr-robots.com">Felix Reuter</maintainer>
   <license>Apache-2.0</license>

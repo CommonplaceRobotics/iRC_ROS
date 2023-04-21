@@ -8,7 +8,3 @@ Navigation2 and Navigation2-bringup packages need to be installed. The instructi
 It is possible to manually send position goals via RVIZ. Another option with the Nav2 simple commander API can be found in the `irc_ros_examples` package.
 
 ![A SLAM test run](doc/slam.png)
-
-## TODO
- - Add IMU and sensor fusion with [robot_localisation](http://docs.ros.org/en/noetic/api/robot_localization/html/index.html)?
- - Cleanup launch file

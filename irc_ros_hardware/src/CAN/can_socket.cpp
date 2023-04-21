@@ -93,7 +93,7 @@ bool CanInterfaceSocketCAN::connect(std::string can_port)
     is_socket_connected_ = false;
   }
 
-  // TODO: Is there really an advantage here over return is_socket_connected_ ?
+  // TODO: Is there an advantage over return is_socket_connected_ ?
   return is_connected();
 }
 
@@ -253,7 +253,6 @@ void CanInterfaceSocketCAN::read_thread()
           consume_message(TimedCanMessage(frame.can_id, frame.len, frame.data, timestamp));
         }
       } else if (bytes_read == 0) {
-        // TODO: Is this a valid message?
         RCLCPP_DEBUG(rclcpp::get_logger("iRC_ROS::CAN"), "SocketCAN read: EOF");
       } else {
         int err = errno;

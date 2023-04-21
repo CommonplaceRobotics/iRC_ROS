@@ -16,6 +16,7 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from nav2_common.launch import ReplaceString
 
+
 def generate_launch_description():
     default_rviz_file = PathJoinSubstitution(
         [FindPackageShare("irc_ros_description"), "rviz", "platform.rviz"]
@@ -117,7 +118,7 @@ def generate_launch_description():
     # platform_name = LaunchConfiguration('platform_name')
     platform_urdf = LaunchConfiguration("platform_urdf")
     platform_controller_config_file = LaunchConfiguration("platform_controller_config")
-    use_laserscanners = LaunchConfiguration("use_laserscanners")
+    # use_laserscanners = LaunchConfiguration("use_laserscanners")
     hardware_protocol = LaunchConfiguration("hardware_protocol")
 
     platform_controller_config = ReplaceString(
@@ -125,7 +126,7 @@ def generate_launch_description():
         replacements={
             "<namespace>": namespace,
             "<prefix>": prefix,
-        }
+        },
     )
     robot_description = Command(
         [
@@ -214,9 +215,8 @@ def generate_launch_description():
         launch_arguments={
             "namespace": namespace,
             "prefix": prefix,
-            # FIXME: Temporary workaround since slam_toolbox settings dont seem to work
+            # TODO: Temporary workaround since slam_toolbox settings dont seem to work
             "out_topic": "/scan",
-
         }.items(),
         condition=IfCondition(
             PythonExpression(

@@ -87,7 +87,7 @@ Used to track the state of error reset commands and error state.
 ```mermaid
 stateDiagram-v2
     [*] --> not_reset
-    not_reset --> resetting : reset_errors()
+    not_reset --> resetting : reset_error()
     resetting --> reset : No Errors remaining
     resetting --> not_reset : timeout
     reset --> not_reset : Error received 

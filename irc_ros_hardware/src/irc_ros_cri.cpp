@@ -473,7 +473,9 @@ hardware_interface::return_type IrcRosCri::write(const rclcpp::Time &, const rcl
     // Only send a message if the command changed. Since the CRI controller can't handle new
     // position goals while still moving we only want to send the goal position without any
     // interpolation.
-    // FIXME: Find ros2 controller which only sends the final position
+    //
+    // TODO: Find ros2_controller which only sends the final position once or wait for a protocol
+    // update for CRI (Issue #72)
     if (set_pos != set_pos_last) {
       CmdMove();
       set_pos_last = set_pos;
@@ -481,6 +483,7 @@ hardware_interface::return_type IrcRosCri::write(const rclcpp::Time &, const rcl
   }
   // Velocity command
   else if (std::none_of(set_vel.begin(), set_vel.end(), [](double d) { return std::isnan(d); })) {
+    // Simply use the velocities in the jog message
     std::copy(set_vel.begin(), set_vel.end(), jog_array.begin());
   }
   // No movement
