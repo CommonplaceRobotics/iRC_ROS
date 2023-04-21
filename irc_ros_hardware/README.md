@@ -119,30 +119,6 @@ Checking the approximate timing with `candump can0,010:FFF -td` (010 is for the 
 
 ![Plot showing the jitter behaviour of the can communication](doc/jitter.png)
 
-## TODO
-  - CRI and CAN: Make grippers controllable via MoveIt Gripper Action?
-  - CAN: Update state machine transitions being all over the place
-  - CAN: Remove double copies of status variables once ros2_control supports bool or int variables for interfaces (currently only double is supported)
-    - https://github.com/ros-controls/ros2_control/pull/490
-    - https://github.com/ros-controls/ros2_control/pull/714
-    - ...
-  - CAN: Module discovery over status infos?
-    - It is not possible to detect all necessary information for setting up axes that way, but a notification that other devices which are not inside of the configuration are sending messages might be useful for debugging purposes.
-  - CRI Protocol
-    - Big cleanup
-    - Add DIO commands
-    - Make sure protocol is up to date
-    - Compare urdf with prj/robot file set in TinyCtrl?
-    - Test if the whole functionality of the project works with it or if some parts are currently CAN only
-    - Add dashboard support?
-  - CRI and CAN
-    - Clean up logging, use advanced logging macros, e.g. throttled
-    - Threads -> ROS executor?
-      - Is there an advantage for functions that are not interfacing directly with ROS?
-    - Use consistent naming scheme for variables and functions.
-  - Add launch arguments for IP/Canports/... to overwrite global defaults/robot model `.ros2_control.xacro` file
-    - Will make it more complicated to find out which file sets the actual value with .ros2_control.xacro, .hpp defaults, urdf parsing defaults, launch parameters, ...
-
 ## Links
 ### Hardware communication
  - [CAN (including reference and C# demo client)](https://wiki.cpr-robots.com/index.php/CAN_Protocol)
