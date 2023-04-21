@@ -14,7 +14,7 @@ setup(
     zip_safe=True,
     maintainer="Felix Reuter",
     maintainer_email="fer@cpr-robots.com",
-    description="TODO: Package description",
+    description="A dashboard for monitoring and controlling modules",
     license="Apache-2.0",
     tests_require=["pytest"],
     entry_points={
