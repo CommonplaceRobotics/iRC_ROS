@@ -24,7 +24,9 @@ Joint::Joint(std::string name, std::shared_ptr<CAN::CanInterface> can_interface,
 
 Joint::~Joint()
 {
-  // TODO: reset_error could also disable the joint, is there an advantage of using that?
+  // Both reset_errors() and disable_motor() can be used for stopping the motion. The advantage of
+  // disable_motors it that it preserves the errors in case further investigation, e.g. via module
+  // control, is desired.
   disable_motor();
 };
 
@@ -93,7 +95,7 @@ void Joint::position_cmd()
  */
 void Joint::velocity_cmd()
 {
-  //TODO: Check that the units are correct
+  // TODO: Check that the units are correct
   int16_t intVel = set_vel_ * tics_over_degree_;
 
   CAN::CanMessage message(can_id_, cprcan::velocity_msg(intVel, msg_counter_));
@@ -106,7 +108,6 @@ void Joint::velocity_cmd()
  * controllers watchdog resets after 50ms.
  * 
  * TODO: This method is untested, so use with precaution.
- * TODO: Unit conversion to SI unit possible?
  */
 void Joint::torque_cmd()
 {
@@ -324,7 +325,7 @@ void Joint::standard_response_callback(CAN::TimedCanMessage message)
   }
 
   // Resetting and only MNE error? -> Reset is done
-  // TODO: Seems that MNE errors don't occur here, so any() instead of any_except_mne() is used
+  // Note: Contrary to the protocol MNE errors don't occur heres so !any() instead of !any_except_mne() is used
   if (!errorState.any() && resetState != ResetState::reset) {
     resetState = ResetState::reset;
     RCLCPP_INFO(
