@@ -20,6 +20,13 @@ Joint::Joint(std::string name, std::shared_ptr<CAN::CanInterface> can_interface,
     // Otherwise the queue size would need to be handled dynamically.
     velocity_buffer_.push_front(0.0);
   }
+
+  if (hardwareIdent == HardwareIdent::undefined) {
+    RCLCPP_INFO(
+      rclcpp::get_logger("iRC_ROS"),
+      "Module 0x%02x: Hardware ID not set yet, sending ping to request id.", can_id_);
+    ping();
+  }
 }
 
 Joint::~Joint()
@@ -29,34 +36,6 @@ Joint::~Joint()
   // control, is desired.
   disable_motor();
 };
-
-/**
- * @brief If the module supports a positioning ready bit then wait for it to be set.
- * TODO: Currently unused, remove once functionality is implemented elsewhere.
- */
-bool Joint::is_ready_to_move()
-{
-  // TODO: Maybe this should go someplace else
-  if (hardwareIdent == HardwareIdent::undefined) {
-    RCLCPP_INFO(
-      rclcpp::get_logger("iRC_ROS"),
-      "Module 0x%02x: Hardware ID not set yet, sending ping. No movement until then", can_id_);
-    ping();
-    return false;
-  }
-
-  if (
-    positioningReadyState == PositioningReadyState::ready ||
-    positioningReadyState == PositioningReadyState::not_implemented) {
-    return true;
-  }
-
-  RCLCPP_INFO(
-    rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Module reports that it is not ready to move yet",
-    can_id_);
-
-  return false;
-}
 
 /**
  * @brief Moves the motor to the position given by set_pos_ and sets the 
@@ -125,8 +104,8 @@ void Joint::torque_cmd()
  * Can be undone by the referencing function.
  * 
  * This gets called by the user while the rest of the process is done in the callback
- *
- * TODO: This is untested
+ * 
+ * TODO: This method is untested, so use with precaution.
  */
 void Joint::set_position_to_zero()
 {
