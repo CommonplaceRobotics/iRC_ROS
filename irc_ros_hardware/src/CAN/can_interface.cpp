@@ -71,7 +71,6 @@ void CanInterface::write_can_dump()
       ss << std::setw(3) << (i - skipCnt) << " ";
 
       // Time
-      // TODO: test
       auto ts = temp_dump[idx].message.timestamp;
       double ts_float =
         std::chrono::duration_cast<std::chrono::duration<double>>(

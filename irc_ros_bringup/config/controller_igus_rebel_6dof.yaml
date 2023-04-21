@@ -64,7 +64,7 @@
       - <prefix>dio_base/digital_output_5
       - <prefix>dio_base/digital_output_6
 
-# TODO: Rate limit this from 100Hz
+# TODO: Rate limit this from 100Hz (Issue #74)
 <namespace>/dashboard_controller:
   ros__parameters:
     joints: 

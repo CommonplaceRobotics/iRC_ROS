@@ -62,7 +62,3 @@ Use `ros2 launch irc_ros_bringup [...].launch.py --show-args` for more informati
 ## Controller files
   - `controller_igus_rebel_*dof.yaml` implements position control via a JointTrajectoryController
   - `controller_cpr_platform_medium.yaml` implements velocity control via a DiffDriveController. While the position commands are more precise for repeatability, the use of velocity commands causes smoother and straighter driving.
-
-## TODO
- - CRI specific controller which only sends the goal position without interpolation et al.?
-   - Alternatively wait for a new EmbeddedControl software update to support continuous goal sending

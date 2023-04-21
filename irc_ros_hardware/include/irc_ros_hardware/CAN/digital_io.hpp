@@ -16,9 +16,6 @@ public:
   void read_can() override;
   void write_can() override;
 
-  // No need for these functions except to make the class not abstract
-  bool is_ready_to_move() { return false; };
-
   void velocity_cmd() {}
   void torque_cmd() {}
 

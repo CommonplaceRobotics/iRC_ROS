@@ -31,7 +31,6 @@ private:
   // 6-8 are used for external axis
   std::vector<double> jog_array;
 
-  // TODO: replace std:threads with ROS2 threading?
   bool continueAlive;
   bool continueMessage;
   std::thread aliveThread;

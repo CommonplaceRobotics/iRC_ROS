@@ -90,7 +90,7 @@ class TableApp(App):
 
         self.ds.generate_rows()
 
-        # TODO: Find a better way to refresh the cells
+        # TODO: Find a better way to refresh the cells (Issue #20)
         # This way is losing the selection on each refresh
         self.table.clear()
         self.table.add_rows(self.ds.rows_iter)
@@ -112,7 +112,7 @@ class TableApp(App):
         self.set_interval(0.1, self.update)
 
     def on_data_table_cell_selected(self, event) -> None:
-        # TODO: Complete this function
+        # TODO: Complete this function (Issue #21)
 
         print(event.cell_key)
         # Get the can_id from the same row, via coordinates?
@@ -194,7 +194,7 @@ def dio_state_callback(data):
 def main():
     rclpy.init()
 
-    # TODO: Dynamic selection of topics, see RTUI how it is done
+    # TODO: Dynamic selection of topics, see RTUI how it is done (Issue #57)
 
     node = rclpy.create_node("irc_ros_cli_dashboard")
 

@@ -89,7 +89,8 @@ void DIO::position_cmd()
   // some data.
   int32_t set_pos_tics = 0;
 
-  // TODO: Remove this conversion once a better way of using bitsets as in/out of StateInterface/CommandInterface is found
+  // TODO: Remove this conversion once a better way of using bitsets as in/out of
+  // StateInterface/CommandInterface is found (Issues #9 #76)
   // digital_out_double_ -> digital_out_
   for (int i = 0; i < std::min(digital_out_double_.size(), digital_out_.size()); i++) {
     digital_out_[i] = digital_out_double_[i] > 0.5;

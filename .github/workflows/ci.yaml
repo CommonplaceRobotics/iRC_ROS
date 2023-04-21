@@ -33,7 +33,6 @@ jobs:
             irc_ros_navigation2
 
           import-token: ${{ secrets.GITHUB_TOKEN }}
-          target-ros2-distro: humble # TODO: Add iron once released
+          target-ros2-distro: humble # TODO: Add rolling, maybe iron once released?
           skip-tests: true
-          # TODO: Change to raw github link so it is runnable with act once the repository is set to public?
           vcs-repo-file-url: "${{ github.workspace }}/irc_ros.repos" 

@@ -87,7 +87,7 @@ Used to track the state of error reset commands and error state.
 ```mermaid
 stateDiagram-v2
     [*] --> not_reset
-    not_reset --> resetting : reset_errors()
+    not_reset --> resetting : reset_error()
     resetting --> reset : No Errors remaining
     resetting --> not_reset : timeout
     reset --> not_reset : Error received 
@@ -118,30 +118,6 @@ stateDiagram-v2
 Checking the approximate timing with `candump can0,010:FFF -td` (010 is for the module 0x10, so the first motor module) shows a relatively stable frequency around the set rate of 100Hz. Plotting the data from the highest can id (in the images case 0x40) shows some jitter, if this causes trouble switching to a real time kernel might help. The example can dump and plotting script can be found in `doc/`. For further debugging comparing the jitter peaks with the sending of position messages might be of interest, for which the data is already available in the python plot script.
 
 ![Plot showing the jitter behaviour of the can communication](doc/jitter.png)
-
-## TODO
-  - CRI and CAN: Make grippers controllable via MoveIt Gripper Action?
-  - CAN: Update state machine transitions being all over the place
-  - CAN: Remove double copies of status variables once ros2_control supports bool or int variables for interfaces (currently only double is supported)
-    - https://github.com/ros-controls/ros2_control/pull/490
-    - https://github.com/ros-controls/ros2_control/pull/714
-    - ...
-  - CAN: Module discovery over status infos?
-    - It is not possible to detect all necessary information for setting up axes that way, but a notification that other devices which are not inside of the configuration are sending messages might be useful for debugging purposes.
-  - CRI Protocol
-    - Big cleanup
-    - Add DIO commands
-    - Make sure protocol is up to date
-    - Compare urdf with prj/robot file set in TinyCtrl?
-    - Test if the whole functionality of the project works with it or if some parts are currently CAN only
-    - Add dashboard support?
-  - CRI and CAN
-    - Clean up logging, use advanced logging macros, e.g. throttled
-    - Threads -> ROS executor?
-      - Is there an advantage for functions that are not interfacing directly with ROS?
-    - Use consistent naming scheme for variables and functions.
-  - Add launch arguments for IP/Canports/... to overwrite global defaults/robot model `.ros2_control.xacro` file
-    - Will make it more complicated to find out which file sets the actual value with .ros2_control.xacro, .hpp defaults, urdf parsing defaults, launch parameters, ...
 
 ## Links
 ### Hardware communication

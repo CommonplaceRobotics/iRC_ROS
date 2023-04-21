@@ -14,35 +14,30 @@ Module::Module(std::string name, std::shared_ptr<CAN::CanInterface> can_interfac
 }
 
 /**
- * @brief Resets all errors (except MNE). Only works if non-fatal errors are present
- * @param force Reset errors even if potential fatal errors are present
+ * @brief Resets all errors. Afterwards only MNE might be present as it is supposed to be set
+ * automatically.
  * 
  * Since reset_error also sets MNE it can be used to stop the motors.
- * 
- * TODO: Introduce a third level of error severity.
  */
-void Module::reset_error(bool force)
+void Module::reset_error()
 {
-  force = true;
-  if (!errorState.any_fatal() || force) {
-    // Only sent reset if not already send recently
-    if (resetState != ResetState::reset && resetState != ResetState::resetting) {
-      RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Resetting", can_id_);
+  // Only sent reset if not already send recently
+  if (resetState != ResetState::reset && resetState != ResetState::resetting) {
+    RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Resetting", can_id_);
 
-      CAN::CanMessage message(can_id_, cprcan::reset_error);
-      can_interface_->write_message(message);
+    CAN::CanMessage message(can_id_, cprcan::reset_error);
+    can_interface_->write_message(message);
 
-      resetState = ResetState::resetting;
+    resetState = ResetState::resetting;
 
-      reset_time_point_ = std::chrono::steady_clock::now();
-    } else if (
-      resetState == ResetState::resetting &&
-      std::chrono::steady_clock::now() - reset_time_point_ > reset_timeout_) {
-      resetState = ResetState::not_reset;
-      RCLCPP_WARN(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Resetting timed out", can_id_);
+    reset_time_point_ = std::chrono::steady_clock::now();
+  } else if (
+    resetState == ResetState::resetting &&
+    std::chrono::steady_clock::now() - reset_time_point_ > reset_timeout_) {
+    resetState = ResetState::not_reset;
+    RCLCPP_WARN(rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Resetting timed out", can_id_);
 
-      reset_error();
-    }
+    reset_error();
   }
 }
 
@@ -139,9 +134,7 @@ void Module::prepare_movement()
       rclcpp::get_logger("iRC_ROS"), "Module 0x%02x: Errors%s detected, resetting", can_id_,
       errorState.str().c_str());
 
-    // We need to reset all errors when this is called after a command mode switch, as this causes
-    // COM errors, which are normally considered to be fatal errors.
-    reset_error(true);
+    reset_error();
   }
 
   if (!errorState.any_except_mne() && motorState != MotorState::enabled) {
@@ -202,7 +195,7 @@ void Module::dashboard_command()
       dashboard_cmd_double_ = 0;
       break;
     case irc_ros_msgs::srv::CanModuleCommand_Request_<std::allocator<void>>::TYPE_ERROR_RESET:
-      reset_error(true);
+      reset_error();
       dashboard_cmd_double_ = 0;
       break;
     case irc_ros_msgs::srv::CanModuleCommand_Request_<std::allocator<void>>::TYPE_ENABLE_MOTOR:
@@ -222,7 +215,6 @@ void Module::dashboard_command()
       dashboard_cmd_double_ = 0;
       break;
     default:
-      // TODO: Go into error state?
       RCLCPP_ERROR(
         rclcpp::get_logger("iRC_ROS"),
         "Module 0x%02x: Unrecognised command received with enum value: %i", can_id_, command);

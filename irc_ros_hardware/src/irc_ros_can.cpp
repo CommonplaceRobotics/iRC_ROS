@@ -15,14 +15,9 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 
-// #include "CAN/module.hpp"
-
 namespace irc_hardware
 {
 
-//
-// Constructor(s) / Destructor(s)
-//{
 IrcRosCan::IrcRosCan() { can_interface_ = std::make_shared<CAN::CanInterfaceSocketCAN>(); }
 
 IrcRosCan::~IrcRosCan() {}
@@ -60,6 +55,17 @@ hardware_interface::CallbackReturn IrcRosCan::on_init(const hardware_interface::
       RCLCPP_WARN(
         rclcpp::get_logger("iRC_ROS"),
         "Joint \"%s\" no can_id specified in urdf, using default value", joint.name.c_str());
+    }
+
+    // Check if a different module already uses the same CAN id
+    for (auto & [module_name, module] : modules_) {
+      if (module->can_id_ == can_id) {
+        RCLCPP_ERROR(
+          rclcpp::get_logger("iRC_ROS"), "Joint \"%s\": can id 0x%02x is already in use by %s",
+          joint.name.c_str(), can_id, module->get_name().c_str());
+
+        return hardware_interface::CallbackReturn::ERROR;
+      }
     }
 
     // Create joint object since all required information is now available
@@ -114,8 +120,7 @@ hardware_interface::CallbackReturn IrcRosCan::on_init(const hardware_interface::
 
     // Referencing required?
 
-    // Default value
-    j->referenceState = ReferenceState::not_required;
+    j->referenceState = ReferenceState::not_required;  // Default value
 
     if (joint.parameters.count("referencing_required") > 0) {
       std::string referencing_required = joint.parameters.at("referencing_required");
@@ -148,7 +153,7 @@ hardware_interface::CallbackReturn IrcRosCan::on_init(const hardware_interface::
     // Joint configuration summary
     RCLCPP_INFO(
       rclcpp::get_logger("iRC_ROS"),
-      "Joint \"%s\" specified with CAN_ID: 0x%x Controller type: %s Gear scale: %lf",
+      "Joint \"%s\" specified with CAN_ID: 0x%02x Controller type: %s Gear scale: %lf",
       joint.name.c_str(), j->can_id_, controller_type.c_str(), j->tics_over_degree_);
 
     modules_[joint.name] = j;
@@ -166,6 +171,17 @@ hardware_interface::CallbackReturn IrcRosCan::on_init(const hardware_interface::
         gpio.name.c_str());
     }
 
+    // Check if a different module already uses the same CAN id
+    for (auto & [module_name, module] : modules_) {
+      if (module->can_id_ == can_id) {
+        RCLCPP_ERROR(
+          rclcpp::get_logger("iRC_ROS"), "GPIO \"%s\": can id 0x%02x is already in use by %s",
+          gpio.name.c_str(), can_id, module->get_name().c_str());
+
+        return hardware_interface::CallbackReturn::ERROR;
+      }
+    }
+
     // Create dio object since all required information is now available
     std::shared_ptr<DIO> d = std::make_shared<DIO>(gpio.name, can_interface_, can_id);
 
@@ -173,13 +189,12 @@ hardware_interface::CallbackReturn IrcRosCan::on_init(const hardware_interface::
     can_id += default_can_id_step_;
 
     RCLCPP_INFO(
-      rclcpp::get_logger("iRC_ROS"), "DIO \"%s\" specified with CAN_ID: 0x%x", gpio.name.c_str(),
+      rclcpp::get_logger("iRC_ROS"), "DIO \"%s\" specified with CAN_ID: 0x%02x", gpio.name.c_str(),
       d->can_id_);
 
     modules_[gpio.name] = d;
   }
 
-  // TODO: Fail if same can id for multiple modules, ...
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -234,7 +249,7 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
         return hardware_interface::CallbackReturn::FAILURE;
       }
 
-      module->reset_error(true);
+      module->reset_error();
 
       module->read_can();
       module->write_can();
@@ -249,7 +264,7 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
       // Enable the motors for referencing
       while (module->motorState != MotorState::enabled) {
         if (module->errorState.any_except_mne()) {
-          module->reset_error(true);
+          module->reset_error();
         }
         module->enable_motor();
 
@@ -278,28 +293,32 @@ hardware_interface::CallbackReturn IrcRosCan::on_activate(
 }
 
 /**
- * @brief Changes the command mode (part 1)
+ * @brief Changes the command mode (part 1). This sets the command modes anew, while the second
+ * method resets the modules.
+ *
+ * TODO: dont return OK on failure, check if all interfaces are found and no duplicates
  */
 hardware_interface::return_type IrcRosCan::prepare_command_mode_switch(
   const std::vector<std::string> & start_interfaces,
   const std::vector<std::string> & stop_interfaces)
 {
-  // TODO: Check if duplicate modules in start_interfaces
-
+  // Reset command mode and goal states
   for (auto stop : stop_interfaces) {
-    // TODO: Only change interfaces that are not inside start_interfaces again
-
-    // TODO: Set motor goal to stop?
     for (auto && [module_name, module] : modules_) {
-      if (
-        stop == module->get_name() + "/" + hardware_interface::HW_IF_POSITION ||
-        stop == module->get_name() + "/" + hardware_interface::HW_IF_VELOCITY ||
-        stop == module->get_name() + "/" + hardware_interface::HW_IF_EFFORT) {
+      if (stop == module->get_name() + "/" + hardware_interface::HW_IF_POSITION) {
         module->commandMode = CommandMode::none;
+        module->set_pos_ = std::numeric_limits<double>::quiet_NaN();
+      } else if (stop == module->get_name() + "/" + hardware_interface::HW_IF_VELOCITY) {
+        module->commandMode = CommandMode::none;
+        module->set_vel_ = std::numeric_limits<double>::quiet_NaN();
+      } else if (stop == module->get_name() + "/" + hardware_interface::HW_IF_EFFORT) {
+        module->commandMode = CommandMode::none;
+        module->set_torque_ = std::numeric_limits<double>::quiet_NaN();
       }
     }
   }
 
+  // Set command modes for starting interfaces
   for (auto start : start_interfaces) {
     for (auto && [module_name, module] : modules_) {
       if (start == module->get_name() + "/" + hardware_interface::HW_IF_POSITION) {
@@ -318,19 +337,36 @@ hardware_interface::return_type IrcRosCan::prepare_command_mode_switch(
  * @brief Changes the command mode (part 2). This does not block, so the error reset and
  * motor enable might fail.
  * 
- * TODO: dont return OK on failure
+ * TODO: dont return OK on failure, check if all interfaces are found and no duplicates
  */
 hardware_interface::return_type IrcRosCan::perform_command_mode_switch(
   const std::vector<std::string> & start_interfaces,
   const std::vector<std::string> & stop_interfaces)
 {
-  // TODO: interfaces which are only stopping should be reset
+  // Make sure that a module that is stopped and not started again is reset, thus not moving
+  for (auto stop : stop_interfaces) {
+    for (auto && [module_name, module] : modules_) {
+      if (
+        stop == module->get_name() + "/" + hardware_interface::HW_IF_POSITION ||
+        stop == module->get_name() + "/" + hardware_interface::HW_IF_VELOCITY ||
+        stop == module->get_name() + "/" + hardware_interface::HW_IF_EFFORT) {
+        module->reset_error();
+      }
+    }
+  }
+
+  // Start the modules that are used with the new interfaces again
   for (auto start : start_interfaces) {
     for (auto && [module_name, module] : modules_) {
-      module->prepare_movement();
+      if (
+        start == module->get_name() + "/" + hardware_interface::HW_IF_POSITION ||
+        start == module->get_name() + "/" + hardware_interface::HW_IF_VELOCITY ||
+        start == module->get_name() + "/" + hardware_interface::HW_IF_EFFORT) {
+        module->prepare_movement();
 
-      // Allow resetting during the start of the loop
-      module->may_reset_ = true;
+        // Allow resetting during the start of the loop
+        module->may_reset_ = true;
+      }
     }
   }
 

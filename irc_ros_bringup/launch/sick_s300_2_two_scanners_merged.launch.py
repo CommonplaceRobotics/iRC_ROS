@@ -11,7 +11,7 @@ def generate_launch_description():
     destination_frame_arg = DeclareLaunchArgument(
         "destination_frame_arg",
         default_value=[LaunchConfiguration("prefix"), "base_link"],
-        description="TODO",
+        description="The frame to which the scans are transformed",
     )
     in_topics_arg = DeclareLaunchArgument(
         "in_topics",
@@ -22,14 +22,12 @@ def generate_launch_description():
             LaunchConfiguration("namespace"),
             "/scan_back",
         ],
-        description="TODO",
+        description="The topics from which to read the scans",
     )
     out_topic_arg = DeclareLaunchArgument(
         "out_topic",
-        # FIXME: Temporary workaround since slam_toolbox settings dont seem to work
-        # default_value=[LaunchConfiguration("namespace"), "/scan"],
-        default_value=["/scan"],
-        description="TODO",
+        default_value=[LaunchConfiguration("namespace"), "/scan"],
+        description="The topic where the transformed and merged scans are published",
     )
     namespace = LaunchConfiguration("namespace")
     prefix = LaunchConfiguration("prefix")

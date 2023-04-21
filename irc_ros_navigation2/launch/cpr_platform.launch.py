@@ -1,9 +1,9 @@
 from launch import LaunchDescription
-from launch.substitutions import PathJoinSubstitution
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
 from launch_ros.actions import SetRemap
 from launch_ros.substitutions import FindPackageShare
-from launch.actions import IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 
 def generate_launch_description():
@@ -11,19 +11,23 @@ def generate_launch_description():
         [FindPackageShare("irc_ros_navigation2"), "rviz", "platform.rviz"]
     )
 
-    irc_ros_launch_file_dir = PathJoinSubstitution(
+    base_launch_file_arg = DeclareLaunchArgument(
+        "base_launch_file",
+        default_value=["cpr_platform.launch.py"],
+        choices=["cpr_platform.launch.py", "rebel_on_platform.launch.py"],
+        description="Name of the robot description file",
+    )
+
+    base_launch_file = PathJoinSubstitution(
         [
             FindPackageShare("irc_ros_bringup"),
             "launch",
+            LaunchConfiguration("base_launch_file"),
         ]
     )
 
     irc_ros_stack = IncludeLaunchDescription(
-        # TODO: Launch file selection somehow?
-        PythonLaunchDescriptionSource(
-            # [irc_ros_launch_file_dir, "/rebel_on_platform.launch.py"]
-            [irc_ros_launch_file_dir, "/cpr_platform.launch.py"]
-        ),
+        PythonLaunchDescriptionSource(base_launch_file),
         launch_arguments={
             "use_rviz": "true",
             "rviz_file": rviz_file,
@@ -65,6 +69,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            base_launch_file_arg,
             irc_ros_stack,
             # /cmd_vel (comes from either rqt_robot_steering, Navigation2 goal_pose)
             # ->
