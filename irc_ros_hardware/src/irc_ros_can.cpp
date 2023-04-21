@@ -18,9 +18,6 @@
 namespace irc_hardware
 {
 
-//
-// Constructor(s) / Destructor(s)
-//{
 IrcRosCan::IrcRosCan() { can_interface_ = std::make_shared<CAN::CanInterfaceSocketCAN>(); }
 
 IrcRosCan::~IrcRosCan() {}
@@ -58,6 +55,17 @@ hardware_interface::CallbackReturn IrcRosCan::on_init(const hardware_interface::
       RCLCPP_WARN(
         rclcpp::get_logger("iRC_ROS"),
         "Joint \"%s\" no can_id specified in urdf, using default value", joint.name.c_str());
+    }
+
+    // Check if a different module already uses the same CAN id
+    for (auto & [module_name, module] : modules_) {
+      if (module->can_id_ == can_id) {
+        RCLCPP_ERROR(
+          rclcpp::get_logger("iRC_ROS"), "Joint \"%s\": can id 0x%02x is already in use by %s",
+          joint.name.c_str(), can_id, module->get_name().c_str());
+
+        return hardware_interface::CallbackReturn::ERROR;
+      }
     }
 
     // Create joint object since all required information is now available
@@ -145,7 +153,7 @@ hardware_interface::CallbackReturn IrcRosCan::on_init(const hardware_interface::
     // Joint configuration summary
     RCLCPP_INFO(
       rclcpp::get_logger("iRC_ROS"),
-      "Joint \"%s\" specified with CAN_ID: 0x%x Controller type: %s Gear scale: %lf",
+      "Joint \"%s\" specified with CAN_ID: 0x%02x Controller type: %s Gear scale: %lf",
       joint.name.c_str(), j->can_id_, controller_type.c_str(), j->tics_over_degree_);
 
     modules_[joint.name] = j;
@@ -163,6 +171,17 @@ hardware_interface::CallbackReturn IrcRosCan::on_init(const hardware_interface::
         gpio.name.c_str());
     }
 
+    // Check if a different module already uses the same CAN id
+    for (auto & [module_name, module] : modules_) {
+      if (module->can_id_ == can_id) {
+        RCLCPP_ERROR(
+          rclcpp::get_logger("iRC_ROS"), "GPIO \"%s\": can id 0x%02x is already in use by %s",
+          gpio.name.c_str(), can_id, module->get_name().c_str());
+
+        return hardware_interface::CallbackReturn::ERROR;
+      }
+    }
+
     // Create dio object since all required information is now available
     std::shared_ptr<DIO> d = std::make_shared<DIO>(gpio.name, can_interface_, can_id);
 
@@ -170,13 +189,12 @@ hardware_interface::CallbackReturn IrcRosCan::on_init(const hardware_interface::
     can_id += default_can_id_step_;
 
     RCLCPP_INFO(
-      rclcpp::get_logger("iRC_ROS"), "DIO \"%s\" specified with CAN_ID: 0x%x", gpio.name.c_str(),
+      rclcpp::get_logger("iRC_ROS"), "DIO \"%s\" specified with CAN_ID: 0x%02x", gpio.name.c_str(),
       d->can_id_);
 
     modules_[gpio.name] = d;
   }
 
-  // TODO: Fail if same can id for multiple modules, ...
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
