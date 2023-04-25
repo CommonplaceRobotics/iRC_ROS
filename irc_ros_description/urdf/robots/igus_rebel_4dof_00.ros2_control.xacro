@@ -24,9 +24,9 @@
 
       <xacro:rebel_joint name="${prefix}joint1" can_id="0x10" position_min="${-pi*179/180}" position_max="${pi*179/180}" gear_scale="-1031.11" />
       <!-- Position limit difference with iRC files due to 30 degree offset in joint 2 and 3 -->
-      <xacro:rebel_joint name="${prefix}joint2" can_id="0x20" position_min="${-pi*2/3}" position_max="${pi*2/3}" gear_scale="1031.11" />
-      <xacro:rebel_joint name="${prefix}joint3" can_id="0x30" position_min="${-pi*2/3}" position_max="${pi*2/3}" gear_scale="1031.11" />
-      <xacro:rebel_joint name="${prefix}joint4" can_id="0x40" position_min="${-pi*19/36}" position_max="${pi*19/36}" gear_scale="1031.11" continuous_joint="${continuous_last_joint}" />
+      <xacro:rebel_joint name="${prefix}joint2" can_id="0x20" position_min="${-pi*2/3}" position_max="${pi*2/3}" gear_scale="1031.11" cri_position_offset="-30" />
+      <xacro:rebel_joint name="${prefix}joint3" can_id="0x30" position_min="${-pi*2/3}" position_max="${pi*2/3}" gear_scale="1031.11" cri_position_offset="-30" />
+      <xacro:rebel_joint name="${prefix}joint4" can_id="0x40" position_min="${-pi*19/36}" position_max="${pi*19/36}" gear_scale="1031.11" continuous_joint="${continuous_last_joint}" cri_position_offset="7.5" />
 
 
       <gpio name="${prefix}dio_base">

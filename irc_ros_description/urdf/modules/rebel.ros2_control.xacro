@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:macro name="rebel_joint" params="name can_id position_min=0 position_max=0 gear_scale=1 continuous_joint=false">
+  <xacro:macro name="rebel_joint" params="name can_id position_min=0 position_max=0 gear_scale=1 continuous_joint=false cri_position_offset=0">
     <joint name="${name}">
       <command_interface name="position">
         <xacro:unless value="${continuous_joint}">
@@ -20,9 +20,12 @@
       <state_interface name="velocity">
         <param name="initial_value">0.0</param>
       </state_interface>
+      <!-- CPRCAN specific parameters -->
       <param name="can_id">${can_id}</param>
       <param name="gear_scale">${gear_scale}</param>
       <param name="controller_type">closed_loop</param>
+      <!-- CRI specific parameters -->
+      <param name="cri_position_offset">${cri_position_offset}</param>
     </joint>
   </xacro:macro>
 </robot>

@@ -23,9 +23,9 @@
       <xacro:include filename="$(find irc_ros_description)/urdf/modules/rebel.ros2_control.xacro" />
 
       <xacro:rebel_joint name="${prefix}joint1" can_id="0x10" position_min="${-pi*179/180}" position_max="${pi*179/180}" gear_scale="-1443.55" />
-      <xacro:rebel_joint name="${prefix}joint2" can_id="0x20" position_min="${-pi*2/3}" position_max="${pi*2/3}" gear_scale="1443.55" />
-      <xacro:rebel_joint name="${prefix}joint3" can_id="0x30" position_min="${-pi*2/3}" position_max="${pi*2/3}" gear_scale="1443.55" />
-      <xacro:rebel_joint name="${prefix}joint4" can_id="0x40" position_min="${-pi*19/36}" position_max="${pi*19/36}" gear_scale="1031.11" continuous_joint="${continuous_last_joint}" />
+      <xacro:rebel_joint name="${prefix}joint2" can_id="0x20" position_min="${-pi*2/3}" position_max="${pi*2/3}" gear_scale="1443.55" cri_position_offset="-30" />
+      <xacro:rebel_joint name="${prefix}joint3" can_id="0x30" position_min="${-pi*2/3}" position_max="${pi*2/3}" gear_scale="1443.55" cri_position_offset="-30" />
+      <xacro:rebel_joint name="${prefix}joint4" can_id="0x40" position_min="${-pi*19/36}" position_max="${pi*19/36}" gear_scale="1031.11" continuous_joint="${continuous_last_joint}" cri_position_offset="7.5" />
 
       <gpio name="${prefix}dio_base">
         <param name="can_id">0x70</param>
