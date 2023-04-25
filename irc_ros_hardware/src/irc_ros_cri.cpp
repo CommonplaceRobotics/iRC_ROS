@@ -241,7 +241,6 @@ void IrcRosCri::ProcessStatus(const cri_messages::Status & status)
       int errorJoint = currentErrorJoints.at(i);
       if (errorJoint != lastErrorJoints.at(i)) {
         errorState.parse(errorJoint);
-        // std::bitset<8> errorCode = errorJoint;
 
         if (errorState.any()) {
           RCLCPP_ERROR(
@@ -275,13 +274,15 @@ void IrcRosCri::CmdMove()
       << "Joint"
       << " ";
 
-  // Add all desired positions to the command
+  // Limit the precision to one digit behind the decimal point
+  msg << std::fixed << std::setprecision(1);
+
+  // Add the joint goals as degrees
   for (auto p : set_pos) {
-    msg << p << " ";
+    msg << p * 180 / M_PI << " ";
   }
 
-  // We have to write 9 values in every case so fill the message in
-  // case less joints are specified
+  // We always have to send 9 values so we need to fill the message if we use less
   for (int i = set_pos.size(); i < 9; i++) {
     msg << 0.0f << " ";
   }

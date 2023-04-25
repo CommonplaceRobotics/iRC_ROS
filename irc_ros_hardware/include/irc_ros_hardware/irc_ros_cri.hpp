@@ -42,12 +42,12 @@ private:
   std::mutex aliveLock;
 
   // Read joint position values
-  std::vector<double> pos;
+  std::vector<double> pos;  // [rad]
 
-  // Values given from the hardware_interface
-  std::vector<double> set_pos;  // All have length of N_JOINTS; predefine?
+  // Values given from the hardware_interface, all have length of N_JOINTS; predefine?
+  std::vector<double> set_pos;  // [rad]
   std::vector<double> set_pos_last;
-  std::vector<double> set_vel;
+  std::vector<double> set_vel;  // percentage of the maximum speed
 
   cri_messages::Kinstate lastKinstate;
   std::array<int, 16> lastErrorJoints;
