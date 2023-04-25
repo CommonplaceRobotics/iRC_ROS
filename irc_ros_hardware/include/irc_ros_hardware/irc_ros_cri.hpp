@@ -42,13 +42,16 @@ private:
   std::mutex aliveLock;
 
   // Read joint position values
-  std::vector<double> pos;  // [rad]
-  std::vector<double> vel;  // [rad/s] 
+  std::vector<double> pos_;  // [rad]
+  std::vector<double> vel_;  // Not yet implemented! [rad/s]
 
   // Values given from the hardware_interface, all have length of N_JOINTS; predefine?
-  std::vector<double> set_pos;  // [rad]
-  std::vector<double> set_pos_last;
-  std::vector<double> set_vel;  // percentage of the maximum speed
+  std::vector<double> set_pos_;  // [rad]
+  std::vector<double> set_pos_last_;
+  std::vector<double> set_vel_;  // percentage of the maximum speed
+
+  // Used to counteract the offsets in EmbeddedCtrl, read from .ros2_control.xacro files
+  std::vector<double> pos_offset_;  // [rad]
 
   cri_messages::Kinstate lastKinstate;
   std::array<int, 16> lastErrorJoints;
