@@ -315,6 +315,7 @@ hardware_interface::CallbackReturn IrcRosCri::on_init(const hardware_interface::
 
     jog_array.push_back(0.0f);
     pos.push_back(0.0f);
+    vel.push_back(0.0f);
     set_pos.push_back(0.0f);
     set_pos_last.push_back(0.0f);
     set_vel.push_back(0.0f);
@@ -390,6 +391,9 @@ std::vector<hardware_interface::StateInterface> IrcRosCri::export_state_interfac
   for (int i = 0; i < info_.joints.size(); i++) {
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       info_.joints[i].name, hardware_interface::HW_IF_POSITION, &pos[i]));
+
+    state_interfaces.emplace_back(hardware_interface::StateInterface(
+      info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &vel[i]));
   }
 
   // TODO: DIO specific state_interfaces
