@@ -47,6 +47,8 @@ Specific settings are set in the respective ros2_control files:
 
 #### CRI settings
  - `ip` IP address of the EmbeddedControl/TinyCtrl device (defaults to "192.168.3.11")
+ - Per axis/module:
+   - `cri_position_offset` Offset between the joints (CPRCAN) zero position and the zero position in CRI
 
 ## How to add new robots/grippers/...
  - Start with a basic urdf file for robot. The joint and link values can be obtained e.g. from Datasheets
@@ -55,7 +57,10 @@ Specific settings are set in the respective ros2_control files:
  - Test with the `visualize.launch.py` file. If your urdf/xacro file is in the irc_ros_description packages `urdf/` folder you can select it via the robot name, e.g. `ros2 launch irc_ros_description visualize.launch.py robot_name:='igus_rebel_4dof'` or the `xacro_file` parameter. If your file resides somewhere else you can use the `xacro_path` parameter.
  - Add ros2_control configuration files
    - .ros2_control.xacro in the `irc_ros_description/urdf/[type]/` folder and controller in `irc_ros_bringup/config/`
-   - Look at iRC robot and project files for the parameters
+   - Look at iRC robot and project files for the parameters:
+     - `gear_scale`, joint limits (both robot config) and referencing order (project config) are self-explaining
+     - The can id in the robot config is in decimal, while the `can_id` parameter in the ros2_control config is given as hexadecimal number.
+     - The `cri_position_offset` is calculated by dividing `GearZero` by `GearScale` (both in the robot config)
  - Add/adapt launch file in the bringup folder for the application
 
 ![](doc/visualize.png)
