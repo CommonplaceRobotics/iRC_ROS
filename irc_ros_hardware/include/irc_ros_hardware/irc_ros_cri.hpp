@@ -43,6 +43,7 @@ private:
 
   // Read joint position values
   std::vector<double> pos;  // [rad]
+  std::vector<double> vel;  // [rad/s] 
 
   // Values given from the hardware_interface, all have length of N_JOINTS; predefine?
   std::vector<double> set_pos;  // [rad]
