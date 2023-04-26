@@ -111,22 +111,9 @@ class GripperInterface(Node):
 if __name__ == "__main__":
     rclpy.init()
 
-    node = Node("baristabot_param_checker")
-
-    node.declare_parameter("planning_pipelines.pipeline_names")
-    out = node.get_parameter("planning_pipelines.pipeline_names")
-    node.get_logger().error(str(out.value))
-    # while rclpy.ok():
-    #     rclpy.spin(node)
-    rclpy.shutdown()
-
-    moveit_py_instance = MoveItPy(node_name="moveit_py")
-
     # nav_int = NavigationInterface()
-    # moveit_int = MoveItInterface()
-    # gripper_int = GripperInterface()
-
-    exit(0)
+    moveit_int = MoveItInterface()
+    gripper_int = GripperInterface()
 
     while rclpy.ok():
         # TODO: Battery low?
