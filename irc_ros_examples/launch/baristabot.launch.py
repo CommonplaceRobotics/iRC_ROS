@@ -34,7 +34,11 @@ def opaque_test(context, *args, **kwargs):
     prefix = LaunchConfiguration("prefix")
     controller_manager_name = LaunchConfiguration("controller_manager_name")
     hardware_protocol = LaunchConfiguration("hardware_protocol")
-
+    
+    rviz_file = PathJoinSubstitution(
+        [FindPackageShare("irc_ros_moveit_config"), "rviz", "moveit.rviz"]
+    )
+    
     moveitpy_yaml = os.path.join(
         get_package_share_directory("irc_ros_moveit_config"),
         "config",
@@ -261,11 +265,11 @@ def opaque_test(context, *args, **kwargs):
         package="rviz2",
         executable="rviz2",
         name="rviz2",
-        # arguments=["-d", rviz_file],
+        arguments=["-d", rviz_file],
         parameters=[
             moveit_args,
         ],
-        # condition=IfCondition(use_rviz),
+        condition=IfCondition(use_rviz),
     )
     # End of from moveit config package
     ###
@@ -344,262 +348,8 @@ def generate_launch_description():
         choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
         description="Which hardware protocol or mock hardware should be used",
     )
-    use_rviz = LaunchConfiguration("use_rviz")
-    gripper = LaunchConfiguration("gripper")
-    namespace = LaunchConfiguration("namespace")
-    prefix = LaunchConfiguration("prefix")
-    controller_manager_name = LaunchConfiguration("controller_manager_name")
-    hardware_protocol = LaunchConfiguration("hardware_protocol")
 
-    rviz_file = PathJoinSubstitution(
-        [FindPackageShare("irc_ros_moveit_config"), "rviz", "moveit.rviz"]
-    )
-
-    ros2_controllers_file = PathJoinSubstitution(
-        [
-            FindPackageShare("irc_ros_moveit_config"),
-            "config",
-            "ros2_controllers.yaml",
-        ]
-    )
-    ros2_controllers = ReplaceString(
-        source_file=ros2_controllers_file,
-        replacements={
-            "<namespace>": namespace,
-            "<prefix>": prefix,
-        },
-    )
-
-    joint_limits_file = PathJoinSubstitution(
-        [
-            FindPackageShare("irc_ros_moveit_config"),
-            "config",
-            "joint_limits.yaml",
-        ]
-    )
-    joint_limits = ReplaceString(
-        source_file=joint_limits_file,
-        replacements={
-            "<namespace>": namespace,
-            "<prefix>": prefix,
-        },
-    )
-
-    ros2_controllers_file = PathJoinSubstitution(
-        [
-            FindPackageShare("irc_ros_moveit_config"),
-            "config",
-            "ros2_controllers.yaml",
-        ]
-    )
-    ros2_controllers = ReplaceString(
-        source_file=ros2_controllers_file,
-        replacements={
-            "<namespace>": namespace,
-            "<prefix>": prefix,
-        },
-    )
-    robot_description_file = PathJoinSubstitution(
-        [
-            FindPackageShare("irc_ros_description"),
-            "urdf",
-            "igus_rebel_6dof.urdf.xacro",
-        ]
-    )
-    robot_description = Command(
-        [
-            FindExecutable(name="xacro"),
-            " ",
-            robot_description_file,
-            " prefix:=",
-            prefix,
-            " hardware_protocol:=",
-            hardware_protocol,
-            " gripper:=",
-            gripper,
-        ]
-    )
-    robot_description_semantic_file = PathJoinSubstitution(
-        [
-            FindPackageShare("irc_ros_moveit_config"),
-            "config",
-            "igus_rebel_6dof.srdf.xacro",
-        ]
-    )
-    robot_description_semantic = Command(
-        [
-            FindExecutable(name="xacro"),
-            " ",
-            robot_description_semantic_file,
-            " prefix:=",
-            prefix,
-        ]
-    )
-
-    # Requires the os.path.join way instead of PathJoinSubstitution here
-    controllers_file = os.path.join(
-        get_package_share_directory("irc_ros_moveit_config"),
-        "config",
-        "controllers.yaml",
-    )
-    # TODO: This needs to return a path or the line below it won't accept it
-    # Until then the namespace/prefix replacements won't work
-    # controllers = ReplaceString(
-    #     source_file=controllers_file,
-    #     replacements={
-    #         "<namespace>": namespace,
-    #         "<prefix>": prefix,
-    #     }
-    # )
-    controllers_dict = load_yaml(Path(controllers_file))
-
-    moveit_controllers = {
-        "moveit_simple_controller_manager": controllers_dict,
-        "moveit_controller_manager": "moveit_simple_controller_manager/MoveItSimpleControllerManager",
-    }
-
-    robot_description_kinematics_file = PathJoinSubstitution(
-        [
-            FindPackageShare("irc_ros_moveit_config"),
-            "config",
-            "kinematics.yaml",
-        ]
-    )
-    robot_description_kinematics = ReplaceString(
-        source_file=robot_description_kinematics_file,
-        replacements={
-            "<namespace>": namespace,
-            "<prefix>": prefix,
-        },
-    )
-
-    # TODO: Copied from UR ROS2 for testing purposes, update configuration for the rebel
-    planning_pipeline = {
-        "pilz_industrial_motion_planner": {
-            "planning_plugin": "pilz_industrial_motion_planner/CommandPlanner",
-            "request_adapters": "default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints",
-            "default_planner_config": "PTP",
-            "capabilities": "pilz_industrial_motion_planner/MoveGroupSequenceAction pilz_industrial_motion_planner/MoveGroupSequenceService",
-        }
-        # "move_group": {
-        #     "planning_plugin": "ompl_interface/OMPLPlanner",
-        #     "request_adapters": """default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints""",
-        #     "start_state_max_bounds_error": 0.1,
-        # }
-    }
-
-    planning_scene_monitor_parameters = {
-        "publish_planning_scene": True,
-        "publish_geometry_updates": True,
-        "publish_state_updates": True,
-        "publish_transforms_updates": True,
-    }
-
-    robot_description_planning = {"robot_description_planning": joint_limits}
-
-    move_group_node = Node(
-        package="moveit_ros_move_group",
-        executable="move_group",
-        namespace=namespace,
-        parameters=[
-            {"robot_description": robot_description},
-            {"robot_description_semantic": robot_description_semantic},
-            {"robot_description_kinematics": robot_description_kinematics},
-            moveit_controllers,
-            planning_scene_monitor_parameters,
-            {"robot_description_planning": joint_limits},
-            {"publish_robot_description": True},
-            {"publish_robot_description_semantic": True},
-            planning_pipeline,
-            moveitpy,
-        ],
-    )
-
-    control_node = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        namespace=namespace,
-        parameters=[
-            {"robot_description": robot_description},
-            ros2_controllers,
-        ],
-    )
-
-    robot_state_publisher = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        name="robot_state_publisher",
-        namespace=namespace,
-        parameters=[
-            {"robot_description": robot_description},
-        ],
-    )
-
-    joint_state_broadcaster_node = Node(
-        package="controller_manager",
-        executable="spawner",
-        namespace=namespace,
-        arguments=["joint_state_broadcaster", "-c", controller_manager_name],
-    )
-
-    rebel_6dof_controller_node = Node(
-        package="controller_manager",
-        executable="spawner",
-        namespace=namespace,
-        arguments=["rebel_6dof_controller", "-c", controller_manager_name],
-    )
-
-    irc_ros_bringup_launch_dir = PathJoinSubstitution(
-        [
-            FindPackageShare("irc_ros_bringup"),
-            "launch",
-        ]
-    )
-    additional_controllers = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [irc_ros_bringup_launch_dir, "/additional_controllers.launch.py"]
-        ),
-    )
-
-    rviz_node = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        arguments=["-d", rviz_file],
-        parameters=[
-            {"robot_description": robot_description},
-            {"robot_description_semantic": robot_description_semantic},
-            # planning_pipeline,
-            {"robot_description_kinematics": robot_description_kinematics},
-        ],
-        condition=IfCondition(use_rviz),
-    )
-    # End of from moveit config package
-    ###
-
-    moveitpy_args = dict()
-    for d in [
-        moveit_controllers,
-        moveitpy,
-        planning_pipeline,
-        {"robot_description_kinematics": robot_description_kinematics},
-    ]:
-        moveitpy_args.update(d)
-
-    # print(moveitpy_args)
-
-    baristabot_node = Node(
-        name="moveit_py",
-        package="irc_ros_examples",
-        executable="baristabot.py",
-        namespace=namespace,
-        parameters=[
-            # Do not add more parameter directly here, use the dict concatenate above
-            # See: https://github.com/ros-planning/moveit2/issues/2014#issuecomment-1521863554
-            moveitpy_args,
-        ],
-    )
-
+ 
     # TODO: Once the above works see how to get the config files loaded in an elegant way and pass
     # them to the moveit base launch file:
 
