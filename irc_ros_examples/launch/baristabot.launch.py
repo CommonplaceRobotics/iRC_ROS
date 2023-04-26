@@ -186,14 +186,16 @@ def opaque_test(context, *args, **kwargs):
         {"robot_description": robot_description.perform(context)},
         {"robot_description_semantic": robot_description_semantic.perform(context)},
         load_yaml(Path(robot_description_kinematics.perform(context))),
+        load_yaml(Path(joint_limits.perform(context))),
         moveit_controllers,
         planning_scene_monitor_parameters,
-        load_yaml(Path(joint_limits.perform(context))),
-        {"publish_robot_description": True},
-        {"publish_robot_description_semantic": True},
         planning_pipeline,
         moveitpy,
+        {"publish_robot_description": True},
+        {"publish_robot_description_semantic": True},
     ]
+
+    # Concatenate all dictionaries together, else moveitpy won't read all parameters
     moveit_args = dict()
     for d in moveit_args_not_concatenated:
         moveit_args.update(d)
@@ -215,6 +217,7 @@ def opaque_test(context, *args, **kwargs):
         namespace=namespace,
         parameters=[
             moveit_args,
+            ros2_controllers,
         ],
     )
 
