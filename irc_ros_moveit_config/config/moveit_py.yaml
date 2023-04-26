@@ -8,7 +8,8 @@ planning_scene_monitor_options:
         wait_for_initial_state_timeout: 10.0
 
 planning_pipelines:
-        pipeline_names: ["pilz_industrial_motion_planner"] #"ompl" "chomp", "ompl_rrt_star"]
+        pipeline_names: ["pilz_industrial_motion_planner", "ompl_rrt_star"] #" "chomp", "ompl_rrt_star"]
+        default_planning_pipeline: 'pilz_industrial_motion_planner'
 
 plan_request_params:
         planning_attempts: 1
@@ -16,6 +17,7 @@ plan_request_params:
         planner_id: "PTP"
         max_velocity_scaling_factor: 0.1
         max_acceleration_scaling_factor: 0.1
+        planning_time: 1.0 # TODO: No idea if thats a sane value
 
 ompl_rrtc:
         plan_request_params:
