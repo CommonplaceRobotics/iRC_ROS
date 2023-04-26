@@ -34,11 +34,11 @@ def opaque_test(context, *args, **kwargs):
     prefix = LaunchConfiguration("prefix")
     controller_manager_name = LaunchConfiguration("controller_manager_name")
     hardware_protocol = LaunchConfiguration("hardware_protocol")
-    
+
     rviz_file = PathJoinSubstitution(
         [FindPackageShare("irc_ros_moveit_config"), "rviz", "moveit.rviz"]
     )
-    
+
     moveitpy_yaml = os.path.join(
         get_package_share_directory("irc_ros_moveit_config"),
         "config",
@@ -195,8 +195,13 @@ def opaque_test(context, *args, **kwargs):
         planning_scene_monitor_parameters,
         planning_pipeline,
         moveitpy,
-        {"publish_robot_description": True},
-        {"publish_robot_description_semantic": True},
+        {
+            "publish_robot_description": True,
+            "publish_robot_description_semantic": True,
+            "publish_geometry_updates": True,
+            "publish_state_updates": True,
+            "publish_transforms_updates": True,
+        },
     ]
 
     # Concatenate all dictionaries together, else moveitpy won't read all parameters
@@ -267,7 +272,8 @@ def opaque_test(context, *args, **kwargs):
         name="rviz2",
         arguments=["-d", rviz_file],
         parameters=[
-            moveit_args,
+            # Passing the entire dict to rviz results in an error with the joint limits
+            {"robot_description": robot_description},
         ],
         condition=IfCondition(use_rviz),
     )
@@ -295,8 +301,6 @@ def opaque_test(context, *args, **kwargs):
         additional_controllers,
         # UI nodes
         rviz_node,
-        # End of from moveit config package
-        ###
         # Robot nodes
         # ld.add_action(moveit_stack)
         # Baristabot
@@ -305,15 +309,6 @@ def opaque_test(context, *args, **kwargs):
 
 
 def generate_launch_description():
-    moveitpy_yaml = os.path.join(
-        get_package_share_directory("irc_ros_moveit_config"),
-        "config",
-        "moveit_py.yaml",
-    )
-    moveitpy = load_yaml(Path(moveitpy_yaml))
-
-    ###
-    # From moveit_config package
     namespace_arg = DeclareLaunchArgument("namespace", default_value="")
     prefix_arg = DeclareLaunchArgument("prefix", default_value="")
     controller_manager_name_arg = DeclareLaunchArgument(
@@ -349,7 +344,6 @@ def generate_launch_description():
         description="Which hardware protocol or mock hardware should be used",
     )
 
- 
     # TODO: Once the above works see how to get the config files loaded in an elegant way and pass
     # them to the moveit base launch file:
 
