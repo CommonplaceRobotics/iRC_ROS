@@ -1,11 +1,13 @@
 # iRC ROS Hardware interface
 
-**Do not use the CRI interface for any serious work. It is not yet ready for anything besides testing, if even that.**
-
 This package contains the drivers for interfacing with different robots. This can be done both over the CPRCANv2 protocol and the CRI protocol.
-The CAN protocol is more perfomant and provides more functionality. The drawback is requiring more direct hardware access. If an EmbeddedControl unit or a igus Rebel with a base is used, the Raspberry Pi inside could be used. This could interfere with TinyCtrl and stop the robot from working with CRI. Furthermore it is untested and the performance might be subpar. Thus it is not advised for general use, instead a dedicated computer with a canbus adapter, e.g. a P-CAN adapter, is recommended.
+The CPRCANv2 protocol is more perfomant and provides more functionality. The drawback is requiring more direct hardware access. If an EmbeddedControl unit or a igus Rebel with a base is used, the Raspberry Pi inside could be used. This could interfere with TinyCtrl and stop the robot from working with CRI unless you swap out or partition the SD Card and install a seperate sytem just for the ROS setup on it. While ROS2 and all used nodes should work on the Pi, it was not tested and the performance might be subpar, depending on your application. If you require more performance you can leave only parts of the nodes running on the Pi and e.g. start the visualisation + Nav2 nodes on a seperate device in the same network. Alternatively you could swap out the entire base and connect directly to the CAN bus cable coming out of the first robot axis. In that case you will have to take caution to provide an adequate power supply to the second cable coming out of the robot. In case you have a "ReBeL Open Source" version you are not provided with a base unit by default and need to follow this way.
 
-The CRI interface only works reliable with velocity commands, as TinyCtrl can't handle streaming joint goals. This will either be resolved by a custom ROS2 controller or an update for TinyCtrl. The CRI interface offers the advantage of working directly with existing robots otherwise controlled by iRC/CPRog.
+**While the CAN interface has few problems you still must be very careful when operating a robot!**
+
+The alternative to CAN is called CRI. Instead of directly interfacing with the bus itself, an intermediary device takes over the bus side and provides functionality such as path planning over the Network. The current CRI hardware interface only works reliable with velocity commands, as TinyCtrl can't handle streaming joint goals. This will either be resolved by a custom ROS2 controller or an update for TinyCtrl. The CRI interface offers the advantage of working directly with existing robots otherwise controlled by iRC/CPRog.
+
+**Do not use the CRI interface for any serious work. It is not yet ready for anything besides testing, if even that.**
 
 ## Usage
 The package is intended to be used inside the ROS2_Control ecosystem. The hardware interfaces provide state and command interfaces, which are connected to Controllers. For the movement commands the standard ROS2_Control Controllers are used. For other functionality, DIO and Module states, custom controllers are provided by the `irc_ros_controllers` package.
