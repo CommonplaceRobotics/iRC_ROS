@@ -55,27 +55,41 @@ class MoveItInterface:
     def __init__(self) -> None:
         time.sleep(1)
         self.moveit_py_instance = MoveItPy(node_name="moveit_py")
+        print("MoveItPy init done, get_planning_component next")
+
         self.rebel = self.moveit_py_instance.get_planning_component("rebel_6dof")
 
         self.frame_id = "base_link"
 
         self.pose_cup_pickup = PoseStamped()
         self.pose_cup_pickup.header.frame_id = self.frame_id
-        self.pose_cup_pickup.pose.position.x = 0.6
-        self.pose_cup_pickup.pose.position.y = 0.0
-        self.pose_cup_pickup.pose.position.z = 0.3
+        self.pose_cup_pickup.pose.position.x = 0.3
+        self.pose_cup_pickup.pose.position.y = 0.2
+        self.pose_cup_pickup.pose.position.z = 0.4
+        self.pose_cup_pickup.pose.orientation.w = 0.707
+        self.pose_cup_pickup.pose.orientation.x = 0.0
+        self.pose_cup_pickup.pose.orientation.y = 0.707
+        self.pose_cup_pickup.pose.orientation.z = 0.0
 
         self.pose_transport = PoseStamped()
         self.pose_transport.header.frame_id = self.frame_id
         self.pose_transport.pose.position.x = 0.45
-        self.pose_transport.pose.position.y = 0.0
-        self.pose_transport.pose.position.z = 0.35
+        self.pose_transport.pose.position.y = 0.2
+        self.pose_transport.pose.position.z = 0.45
+        self.pose_transport.pose.orientation.w = 0.707
+        self.pose_transport.pose.orientation.x = 0.0
+        self.pose_transport.pose.orientation.y = 0.707
+        self.pose_transport.pose.orientation.z = 0.0
 
         self.pose_coffee_maker = PoseStamped()
         self.pose_coffee_maker.header.frame_id = self.frame_id
         self.pose_coffee_maker.pose.position.x = 0.3
         self.pose_coffee_maker.pose.position.y = 0.3
-        self.pose_coffee_maker.pose.position.z = 0.4
+        self.pose_coffee_maker.pose.position.z = 0.5
+        self.pose_coffee_maker.pose.orientation.w = 0.707
+        self.pose_coffee_maker.pose.orientation.x = 0.0
+        self.pose_coffee_maker.pose.orientation.y = 0.707
+        self.pose_coffee_maker.pose.orientation.z = 0.0
 
     def move_to_pose(self, pose: PoseStamped) -> None:
         self.rebel.set_start_state_to_current_state()

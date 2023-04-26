@@ -11,32 +11,32 @@ robot_description_planning:
   joint_limits:
     <prefix>joint1:
       has_velocity_limits: true
-      max_velocity: 2.1600000000000001
+      max_velocity: 2.16
       has_acceleration_limits: true
       max_acceleration: 2.0
     <prefix>joint2:
       has_velocity_limits: true
-      max_velocity: 2.1600000000000001
+      max_velocity: 2.16
       has_acceleration_limits: true
       max_acceleration: 1.0
     <prefix>joint3:
       has_velocity_limits: true
-      max_velocity: 2.1600000000000001
+      max_velocity: 2.16
       has_acceleration_limits: true
       max_acceleration: 1.0
     <prefix>joint4:
       has_velocity_limits: true
-      max_velocity: 2.1600000000000001
+      max_velocity: 2.16
       has_acceleration_limits: true
       max_acceleration: 1.0
     <prefix>joint5:
       has_velocity_limits: true
-      max_velocity: 2.1600000000000001
+      max_velocity: 2.16
       has_acceleration_limits: true
       max_acceleration: 1.0
     <prefix>joint6:
       has_velocity_limits: true
-      max_velocity: 2.1600000000000001
+      max_velocity: 2.16
       has_acceleration_limits: true
       max_acceleration: 1.0
 

@@ -135,14 +135,23 @@ def opaque_test(context, *args, **kwargs):
     )
     # TODO: This needs to return a path or the line below it won't accept it
     # Until then the namespace/prefix replacements won't work
-    # controllers = ReplaceString(
-    #     source_file=controllers_file,
-    #     replacements={
-    #         "<namespace>": namespace,
-    #         "<prefix>": prefix,
-    #     }
-    # )
-    controllers_dict = load_yaml(Path(controllers_file))
+    controllers = ReplaceString(
+        source_file=controllers_file,
+        replacements={
+            "<namespace>": namespace,
+            "<prefix>": prefix,
+        },
+    )
+    controllers_dict = load_yaml(Path(controllers.perform(context)))
+
+    ompl_file = PathJoinSubstitution(
+        [
+            FindPackageShare("irc_ros_moveit_config"),
+            "config",
+            "ompl.yaml",
+        ]
+    )
+    ompl = {"ompl": load_yaml(Path(ompl_file.perform(context)))}
 
     moveit_controllers = {
         "moveit_simple_controller_manager": controllers_dict,
@@ -165,17 +174,17 @@ def opaque_test(context, *args, **kwargs):
     )
 
     planning_pipeline = {
-        "pilz_industrial_motion_planner": {
+        # "move_group": {
+        #     # TODO: Copied from UR ROS2 for testing purposes, update configuration for the rebel
+        #     "planning_plugin": "ompl_interface/OMPLPlanner",
+        #     "request_adapters": """default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints""",
+        #     "start_state_max_bounds_error": 0.1,
+        # },
+        "move_group": {
             "planning_plugin": "pilz_industrial_motion_planner/CommandPlanner",
             "request_adapters": "default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints",
             "default_planner_config": "PTP",
             "capabilities": "pilz_industrial_motion_planner/MoveGroupSequenceAction pilz_industrial_motion_planner/MoveGroupSequenceService",
-        },
-        "ompl": {
-            # TODO: Copied from UR ROS2 for testing purposes, update configuration for the rebel
-            "planning_plugin": "ompl_interface/OMPLPlanner",
-            "request_adapters": """default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints""",
-            "start_state_max_bounds_error": 0.1,
         },
     }
 
@@ -194,6 +203,7 @@ def opaque_test(context, *args, **kwargs):
         moveit_controllers,
         planning_scene_monitor_parameters,
         planning_pipeline,
+        ompl,
         moveitpy,
         {
             "publish_robot_description": True,
@@ -202,6 +212,7 @@ def opaque_test(context, *args, **kwargs):
             "publish_state_updates": True,
             "publish_transforms_updates": True,
         },
+        # {"planning_pipeline": {"planning_plugin": "ompl_rrt_star"}},
     ]
 
     # Concatenate all dictionaries together, else moveitpy won't read all parameters

@@ -2,22 +2,23 @@ planning_scene_monitor_options:
         name: "planning_scene_monitor"
         robot_description: "robot_description"
         joint_state_topic: "/joint_states"
-        attached_collision_object_topic: "/moveit_cpp/planning_scene_monitor"
-        publish_planning_scene_topic: "/moveit_cpp/publish_planning_scene"
-        monitored_planning_scene_topic: "/moveit_cpp/monitored_planning_scene"
+        attached_collision_object_topic: "/planning_scene_monitor"
+        publish_planning_scene_topic: "/publish_planning_scene"
+        monitored_planning_scene_topic: "/monitored_planning_scene"
         wait_for_initial_state_timeout: 10.0
 
 planning_pipelines:
-        pipeline_names: ["pilz_industrial_motion_planner", "ompl_rrt_star"] #" "chomp", "ompl_rrt_star"]
-        default_planning_pipeline: 'pilz_industrial_motion_planner'
+        pipeline_names: ["ompl", "ompl_rrt_star", "pilz_industrial_motion_planner", "chomp", "ompl_rrtc"]
+        default_planning_pipeline: pilz_industrial_motion_planner # 'ompl_rrt_star'
 
 plan_request_params:
         planning_attempts: 1
-        planning_pipeline: pilz_industrial_motion_planner
-        planner_id: "PTP"
+        planning_pipeline: ompl
+        planner_id: "RRTstarkConfigDefault"
+        # planner_id: "PTP"
         max_velocity_scaling_factor: 0.1
         max_acceleration_scaling_factor: 0.1
-        planning_time: 1.0 # TODO: No idea if thats a sane value
+        planning_time: 1.0 # TODO: No idea if that's a sane value
 
 ompl_rrtc:
         plan_request_params:
