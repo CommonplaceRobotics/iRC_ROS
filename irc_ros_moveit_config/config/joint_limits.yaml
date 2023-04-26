@@ -1,5 +1,5 @@
 # joint_limits.yaml allows the dynamics properties specified in the URDF to be overwritten or augmented as needed
-robot_description_planning": 
+robot_description_planning: 
 
   # For beginners, we downscale velocity and acceleration limits.
   # You can always specify higher scaling factors (<= 2.0) in your motion requests.  # Increase the values below to 2.0 to always move at maximum speed.
