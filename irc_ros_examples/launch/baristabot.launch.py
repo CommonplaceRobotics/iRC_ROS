@@ -34,6 +34,7 @@ def opaque_test(context, *args, **kwargs):
     prefix = LaunchConfiguration("prefix")
     controller_manager_name = LaunchConfiguration("controller_manager_name")
     hardware_protocol = LaunchConfiguration("hardware_protocol")
+    rebel_version = LaunchConfiguration("rebel_version")
 
     rviz_file = PathJoinSubstitution(
         [FindPackageShare("irc_ros_moveit_config"), "rviz", "moveit.rviz"]
@@ -108,6 +109,8 @@ def opaque_test(context, *args, **kwargs):
             hardware_protocol,
             " gripper:=",
             gripper,
+            " rebel_version:=",
+            rebel_version,
         ]
     )
     robot_description_semantic_file = PathJoinSubstitution(
@@ -174,18 +177,18 @@ def opaque_test(context, *args, **kwargs):
     )
 
     planning_pipeline = {
-        # "move_group": {
-        #     # TODO: Copied from UR ROS2 for testing purposes, update configuration for the rebel
-        #     "planning_plugin": "ompl_interface/OMPLPlanner",
-        #     "request_adapters": """default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints""",
-        #     "start_state_max_bounds_error": 0.1,
-        # },
         "move_group": {
-            "planning_plugin": "pilz_industrial_motion_planner/CommandPlanner",
-            "request_adapters": "default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints",
-            "default_planner_config": "PTP",
-            "capabilities": "pilz_industrial_motion_planner/MoveGroupSequenceAction pilz_industrial_motion_planner/MoveGroupSequenceService",
+            # TODO: Copied from UR ROS2 for testing purposes, update configuration for the rebel
+            "planning_plugin": "ompl_interface/OMPLPlanner",
+            "request_adapters": """default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints""",
+            "start_state_max_bounds_error": 0.1,
         },
+        # "move_group": {
+        #     "planning_plugin": "pilz_industrial_motion_planner/CommandPlanner",
+        #     "request_adapters": "default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints",
+        #     "default_planner_config": "PTP",
+        #     "capabilities": "pilz_industrial_motion_planner/MoveGroupSequenceAction pilz_industrial_motion_planner/MoveGroupSequenceService",
+        # },
     }
 
     planning_scene_monitor_parameters = {
@@ -196,6 +199,7 @@ def opaque_test(context, *args, **kwargs):
     }
 
     moveit_args_not_concatenated = [
+        moveitpy,
         {"robot_description": robot_description.perform(context)},
         {"robot_description_semantic": robot_description_semantic.perform(context)},
         load_yaml(Path(robot_description_kinematics.perform(context))),
@@ -203,8 +207,6 @@ def opaque_test(context, *args, **kwargs):
         moveit_controllers,
         planning_scene_monitor_parameters,
         planning_pipeline,
-        ompl,
-        moveitpy,
         {
             "publish_robot_description": True,
             "publish_robot_description_semantic": True,
@@ -212,7 +214,7 @@ def opaque_test(context, *args, **kwargs):
             "publish_state_updates": True,
             "publish_transforms_updates": True,
         },
-        # {"planning_pipeline": {"planning_plugin": "ompl_rrt_star"}},
+        ompl,
     ]
 
     # Concatenate all dictionaries together, else moveitpy won't read all parameters
@@ -284,7 +286,9 @@ def opaque_test(context, *args, **kwargs):
         arguments=["-d", rviz_file],
         parameters=[
             # Passing the entire dict to rviz results in an error with the joint limits
-            {"robot_description": robot_description},
+            moveit_args,
+            # load_yaml(Path(robot_description_kinematics.perform(context))),
+            # {"robot_description": robot_description},
         ],
         condition=IfCondition(use_rviz),
     )
@@ -304,7 +308,8 @@ def opaque_test(context, *args, **kwargs):
     )
 
     return [
-        move_group_node,
+        # Commented out since its not needed when using moveitpy and to reduce logging spam
+        # move_group_node,
         control_node,
         robot_state_publisher,
         joint_state_broadcaster_node,
@@ -334,7 +339,7 @@ def generate_launch_description():
     )
     gripper_arg = DeclareLaunchArgument(
         "gripper",
-        default_value="none",
+        default_value="ext_dio_gripper",
         choices=["none", "schmalz_ecbpmi", "ext_dio_gripper"],
         description="Which gripper to attach to the flange",
     )
@@ -354,9 +359,14 @@ def generate_launch_description():
         choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
         description="Which hardware protocol or mock hardware should be used",
     )
+    rebel_version_arg = DeclareLaunchArgument(
+        "rebel_version",
+        default_value="01",
+        choices=["pre", "00", "01"],
+        description="Which version of the igus ReBeL to use",
+    )
 
-    # TODO: Once the above works see how to get the config files loaded in an elegant way and pass
-    # them to the moveit base launch file:
+    # TODO: Is it possible to use the moveit launch file as base?
 
     # moveit_stack = IncludeLaunchDescription(
     #     PythonLaunchDescriptionSource(
@@ -372,8 +382,6 @@ def generate_launch_description():
 
     ld = LaunchDescription()
 
-    ###
-    # From moveit pkg
     ld.add_action(namespace_arg)
     ld.add_action(prefix_arg)
     ld.add_action(controller_manager_name_arg)
@@ -382,26 +390,7 @@ def generate_launch_description():
     ld.add_action(launch_dashboard_controller_arg)
     ld.add_action(launch_dio_controller_arg)
     ld.add_action(hardware_protocol_arg)
-
-    # Robot nodes
-    # ld.add_action(move_group_node)
-    # ld.add_action(control_node)
-    # ld.add_action(robot_state_publisher)
-    # ld.add_action(joint_state_broadcaster_node)
-
-    # ld.add_action(rebel_6dof_controller_node)
-    # ld.add_action(additional_controllers)
-
-    # UI nodes
-    # ld.add_action(rviz_node)
-    # End of from moveit config package
-    ###
-
-    # Robot nodes
-    # ld.add_action(moveit_stack)
-
-    # Baristabot
-    # ld.add_action(baristabot_node)
+    ld.add_action(rebel_version_arg)
 
     ld.add_action(OpaqueFunction(function=opaque_test))
 
