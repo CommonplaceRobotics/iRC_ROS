@@ -40,6 +40,13 @@ def opaque_test(context, *args, **kwargs):
         [FindPackageShare("irc_ros_moveit_config"), "rviz", "moveit.rviz"]
     )
 
+    moveitpy_yaml = os.path.join(
+        get_package_share_directory("irc_ros_moveit_config"),
+        "config",
+        "moveit_py.yaml",
+    )
+    moveitpy = load_yaml(Path(moveitpy_yaml))
+
     ros2_controllers_file = PathJoinSubstitution(
         [
             FindPackageShare("irc_ros_moveit_config"),
@@ -192,6 +199,7 @@ def opaque_test(context, *args, **kwargs):
     }
 
     moveit_args_not_concatenated = [
+        moveitpy,
         {"robot_description": robot_description.perform(context)},
         {"robot_description_semantic": robot_description_semantic.perform(context)},
         load_yaml(Path(robot_description_kinematics.perform(context))),
@@ -207,7 +215,6 @@ def opaque_test(context, *args, **kwargs):
             "publish_transforms_updates": True,
         },
         ompl,
-        # {"planning_pipeline": {"planning_plugin": "ompl_rrt_star"}},
     ]
 
     # Concatenate all dictionaries together, else moveitpy won't read all parameters
@@ -279,19 +286,41 @@ def opaque_test(context, *args, **kwargs):
         arguments=["-d", rviz_file],
         parameters=[
             # Passing the entire dict to rviz results in an error with the joint limits
-            {"robot_description": robot_description},
+            moveit_args,
+            # load_yaml(Path(robot_description_kinematics.perform(context))),
+            # {"robot_description": robot_description},
         ],
         condition=IfCondition(use_rviz),
     )
+    # End of from moveit config package
+    ###
+
+    baristabot_node = Node(
+        name="moveit_py",
+        package="irc_ros_examples",
+        executable="baristabot.py",
+        namespace=namespace,
+        parameters=[
+            # Do not add more parameter directly here, use the dict concatenate above
+            # See: https://github.com/ros-planning/moveit2/issues/2014#issuecomment-1521863554
+            moveit_args,
+        ],
+    )
 
     return [
-        move_group_node,
+        # Commented out since its not needed when using moveitpy and to reduce logging spam
+        # move_group_node,
         control_node,
         robot_state_publisher,
         joint_state_broadcaster_node,
         rebel_6dof_controller_node,
         additional_controllers,
+        # UI nodes
         rviz_node,
+        # Robot nodes
+        # ld.add_action(moveit_stack)
+        # Baristabot
+        baristabot_node,
     ]
 
 
@@ -336,6 +365,20 @@ def generate_launch_description():
         choices=["pre", "00", "01"],
         description="Which version of the igus ReBeL to use",
     )
+
+    # TODO: Is it possible to use the moveit launch file as base?
+
+    # moveit_stack = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(
+    #         PathJoinSubstitution(
+    #             [
+    #                 FindPackageShare("irc_ros_moveit_config"),
+    #                 "launch",
+    #                 "rebel.launch.py"
+    #             ]
+    #         )
+    #     )
+    # )
 
     ld = LaunchDescription()
 

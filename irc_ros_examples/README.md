@@ -61,42 +61,10 @@ This example should showcase simple movements with the mobile platform over the 
 The platform should drive over the four corners of a square and end where it started. While it achieves that goal already, it is rather slow due to unnecessary turning and detours.
 
 ## BaristaBot (MoveIt + Nav2 + more)
-**Only a collection of ideas for now**
- - Coffee delivery showcase application
- - IoT Coffeemachine, [official way](https://api-docs.home-connect.com/quickstart) or [reverse engineered way](https://github.com/osresearch/hcpy)
-   - Second way is available offline, but maybe not a good thing to use something reverse engineered if we publish this?
- - Gripper(s)
-   - "Dumb", form-fitting gripper for a specific cup,
-   - Normal two-finger gripper
- - Coffee Cup localisation (marker or image recognition ?)
-   - Camera (Webcam, Depth imaging like Oak-D, ...)
- - Test and film the process
- - Nav2 Behaviour Trees
- - Web interface for ordering
+**WORK IN PROGRESS EXAMPLE**
+This example should showcase controlling a ReBeL via MoveItPy and the platform with Nav2 Simple Commander. The process is supposed to be a coffee brewing and delivery process, right now the Nav2 part does not work reliably and the pick and place locations are hardcoded, making it realiant on precise positioning of the platform.
 
-### Process
-Turn the following process into a Nav2 compatible BT
- - Battery low?
- - Is coffee machine (cm) ready?
-   - Notify assistant to refill, empty machine
- - Coffee ordered? (Via web ui?)
- - Grab empty cup
-   - No empty cups left? Notify assistant
- - Bring empty cup in position
- - Start selected CM program
- - Wait for CM
- - Grab cup again
- - Drive slowly to counter
- - Place cup there
- - Drive back to waiting position
-
-#### Questions
- - Can the CM fail during the process?
- - Different cups for different drinks possible?
- - Predefined cup position or detection?
- - Feedback for gripping success/failure
- - Positions hardcoded, markers, image detection, ... ?
- - Keep out zones?
+**The example requires MoveItPy, which currently is only included in MoveIt2 for ROS2 rolling. The current release (04/2023) works mostly fine with humble, but in the future this might require some porting**
 
 ### Links
  - https://navigation.ros.org/plugin_tutorials/docs/writing_new_bt_plugin.html

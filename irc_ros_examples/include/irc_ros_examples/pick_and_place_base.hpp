@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <moveit/trajectory_processing/iterative_time_parameterization.h>
-
 #include <algorithm>
 #include <chrono>
 #include <memory>
@@ -17,6 +15,7 @@
 #include "irc_ros_msgs/srv/gripper_command.hpp"
 #include "moveit/move_group_interface/move_group_interface.h"
 #include "moveit/planning_scene_interface/planning_scene_interface.h"
+#include "moveit/trajectory_processing/time_optimal_trajectory_generation.h"
 
 static const rclcpp::Logger LOGGER = rclcpp::get_logger("PickAndPlace");
 
@@ -104,10 +103,10 @@ public:
 
       // Scale the trajectory
       if (velocity_scale != 1.0 || acceleration_scale != 1.0) {
-        trajectory_processing::IterativeParabolicTimeParameterization iptp;
+        trajectory_processing::TimeOptimalTrajectoryGeneration totg;
         robot_trajectory::RobotTrajectory rt(move_group->getRobotModel(), PLANNING_GROUP);
         rt.setRobotTrajectoryMsg(*move_group->getCurrentState(), trajectory);
-        bool scaling_successful = iptp.computeTimeStamps(rt, velocity_scale, acceleration_scale);
+        bool scaling_successful = totg.computeTimeStamps(rt, velocity_scale, acceleration_scale);
         if (!scaling_successful) {
           RCLCPP_WARN(LOGGER, "Applying velocity or acceleration constraints failed!");
         } else {
