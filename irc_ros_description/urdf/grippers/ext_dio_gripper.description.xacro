@@ -45,7 +45,6 @@
           <mesh filename="package://irc_ros_description/meshes/gripper_schmalz_ecbpmi/Joint0Coll.dae"/>
         </geometry>
         <origin rpy="0.0 0.0 0.0" xyz="0.07 0.0 0.0"/>
-      </visual>
       </collision>
       <inertial>
         <mass value="1.0"/>
