@@ -136,10 +136,14 @@
       <axis xyz="0 -1 0"/>
     </joint>
     <link name="${prefix}flange">
-      <inertial>
-        <mass value="0.1"/>
-        <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.03"/>
-      </inertial>
+    </link>
+    <joint name="${prefix}flange_to_tool0" type="fixed">
+      <parent link="${prefix}flange"/>
+      <child link="${prefix}tool0"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.062"/>
+      <axis xyz="0 0 0"/>
+    </joint>
+    <link name="${prefix}tool0">
     </link>
   </xacro:macro>
 </robot>
