@@ -57,7 +57,11 @@ While ros2_control recommends the use of a real-time kernel we also used a stand
 When compiling the kernel for Ubuntu (22.04) make sure to also install the `dwarves` package before compiling. In the .config file remove the ubuntu certificate names and disable secure boot, else the missing certificates will prevent booting.
 
 ## Setup
-Install all necessary requirements for the functionality you intend to use and then simply clone this in the src/ directory of a ROS2 workspace.
+Install all necessary requirements for the functionality you intend to use and simply clone this in the src/ directory of a ROS2 workspace. You can clone all requires ROS2 packages by running the following command in the workspace folder:
+
+```
+vcs import src --input src/iRC_ROS/irc_ros.repos
+```
 
 ### CRI specific setup
 When using CRI make sure the [Embedded Control](https://cpr-robots.com/robot-control#electronics) is reachable under the ip address set in the `irc_ros_description/urdf/*.ros2_control.xacro` configs (default: `192.168.3.11`) You should be able to ping the module in case you are unsure if the ip address is correct
