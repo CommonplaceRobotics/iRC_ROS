@@ -8,11 +8,11 @@
 
   <xacro:include filename="$(find irc_ros_description)/urdf/grippers/schmalz_ecbpmi.description.xacro" />
 
-  <xacro:macro name="gripper" params="prefix gripper_type parent_link">
+  <xacro:macro name="gripper" params="prefix gripper_type parent_link hardware_protocol">
     <!-- Call macros once -->
     <xacro:if value="${gripper_type == 'ext_dio_gripper'}">
       <xacro:ext_dio_gripper_description prefix="${prefix}" parent_link="${parent_link}" />
-      <xacro:ext_dio_gripper_ros2_control prefix="${prefix}" parent_link="${parent_link}" />
+      <xacro:ext_dio_gripper_ros2_control prefix="${prefix}" parent_link="${parent_link}" hardware_protocol="${hardware_protocol}" />
     </xacro:if>
     <xacro:if value="${gripper_type == 'schmalz_ecbpmi'}">
       <xacro:schmalz_ecbpmi_description prefix="${prefix}" parent_link="${parent_link}" />
