@@ -157,7 +157,7 @@
     <joint name="${prefix}joint6" type="fixed">
       <parent link="${prefix}link_7"/>
       <child link="${prefix}flange"/>
-      <origin rpy="0.0 0.0 0.0" xyz="0.0 0 0.0115"/>
+      <origin rpy="0.0 ${-pi/2} 0.0" xyz="0.0 0 0.0115"/>
       <axis xyz="0 0 1"/>
       <limit effort="330.0" lower="-1.65806" upper="1.65806" velocity="2.16"/>
     </joint>
@@ -166,7 +166,7 @@
     <joint name="${prefix}flange_to_tool0" type="fixed">
       <parent link="${prefix}flange"/>
       <child link="${prefix}tool0"/>
-      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.062"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
       <axis xyz="0 0 0"/>
     </joint>
     <link name="${prefix}tool0">
