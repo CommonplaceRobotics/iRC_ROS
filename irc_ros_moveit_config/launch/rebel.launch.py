@@ -129,8 +129,7 @@ def opaque_test(context, *args, **kwargs):
         "config",
         "controllers.yaml",
     )
-    # TODO: This needs to return a path or the line below it won't accept it
-    # Until then the namespace/prefix replacements won't work
+
     controllers = ReplaceString(
         source_file=controllers_file,
         replacements={
