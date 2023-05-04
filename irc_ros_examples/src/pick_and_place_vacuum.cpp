@@ -66,7 +66,7 @@ public:
     const std::chrono::duration<int64_t, std::milli> timeout = std::chrono::milliseconds(1000);
 
     while (std::chrono::steady_clock::now() - start < timeout) {
-      if (result.future.valid()) {  //  == rclcpp::FutureReturnCode::SUCCESS) {
+      if (result.future.valid()) {
         return (result.get()->gripped == state);
       }
       std::this_thread::yield();
@@ -88,12 +88,12 @@ public:
     posestamped.header.frame_id = frame_id;
     posestamped.pose.position.x = 0 * slot_offset_;
     posestamped.pose.position.y = 0 * slot_offset_;
-    posestamped.pose.position.z = height_offsetheight_offset_;
+    posestamped.pose.position.z = height_offset_;
 
     // Always point downwards for all movements
-    posestamped.pose.orientation.w = 0;
+    posestamped.pose.orientation.w = 0.707;
     posestamped.pose.orientation.x = 0;
-    posestamped.pose.orientation.y = 1;
+    posestamped.pose.orientation.y = 0.707;
     posestamped.pose.orientation.z = 0;
 
     geometry_msgs::msg::PoseStamped target_pose;
@@ -130,12 +130,12 @@ public:
     posestamped.header.frame_id = frame_id;
     posestamped.pose.position.x = x * slot_offset_;
     posestamped.pose.position.y = y * slot_offset_;
-    posestamped.pose.position.z = height_offsetheight_offset_;
+    posestamped.pose.position.z = height_offset_;
 
     // Always point downwards for all movements
-    posestamped.pose.orientation.w = 0;
+    posestamped.pose.orientation.w = 0.707;
     posestamped.pose.orientation.x = 0;
-    posestamped.pose.orientation.y = 1;
+    posestamped.pose.orientation.y = 0.707;
     posestamped.pose.orientation.z = 0;
 
     geometry_msgs::msg::PoseStamped target_pose;
@@ -145,14 +145,14 @@ public:
     lin(target_pose);
 
     // Slowly touch the object
-    posestamped.pose.position.z -= height_offsetheight_offset_;
+    posestamped.pose.position.z -= height_offset_;
     target_pose = buffer_->transform(posestamped, planning_frame_);
     lin(target_pose, 0.1, 0.1);
 
     set_gripper(true);
 
     // Lift the object
-    posestamped.pose.position.z += height_offsetheight_offset_;
+    posestamped.pose.position.z += height_offset_;
     target_pose = buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
   }
@@ -169,12 +169,12 @@ public:
     posestamped.header.frame_id = frame_id;
     posestamped.pose.position.x = x * slot_offset_;
     posestamped.pose.position.y = y * slot_offset_;
-    posestamped.pose.position.z = height_offsetheight_offset_;
+    posestamped.pose.position.z = height_offset_;
 
     // Always point downwards for all movements
-    posestamped.pose.orientation.w = 0;
+    posestamped.pose.orientation.w = 0.707;
     posestamped.pose.orientation.x = 0;
-    posestamped.pose.orientation.y = 1;
+    posestamped.pose.orientation.y = 0.707;
     posestamped.pose.orientation.z = 0;
 
     geometry_msgs::msg::PoseStamped target_pose;
@@ -184,7 +184,7 @@ public:
     lin(target_pose);
 
     // Slowly touch the object
-    posestamped.pose.position.z -= height_offsetheight_offset_;
+    posestamped.pose.position.z -= height_offset_;
     target_pose = buffer_->transform(posestamped, planning_frame_);
     lin(target_pose, 0.1, 0.1);
 
@@ -194,7 +194,7 @@ public:
     std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
     //Move back up again
-    posestamped.pose.position.z += height_offsetheight_offset_;
+    posestamped.pose.position.z += height_offset_;
     target_pose = buffer_->transform(posestamped, planning_frame_);
     lin(target_pose);
   }
@@ -205,7 +205,7 @@ public:
     const int objects_y = 3;
     const int objects_x = 5;
 
-    //Make sure the gripper is empty
+    // Make sure the gripper is empty
     set_gripper(false);
 
     // Move over the outlines of the trays to make sure they are at the right position
@@ -250,7 +250,7 @@ private:
   std::shared_ptr<tf2_ros::TransformListener> listener_;
 
   // Scene parameters
-  const double height_offsetheight_offset_ =
+  const double height_offset_ =
     0.03;                             // z offset of how much to lift the objects out of the trays
   const double slot_offset_ = 0.035;  // x and y offset between different slots in the tray
 };
