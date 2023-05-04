@@ -64,7 +64,7 @@ The platform should drive over the four corners of a square and end where it sta
 **WORK IN PROGRESS EXAMPLE**
 This example should showcase controlling a ReBeL via MoveItPy and the platform with Nav2 Simple Commander. The process is supposed to be a coffee brewing and delivery process, right now the Nav2 part does not work reliably and the pick and place locations are hardcoded, making it realiant on precise positioning of the platform.
 
-**The example requires MoveItPy, which currently is only included in MoveIt2 for ROS2 rolling. The current release (04/2023) works mostly fine with humble, but in the future this might require some porting**
+**The example requires MoveItPy. See [here](https://github.com/ros-planning/moveit2/issues/2014#issuecomment-1532053275) how to install it**
 
 ### Links
  - https://navigation.ros.org/plugin_tutorials/docs/writing_new_bt_plugin.html
