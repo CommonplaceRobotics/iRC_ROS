@@ -2,19 +2,21 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"
        name="ext_dio_gripper">
 
-  <xacro:macro name="ext_dio_gripper_ros2_control" params="prefix parent_link">
-    <ros2_control name="gripper_ext_dio_gripper" type="system">
-      <hardware>
-        <!-- This gripper only works via CAN -->
-        <plugin>irc_hardware/IrcRosCan</plugin>
-        <param name="can_socket">can0</param> 
-      </hardware>
-    
-      <gpio name="${prefix}dio_ext">
-        <param name="can_id">0x90</param>
-        <command_interface name="digital_output" size="7" data_type="bool" />
-        <state_interface name="digital_input" size="7" data_type="bool" />
-      </gpio>
-    </ros2_control>
+  <xacro:macro name="ext_dio_gripper_ros2_control" params="prefix parent_link hardware_protocol">
+    <!-- This gripper only works via CAN -->
+    <xacro:if value="${hardware_protocol == 'cprcanv2'}">
+      <ros2_control name="gripper_ext_dio_gripper" type="system">
+        <hardware>
+          <plugin>irc_hardware/IrcRosCan</plugin>
+          <param name="can_socket">can0</param> 
+        </hardware>
+      
+        <gpio name="${prefix}dio_ext">
+          <param name="can_id">0x90</param>
+          <command_interface name="digital_output" size="7" data_type="bool" />
+          <state_interface name="digital_input" size="7" data_type="bool" />
+        </gpio>
+      </ros2_control>
+    </xacro:if>
   </xacro:macro>
 </robot>
