@@ -95,7 +95,7 @@ public:
       RCLCPP_WARN(
         LOGGER, "The accuracy of the linear movement is only %lf, using p2p motion instead!",
         fraction);
-      move_group->setPoseTarget(posestamped, "hand");
+      move_group->setPoseTarget(posestamped, "tcp");
       move_group->move();
     } else {
       // Successful planning

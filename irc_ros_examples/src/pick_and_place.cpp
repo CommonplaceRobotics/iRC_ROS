@@ -48,10 +48,6 @@ public:
 
     Eigen::Quaterniond q = Eigen::Quaterniond().setFromTwoVectors(tcp, base);
 
-    // Align gripper with world coordinate system
-    // Gripper has z pointing in the forward direction
-    q *= Eigen::Quaterniond(1, 0, 1, 0);
-
     // Eigen quaternions are not normalized by default, but moveIt requires that
     q.normalize();
 
@@ -94,8 +90,6 @@ public:
     posestamped.pose.position.z = start_height;
     posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
 
-    // start_pose = posestamped;
-
     irc_ros_msgs::msg::DioCommand msg;
     msg.header = std_msgs::msg::Header();
     msg.header.stamp = move_group_node->get_clock()->now();
@@ -106,7 +100,7 @@ public:
     // Move up and down once
     posestamped.pose.position.x -= 0.10;
     print_pose(posestamped.pose);
-    move_group->setPoseTarget(posestamped, "hand");
+    move_group->setPoseTarget(posestamped, "tcp");
     move_group->move();
 
     posestamped.pose.position.z = start_height - height_offset - num_of_blocks * block_height;
@@ -118,7 +112,7 @@ public:
     // Start pos
     posestamped.pose.position.x += 0.10;
     print_pose(posestamped.pose);
-    move_group->setPoseTarget(posestamped, "hand");
+    move_group->setPoseTarget(posestamped, "tcp");
     move_group->move();
 
     for (int i = 0; i < num_of_blocks; i++) {
@@ -189,7 +183,7 @@ public:
     posestamped.pose.position.z = start_height;
     print_pose(posestamped.pose);
     lin(posestamped);
-    // move_group->setPoseTarget(posestamped, "hand");
+    // move_group->setPoseTarget(posestamped, "tcp");
     // move_group->move();
 
     for (int i = 0; i < num_of_blocks; i++) {
