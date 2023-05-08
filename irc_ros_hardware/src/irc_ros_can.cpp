@@ -491,13 +491,12 @@ std::vector<hardware_interface::StateInterface> IrcRosCan::export_state_interfac
 
   // DIO specific state_interfaces
   for (auto && gpio : info_.gpios) {
-    // Support multiple state interfaces here, but the modules_ dont support that yet
+    size_t din_counter = 0;
     for (auto && si : gpio.state_interfaces) {
-      for (size_t i = 0; i < si.size; i++) {
-        state_interfaces.emplace_back(hardware_interface::StateInterface(
-          gpio.name, si.name + "_" + std::to_string(i),
-          &modules_[gpio.name]->digital_in_double_[i]));
-      }
+      state_interfaces.emplace_back(hardware_interface::StateInterface(
+        gpio.name, si.name, &modules_[gpio.name]->digital_in_double_[din_counter]));
+
+      din_counter++;
     }
 
     // Dashboard specific states, not all contain useful information as joint only states are
@@ -558,16 +557,14 @@ std::vector<hardware_interface::CommandInterface> IrcRosCan::export_command_inte
   }
 
   for (auto && gpio : info_.gpios) {
-    // Support multiple command interfaces here, but the modules dont support that yet
+    size_t dout_counter = 0;
     for (auto && ci : gpio.command_interfaces) {
-      for (size_t i = 0; i < ci.size; i++) {
-        command_interfaces.emplace_back(hardware_interface::CommandInterface(
-          gpio.name, ci.name + "_" + std::to_string(i),
-          &modules_[gpio.name]->digital_out_double_[i]));
-      }
       command_interfaces.emplace_back(hardware_interface::CommandInterface(
-        gpio.name, "dashboard_command", &(modules_[gpio.name]->dashboard_cmd_double_)));
+        gpio.name, ci.name, &modules_[gpio.name]->digital_out_double_[dout_counter]));
+      dout_counter++;
     }
+    command_interfaces.emplace_back(hardware_interface::CommandInterface(
+      gpio.name, "dashboard_command", &(modules_[gpio.name]->dashboard_cmd_double_)));
   }
 
   return command_interfaces;
