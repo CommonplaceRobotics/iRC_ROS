@@ -23,7 +23,7 @@
       <child link="${prefix}link_1"/>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.100"/>
       <axis xyz="0 0 -1"/>
-      <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="2.16"/>
+      <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="${pi*45/180}"/>
     </joint>
     <link name="${prefix}link_1">
       <visual>
@@ -49,7 +49,7 @@
       <origin rpy="0.0 ${pi/6} 0.0" xyz="0.0 0 0.149"/>
       <axis xyz="0 1 0"/>
       <!-- pi*2/3 are the physical limits, but to avoid any collisions we set the actual limits lower -->
-      <limit effort="330.0" lower="${-pi*11/18}" upper="${pi*11/18}" velocity="2.16"/>
+      <limit effort="330.0" lower="${-pi*11/18}" upper="${pi*11/18}" velocity="${pi*45/180}"/>
     </joint>
     <link name="${prefix}link_2">
       <visual>
@@ -75,7 +75,7 @@
       <origin rpy="0.0 ${pi/6} 0.0" xyz="0.0 0.0 0.2384"/> 
       <axis xyz="0 1 0"/>
       <!-- pi*2/3 are the physical limits, but to avoid any collisions we set the actual limits lower -->
-      <limit effort="330.0" lower="${-pi*11/18}" upper="${pi*11/18}" velocity="2.16"/>
+      <limit effort="330.0" lower="${-pi*11/18}" upper="${pi*11/18}" velocity="${pi*45/180}"/>
     </joint>
     <link name="${prefix}link_3">
       <visual>
@@ -109,8 +109,8 @@
         <parent link="${prefix}link_3"/>
         <child link="${prefix}link_4"/>
         <origin rpy="0.0 ${-pi/24} 0.0" xyz="0.0 0.0 0.2423"/>
-        <axis xyz="0 -1 0"/>
-        <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="2.16"/>
+        <axis xyz="0 1 0"/>
+      <limit effort="330.0" lower="${-pi*19/36 + pi/24}" upper="${pi*19/36 + pi/24}" velocity="${pi*45/180}"/>
       </joint>
     </xacro:unless>
     <link name="${prefix}link_4">

@@ -127,7 +127,7 @@
       <!-- TODO The 0.03m offset are most likely caused by the mesh file (Issue 15) -->
       <origin rpy="0.0 ${-pi/24} 0.0" xyz="0.0 0 ${0.14 + 0.03}"/>
       <axis xyz="0 1 0"/>
-      <limit effort="330.0" lower="${-pi*19/36}" upper="${pi*19/36}" velocity="${pi*45/180}"/>
+      <limit effort="330.0" lower="${-pi*19/36 + pi/24}" upper="${pi*19/36 + pi/24}" velocity="${pi*45/180}"/>
     </joint>
     <link name="${prefix}link_7">
       <visual>
