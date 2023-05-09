@@ -66,7 +66,7 @@ Note that the urdf only offers a velocity limit setting, the moveit package also
 
 Be sure to check the igus robot control software's configuration files if you are using an existing kinematic and take a look at the limits for a good starting point.
 For the rebel this means a velocity limit of 45°/s and an acceleration limit of 300°/s^2. Make sure to convert the degrees to radians when changing the settings.
-These settings are tested in the field and should work without issues. In case you are not satisfied with the speed of your hardware you may still increase the limits. For the ReBeL joints the previously tested velocity limit was `2.6` instead of roughly `0.7`. This caused issues for some ReBeLs and as such has been lowered to the new settings. (See #97)
+These settings are tested in the field and should work without issues. In case you are not satisfied with the speed of your hardware you may still increase the limits. For the ReBeL joints the previously tested velocity limit was `2.6` instead of roughly `0.7`. This caused issues for some ReBeLs and as such has been lowered to the new settings. (See [#95](https://github.com/CommonplaceRobotics/iRC_ROS/issues/95))
 
 ## Rebel versions
 In case you bought an igus ReBeL and are unsure which version you own, here are the main differences:
