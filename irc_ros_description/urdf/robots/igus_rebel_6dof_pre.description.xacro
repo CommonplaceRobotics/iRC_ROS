@@ -99,6 +99,7 @@
       <parent link="${prefix}link_5"/>
       <child link="${prefix}link_6"/>
       <!-- TODO The 0.03m offset are most likely caused by the mesh file (Issue 15) -->
+      <!-- The irc config file specifies a rotational offset of 65 degrees, if someone has access to a pre version please verify if that is correct -->
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0 ${0.149 - 0.03}"/>
       <axis xyz="0 0 1"/>
       <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="2.16"/>

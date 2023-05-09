@@ -99,7 +99,7 @@
       <joint name="${prefix}joint4" type="continuous">
         <parent link="${prefix}link_3"/>
         <child link="${prefix}link_4"/>
-        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.2423"/>
+        <origin rpy="0.0 ${pi/24} 0.0" xyz="0.0 0.0 0.2423"/>
         <axis xyz="0 -1 0"/>
         <limit effort="330.0" velocity="2.16"/>
       </joint>
@@ -108,7 +108,7 @@
       <joint name="${prefix}joint4" type="revolute">
         <parent link="${prefix}link_3"/>
         <child link="${prefix}link_4"/>
-        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.2423"/>
+        <origin rpy="0.0 ${-pi/24} 0.0" xyz="0.0 0.0 0.2423"/>
         <axis xyz="0 -1 0"/>
         <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="2.16"/>
       </joint>
