@@ -6,8 +6,7 @@ robot_description_planning:
   default_velocity_scaling_factor: 0.1
   default_acceleration_scaling_factor: 0.1
 
-  # Specific joint properties can be changed with the keys [max_position, min_position, max_velocity, max_acceleration]
-  # Joint limits can be turned off with [has_velocity_limits, has_acceleration_limits]
+  # Check the irc_ros_description readme before you change these settings
   joint_limits:
     <prefix>joint1:
       has_velocity_limits: true
