@@ -60,6 +60,14 @@ Specific settings are set in the respective ros2_control files:
 
 ![](doc/visualize.png)
 
+### Joint limits
+While the position limits are rather self-explanatory, set them so the robot does not crash into itself and avoids unwanted configurations, the velocity and acceleration limits are less straight-forward.
+Note that the urdf only offers a velocity limit setting, the moveit package also has settings for joint limits in the aptly named file, where also acceleration limits can be set.
+
+Be sure to check the igus robot control software's configuration files if you are using an existing kinematic and take a look at the limits for a good starting point.
+For the rebel this means a velocity limit of 45°/s and an acceleration limit of 300°/s^2. Make sure to convert the degrees to radians when changing the settings.
+These settings are tested in the field and should work without issues. In case you are not satisfied with the speed of your hardware you may still increase the limits. For the ReBeL joints the previously tested velocity limit was `2.6` instead of roughly `0.7`. This caused issues for some ReBeLs and as such has been lowered to the new settings. (See [#95](https://github.com/CommonplaceRobotics/iRC_ROS/issues/95))
+
 ## Rebel versions
 In case you bought an igus ReBeL and are unsure which version you own, here are the main differences:
  - `pre` is the prerelease version. The DIOs in the arm are not available and the robot base looks different.
