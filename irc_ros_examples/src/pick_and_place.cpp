@@ -36,22 +36,27 @@ public:
 
   /**
    * @brief Calculates a quaternion pointing away from the center of the robot for a given position
-   * @param position The position relative to (0, 0, 0). May not be in the center itself.
+   * @param position The position relative to (0, 0, 0). May not lie on the z axis.
    * @return A Quaternion msg that can be used directly for the pose's orientation
   */
   geometry_msgs::msg::Quaternion calculate_rotation(geometry_msgs::msg::Point position)
   {
-    Eigen::Vector3d base(0.0, 0.0, 0.0);
+    // Corrosponds to the unit quaternion, meaning no rotation
+    Eigen::Vector3d unit(1.0, 0.0, 0.0);
 
     // The alignment should always be parallel to the ground plane and independent from the TCPs height
     Eigen::Vector3d tcp(position.x, position.y, /*position.z*/ 0.0);
 
-    Eigen::Quaterniond q = Eigen::Quaterniond().setFromTwoVectors(tcp, base);
+    // Calculates a quaternion which rotates the first vector to the second one
+    // Both vectors are defined as (0 0 0) -> (x y z)
+    Eigen::Quaterniond q = Eigen::Quaterniond().setFromTwoVectors(unit, tcp);
 
     // Eigen quaternions are not normalized by default, but moveIt requires that
     q.normalize();
 
-    RCLCPP_INFO(LOGGER, "Rot: %lf %lf %lf %lf", q.w(), q.x(), q.y(), q.z());
+    RCLCPP_INFO(
+      LOGGER, "Rot for %lf %lf 0.0: %lf %lf %lf %lf", position.x, position.y, q.w(), q.x(), q.y(),
+      q.z());
 
     geometry_msgs::msg::Quaternion quat;
     quat.w = q.w();
@@ -66,10 +71,10 @@ public:
   {
     geometry_msgs::msg::PoseStamped posestamped;
 
-    const int num_of_blocks = 5;  //10;
+    const int num_of_blocks = 2;
 
-    const double start_height = 0.375;  //0.37; //0.49;
-    const double height_offset = 0.0;   //0.1;
+    const double start_height = 0.37;
+    const double height_offset = 0.0;  //0.1;
     const double block_height = 0.030;
 
     const double rotation_angle = 0.30;
@@ -133,6 +138,7 @@ public:
 
       // Higher
       posestamped.pose.position.z = start_height;
+      posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
       lin(posestamped);
 
       // Rotate to place position
@@ -144,12 +150,12 @@ public:
 
       // Update pose var
       posestamped.pose = move_group->getCurrentPose().pose;
-      // posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
 
       // Lower
       posestamped.pose.position.z =
         start_height - height_offset - (num_of_blocks - i) * block_height + 0.005;
 
+      posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
       lin(posestamped);
 
       // Place
@@ -164,6 +170,7 @@ public:
 
       // Higher
       posestamped.pose.position.z = start_height;
+      posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
       lin(posestamped);
 
       // Rotate to pick rotation (unless it is the last object)
@@ -181,6 +188,8 @@ public:
 
     // Second start pos
     posestamped.pose.position.z = start_height;
+    posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
+
     print_pose(posestamped.pose);
     lin(posestamped);
     // move_group->setPoseTarget(posestamped, "tcp");
@@ -190,6 +199,7 @@ public:
       RCLCPP_INFO(LOGGER, "Picking block %d", i + 1);
       // Lower
       posestamped.pose.position.z = start_height - height_offset - (i + 1) * block_height;
+      posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
       lin(posestamped);
 
       // Pick
@@ -215,12 +225,12 @@ public:
 
       // Update pose var
       posestamped.pose = move_group->getCurrentPose().pose;
-      // posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
 
       // Lower
       posestamped.pose.position.z =
         start_height - height_offset - (num_of_blocks - i) * block_height + 0.005;
 
+      posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
       lin(posestamped);
 
       // Place
@@ -235,6 +245,7 @@ public:
 
       // Higher
       posestamped.pose.position.z = start_height;
+      posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
       lin(posestamped);
 
       // Rotate to pick rotation (unless it is the last object)
