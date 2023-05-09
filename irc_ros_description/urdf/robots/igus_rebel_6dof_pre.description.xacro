@@ -48,7 +48,8 @@
       <child link="${prefix}link_2"/>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0 0.130"/>
       <axis xyz="0 1 0"/>
-      <limit effort="330.0" lower="${-pi*2/3 + pi/6}" upper="${pi*2/3 + pi/6}" velocity="2.16"/>
+      <!-- pi*2/3 are the physical limits, but to avoid any collisions we set the actual limits lower -->
+      <limit effort="330.0" lower="${-pi*11/18 + pi/6}" upper="${pi*11/18 + pi/6}" velocity="2.16"/>
     </joint>
     <link name="${prefix}link_2">
       <visual>
@@ -73,7 +74,8 @@
       <child link="${prefix}link_5"/>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.2384"/>
       <axis xyz="0 1 0"/>
-      <limit effort="330.0" lower="${-pi*2/3 + pi/6}" upper="${pi*2/3 + pi/6}" velocity="2.16"/>
+      <!-- pi*2/3 are the physical limits, but to avoid any collisions we set the actual limits lower -->
+      <limit effort="330.0" lower="${-pi*11/18 + pi/6}" upper="${pi*11/18 + pi/6}" velocity="2.16"/>
     </joint>
     <link name="${prefix}link_5">
       <visual>
