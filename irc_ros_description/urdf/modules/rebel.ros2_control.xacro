@@ -8,6 +8,7 @@
           <param name="max">${position_max}</param>
         </xacro:unless>
       </command_interface>
+      <!-- If you want to increase the velocity and/or speed limit please consult the readme of this package first -->
       <command_interface name="velocity">
 	<param name="min">${-pi/4}</param>
 	<param name="max">${pi/4}</param>
