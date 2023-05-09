@@ -75,8 +75,8 @@ public:
    * @param posestamped The pose that should be moved to from the move_groups current position
    */
   void lin(
-    geometry_msgs::msg::PoseStamped posestamped, const double velocity_scale = 0.2,
-    const double acceleration_scale = 0.2)
+    geometry_msgs::msg::PoseStamped posestamped, const double velocity_scale = 0.3,
+    const double acceleration_scale = 0.3)
   {
     moveit_msgs::msg::RobotTrajectory trajectory;
     const double jump_threshold = 1.40;
@@ -95,8 +95,7 @@ public:
       RCLCPP_WARN(
         LOGGER, "The accuracy of the linear movement is only %lf, using p2p motion instead!",
         fraction);
-      move_group->setPoseTarget(posestamped, "tcp");
-      move_group->move();
+      p2p(posestamped);
     } else {
       // Successful planning
       RCLCPP_INFO(LOGGER, "Accuracy %lf", fraction);
@@ -118,9 +117,16 @@ public:
     }
   }
 
+  void p2p(geometry_msgs::msg::PoseStamped posestamped)
+  {
+    move_group->setPoseTarget(posestamped, eef_frame);
+    move_group->move();
+  }
+
 protected:
   // MoveIt specifics
   std::string planning_frame_ = "base_link";
+  std::string eef_frame = "tcp";
   const std::string PLANNING_GROUP = "rebel_6dof";
   std::shared_ptr<rclcpp::Node> move_group_node;
   rclcpp::executors::SingleThreadedExecutor executor;

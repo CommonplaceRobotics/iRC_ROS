@@ -17,7 +17,7 @@ public:
   explicit PickAndPlace() : PickAndPlaceBase("pick_and_place")
   {
     gripper_publisher = move_group_node->create_publisher<irc_ros_msgs::msg::DioCommand>(
-      "external_dio_controller/outputs", rclcpp::SystemDefaultsQoS());
+      "external_dio_controller/set_outputs", rclcpp::SystemDefaultsQoS());
 
     // Start the process loop in a new thread
     process_thread = std::thread([this]() {
@@ -67,46 +67,50 @@ public:
     return quat;
   }
 
+  void set_gripper(bool state)
+  {
+    irc_ros_msgs::msg::DioCommand msg;
+    msg.header = std_msgs::msg::Header();
+    msg.header.stamp = move_group_node->get_clock()->now();
+    msg.names.push_back("dio_ext/digital_output_1");
+    msg.outputs.push_back(state);
+    gripper_publisher->publish(msg);
+  }
+
   void pick_and_place()
   {
     geometry_msgs::msg::PoseStamped posestamped;
 
-    const int num_of_blocks = 2;
+    const int num_of_blocks = 4;
 
-    const double start_height = 0.37;
+    const double start_distance = 0.50;
+    const double start_height = 0.45;  // 0.50;
     const double height_offset = 0.0;  //0.1;
     const double block_height = 0.030;
 
     const double rotation_angle = 0.30;
 
+    // Find the first joint for the rotational movement to demonstrate joint goals
     auto joint_names = move_group->getJointNames();
     auto joint1_iter = std::find(joint_names.begin(), joint_names.end(), "joint1");
-
     if (joint1_iter == joint_names.end()) {
       RCLCPP_ERROR(LOGGER, "Could not find joint1");
       return;
     }
-
     auto joint1_index = joint1_iter - joint_names.begin();
 
     posestamped.header.frame_id = "base_link";
-    posestamped.pose.position.x = 0.45;
+    posestamped.pose.position.x = start_distance;
     posestamped.pose.position.y = 0.0;
     posestamped.pose.position.z = start_height;
     posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
 
-    irc_ros_msgs::msg::DioCommand msg;
-    msg.header = std_msgs::msg::Header();
-    msg.header.stamp = move_group_node->get_clock()->now();
-    msg.names.push_back("dio_ext/digital_output_1");
-    msg.outputs.push_back(false);
-    gripper_publisher->publish(msg);
+    set_gripper(false);
 
-    // Move up and down once
+    // Move up and down once in front of the tower
     posestamped.pose.position.x -= 0.10;
     print_pose(posestamped.pose);
-    move_group->setPoseTarget(posestamped, "tcp");
-    move_group->move();
+    p2p(posestamped);
 
     posestamped.pose.position.z = start_height - height_offset - num_of_blocks * block_height;
     lin(posestamped);
@@ -117,8 +121,7 @@ public:
     // Start pos
     posestamped.pose.position.x += 0.10;
     print_pose(posestamped.pose);
-    move_group->setPoseTarget(posestamped, "tcp");
-    move_group->move();
+    p2p(posestamped);
 
     for (int i = 0; i < num_of_blocks; i++) {
       RCLCPP_INFO(LOGGER, "Picking block %d", i + 1);
@@ -127,12 +130,7 @@ public:
       lin(posestamped);
 
       // Pick
-      msg = irc_ros_msgs::msg::DioCommand();
-      msg.header = std_msgs::msg::Header();
-      msg.header.stamp = move_group_node->get_clock()->now();
-      msg.names.push_back("dio_ext/digital_output_1");
-      msg.outputs.push_back(true);
-      gripper_publisher->publish(msg);
+      set_gripper(true);
 
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
@@ -150,21 +148,17 @@ public:
 
       // Update pose var
       posestamped.pose = move_group->getCurrentPose().pose;
+      //posestamped.pose.position.x = start_distance;  // Make sure the distance stays the same
 
       // Lower
       posestamped.pose.position.z =
-        start_height - height_offset - (num_of_blocks - i) * block_height + 0.005;
+        start_height - height_offset - (num_of_blocks - i) * block_height + 0.002;
 
       posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
       lin(posestamped);
 
       // Place
-      msg = irc_ros_msgs::msg::DioCommand();
-      msg.header = std_msgs::msg::Header();
-      msg.header.stamp = move_group_node->get_clock()->now();
-      msg.names.push_back("dio_ext/digital_output_1");
-      msg.outputs.push_back(false);
-      gripper_publisher->publish(msg);
+      set_gripper(false);
 
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
@@ -182,18 +176,19 @@ public:
 
         // Update pose var
         posestamped.pose = move_group->getCurrentPose().pose;
+        posestamped.pose.position.x = start_distance;  // Make sure the distance stays the same
         posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
       }
     }
 
     // Second start pos
+    //posestamped.pose.position.x = start_distance;  // Make sure the distance stays the same
     posestamped.pose.position.z = start_height;
     posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
 
     print_pose(posestamped.pose);
     lin(posestamped);
-    // move_group->setPoseTarget(posestamped, "tcp");
-    // move_group->move();
+    // p2p(posestamped);
 
     for (int i = 0; i < num_of_blocks; i++) {
       RCLCPP_INFO(LOGGER, "Picking block %d", i + 1);
@@ -203,12 +198,7 @@ public:
       lin(posestamped);
 
       // Pick
-      msg = irc_ros_msgs::msg::DioCommand();
-      msg.header = std_msgs::msg::Header();
-      msg.header.stamp = move_group_node->get_clock()->now();
-      msg.names.push_back("dio_ext/digital_output_1");
-      msg.outputs.push_back(true);
-      gripper_publisher->publish(msg);
+      set_gripper(true);
 
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
@@ -225,26 +215,22 @@ public:
 
       // Update pose var
       posestamped.pose = move_group->getCurrentPose().pose;
-
+      posestamped.pose.position.x = start_distance;  // Make sure the distance stays the same
+      posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
       // Lower
       posestamped.pose.position.z =
-        start_height - height_offset - (num_of_blocks - i) * block_height + 0.005;
+        start_height - height_offset - (num_of_blocks - i) * block_height + 0.002;
 
-      posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
       lin(posestamped);
 
       // Place
-      msg = irc_ros_msgs::msg::DioCommand();
-      msg.header = std_msgs::msg::Header();
-      msg.header.stamp = move_group_node->get_clock()->now();
-      msg.names.push_back("dio_ext/digital_output_1");
-      msg.outputs.push_back(false);
-      gripper_publisher->publish(msg);
+      set_gripper(false);
 
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
       // Higher
       posestamped.pose.position.z = start_height;
+      posestamped.pose.position.x = start_distance;  // Make sure the distance stays the same
       posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
       lin(posestamped);
 
@@ -257,6 +243,7 @@ public:
 
         // Update pose var
         posestamped.pose = move_group->getCurrentPose().pose;
+        //posestamped.pose.position.x = start_distance;  // Make sure the distance stays the same
         posestamped.pose.orientation = calculate_rotation(posestamped.pose.position);
       }
     }
