@@ -14,7 +14,9 @@ A clear and concise description of what the bug is.
 
     ROS Distro: [Humble|Iron|Rolling]
     OS Version: e.g. Ubuntu 22.04
-    Branch/Commit hash: humble #9878a63
+    Branch/Commit hash: e.g. humble #9878a63
+    Protocol: [Mock Hardware|CPRCANv2|CRI]
+    Module Firmware version(s) (CPRCAN only, seen in ROS): e.g. 03.03
     
 **To Reproduce**
 1. Start launchfile via 'ros2 launch foo bar param_1:=asd'
