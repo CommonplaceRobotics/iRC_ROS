@@ -333,6 +333,10 @@ hardware_interface::CallbackReturn IrcRosCri::on_init(const hardware_interface::
     pos_offset_.push_back(cri_joint_offset);
   }
 
+  for (const hardware_interface::ComponentInfo & gpio : info.gpios) {
+    digital_in_double_.push_back(0.0f);
+    digital_out_double_.push_back(0.0f);
+  }
   if (jog_array.size() > 9) {
     RCLCPP_ERROR(
       rclcpp::get_logger("iRC_ROS"),
@@ -407,15 +411,14 @@ std::vector<hardware_interface::StateInterface> IrcRosCri::export_state_interfac
       info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &vel_[i]));
   }
   // TODO: DIO specific state_interfaces
-  // for (auto && gpio : info_.gpios) {
-  //   // Support multiple state interfaces here, but the modules dont support that yet
-  //   for (auto && si : gpio.state_interfaces) {
-  //     for (size_t i = 0; i < si.size; i++) {
-  //       state_interfaces.emplace_back(hardware_interface::StateInterface(
-  //         gpio.name, si.name + "_" + std::to_string(i), &modules[gpio.name]->digital_in_double_[i]));
-  //     }
-  //   }
-  // }
+  int counter = 0;
+  for (auto && gpio : info_.gpios) {
+    for (auto && si : gpio.state_interfaces) {
+      state_interfaces.emplace_back(
+        hardware_interface::StateInterface(gpio.name, si.name, &digital_in_double_[counter]));
+      counter++;
+    }
+  }
 
   return state_interfaces;
 }
@@ -433,18 +436,15 @@ std::vector<hardware_interface::CommandInterface> IrcRosCri::export_command_inte
   }
 
   // DIO specific state_interfaces
-  // for (auto && gpio : info_.gpios) {
-  //   // Support multiple command interfaces here, but the modules dont support that yet
-  //   for (auto && ci : gpio.command_interfaces) {
-  //     for (size_t i = 0; i < ci.size; i++) {
-  //       command_interfaces.emplace_back(hardware_interface::CommandInterface(
-  //         gpio.name, ci.name + "_" + std::to_string(i),
-  //         &modules[gpio.name]->digital_out_double_[i]));
-  //     }
-  //     command_interfaces.emplace_back(hardware_interface::CommandInterface(
-  //       gpio.name, "dashboard_command", &(modules[gpio.name]->dashboard_cmd_double_)));
-  //   }
-  // }
+  int counter = 0;
+  for (auto && gpio : info_.gpios) {
+    //   // Support multiple command interfaces here, but the modules dont support that yet
+    for (auto && ci : gpio.command_interfaces) {
+      command_interfaces.emplace_back(
+        hardware_interface::CommandInterface(gpio.name, ci.name, &digital_out_double_[counter]));
+      counter++;
+    }
+  }
 
   return command_interfaces;
 }

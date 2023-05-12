@@ -53,6 +53,10 @@ private:
   // Used to counteract the offsets in EmbeddedCtrl, read from .ros2_control.xacro files
   std::vector<double> pos_offset_;  // [rad]
 
+  // Not implemented!
+  std::vector<double> digital_in_double_;
+  std::vector<double> digital_out_double_;
+
   cri_messages::Kinstate lastKinstate;
   std::array<int, 16> lastErrorJoints;
   std::string kinstateMessage;
