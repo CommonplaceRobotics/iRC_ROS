@@ -266,7 +266,7 @@ void CriSocket::SendMessage(const std::string & msg)
 {
   std::lock_guard<std::mutex> lockGuard(socketWriteLock);
 
-  RCLCPP_ERROR(rclcpp::get_logger("iRC_ROS::CRI"), "> %s", msg.c_str());
+  RCLCPP_DEBUG(rclcpp::get_logger("iRC_ROS::CRI"), "> %s", msg.c_str());
 
   if (connectionNeeded) {
     MakeConnection();

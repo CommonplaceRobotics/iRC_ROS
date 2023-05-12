@@ -278,12 +278,12 @@ void IrcRosCri::CmdMove()
   msg << std::fixed << std::setprecision(1);
 
   // Add the joint goals as degrees
-  for (auto p : set_pos) {
-    msg << p * 180 / M_PI << " ";
+  for (int i = 0; i < 0; i < set_pos_.size()) {
+    msg << (set_pos_[i] * 180 / M_PI) + pos_offset_[i] << " ";
   }
 
   // We always have to send 9 values so we need to fill the message if we use less
-  for (int i = set_pos.size(); i < 9; i++) {
+  for (int i = set_pos_.size(); i < 9; i++) {
     msg << 0.0f << " ";
   }
 
@@ -314,13 +314,29 @@ hardware_interface::CallbackReturn IrcRosCri::on_init(const hardware_interface::
     // TODO: Checks
 
     jog_array.push_back(0.0f);
-    pos.push_back(0.0f);
-    vel.push_back(0.0f);
-    set_pos.push_back(0.0f);
-    set_pos_last.push_back(0.0f);
-    set_vel.push_back(0.0f);
+    pos_.push_back(0.0f);
+    vel_.push_back(0.0f);
+    set_pos_.push_back(0.0f);
+    set_pos_last_.push_back(0.0f);
+    set_vel_.push_back(0.0f);
+
+    // Read the joint offset from the ros2_control configuration
+    double cri_joint_offset = 0.0;
+    if (joint.parameters.count("cri_joint_offset") > 0) {
+      cri_joint_offset = stod(joint.parameters.at("cri_joint_offset"));
+    } else {
+      RCLCPP_WARN(
+        rclcpp::get_logger("iRC_ROS"),
+        "No cri_joint_offset specified for joint %s, using default value of %lf", joint.name,
+        cri_joint_offset);
+    }
+    pos_offset_.push_back(cri_joint_offset);
   }
 
+  for (const hardware_interface::ComponentInfo & gpio : info.gpios) {
+    digital_in_double_.push_back(0.0f);
+    digital_out_double_.push_back(0.0f);
+  }
   if (jog_array.size() > 9) {
     RCLCPP_ERROR(
       rclcpp::get_logger("iRC_ROS"),
@@ -390,22 +406,19 @@ std::vector<hardware_interface::StateInterface> IrcRosCri::export_state_interfac
   //Add the position state
   for (int i = 0; i < info_.joints.size(); i++) {
     state_interfaces.emplace_back(hardware_interface::StateInterface(
-      info_.joints[i].name, hardware_interface::HW_IF_POSITION, &pos[i]));
-
+      info_.joints[i].name, hardware_interface::HW_IF_POSITION, &pos_[i]));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
-      info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &vel[i]));
+      info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &vel_[i]));
   }
-
   // TODO: DIO specific state_interfaces
-  // for (auto && gpio : info_.gpios) {
-  //   // Support multiple state interfaces here, but the modules dont support that yet
-  //   for (auto && si : gpio.state_interfaces) {
-  //     for (size_t i = 0; i < si.size; i++) {
-  //       state_interfaces.emplace_back(hardware_interface::StateInterface(
-  //         gpio.name, si.name + "_" + std::to_string(i), &modules[gpio.name]->digital_in_double_[i]));
-  //     }
-  //   }
-  // }
+  int counter = 0;
+  for (auto && gpio : info_.gpios) {
+    for (auto && si : gpio.state_interfaces) {
+      state_interfaces.emplace_back(
+        hardware_interface::StateInterface(gpio.name, si.name, &digital_in_double_[counter]));
+      counter++;
+    }
+  }
 
   return state_interfaces;
 }
@@ -416,25 +429,22 @@ std::vector<hardware_interface::CommandInterface> IrcRosCri::export_command_inte
 
   for (int i = 0; i < info_.joints.size(); i++) {
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
-      info_.joints[i].name, hardware_interface::HW_IF_POSITION, &set_pos[i]));
+      info_.joints[i].name, hardware_interface::HW_IF_POSITION, &set_pos_[i]));
 
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
-      info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &set_vel[i]));
+      info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &set_vel_[i]));
   }
 
   // DIO specific state_interfaces
-  // for (auto && gpio : info_.gpios) {
-  //   // Support multiple command interfaces here, but the modules dont support that yet
-  //   for (auto && ci : gpio.command_interfaces) {
-  //     for (size_t i = 0; i < ci.size; i++) {
-  //       command_interfaces.emplace_back(hardware_interface::CommandInterface(
-  //         gpio.name, ci.name + "_" + std::to_string(i),
-  //         &modules[gpio.name]->digital_out_double_[i]));
-  //     }
-  //     command_interfaces.emplace_back(hardware_interface::CommandInterface(
-  //       gpio.name, "dashboard_command", &(modules[gpio.name]->dashboard_cmd_double_)));
-  //   }
-  // }
+  int counter = 0;
+  for (auto && gpio : info_.gpios) {
+    //   // Support multiple command interfaces here, but the modules dont support that yet
+    for (auto && ci : gpio.command_interfaces) {
+      command_interfaces.emplace_back(
+        hardware_interface::CommandInterface(gpio.name, ci.name, &digital_out_double_[counter]));
+      counter++;
+    }
+  }
 
   return command_interfaces;
 }
@@ -444,13 +454,16 @@ std::vector<hardware_interface::CommandInterface> IrcRosCri::export_command_inte
  */
 hardware_interface::return_type IrcRosCri::read(const rclcpp::Time &, const rclcpp::Duration &)
 {
-  std::copy(
-    currentStatus.posJointCurrent.begin(), currentStatus.posJointCurrent.begin() + pos.size(),
-    pos.begin());
+  std::vector<double> temp_pos = pos_;
 
-  // degrees to radians
-  for (auto && i : pos) {
-    i *= M_PI / 180.0;
+  std::copy(
+    currentStatus.posJointCurrent.begin(), currentStatus.posJointCurrent.begin() + pos_.size(),
+    temp_pos.begin());
+
+  // degrees to radians and apply offset
+  for (size_t i = 0; i < pos_.size(); i++) {
+    temp_pos[i] = temp_pos[i] + pos_offset_[i];
+    pos_[i] = temp_pos[i] * M_PI / 180.0;
   }
 
   return hardware_interface::return_type::OK;
@@ -467,29 +480,29 @@ hardware_interface::return_type IrcRosCri::write(const rclcpp::Time &, const rcl
   // Make it possible to use different movement commands after another.
   // If more than one set_... var is not NaN reset them all and wait for ros2 control to send a new goal.
   if (
-    std::none_of(set_pos.begin(), set_pos.end(), [](double d) { return std::isnan(d); }) &&
-    std::none_of(set_vel.begin(), set_vel.end(), [](double d) { return std::isnan(d); })) {
-    std::fill(set_pos.begin(), set_pos.end(), std::numeric_limits<double>::quiet_NaN());
-    std::fill(set_vel.begin(), set_vel.end(), std::numeric_limits<double>::quiet_NaN());
+    std::none_of(set_pos_.begin(), set_pos_.end(), [](double d) { return std::isnan(d); }) &&
+    std::none_of(set_vel_.begin(), set_vel_.end(), [](double d) { return std::isnan(d); })) {
+    std::fill(set_pos_.begin(), set_pos_.end(), std::numeric_limits<double>::quiet_NaN());
+    std::fill(set_vel_.begin(), set_vel_.end(), std::numeric_limits<double>::quiet_NaN());
   }
 
   // Position command
-  if (std::none_of(set_pos.begin(), set_pos.end(), [](double d) { return std::isnan(d); })) {
+  if (std::none_of(set_pos_.begin(), set_pos_.end(), [](double d) { return std::isnan(d); })) {
     // Only send a message if the command changed. Since the CRI controller can't handle new
     // position goals while still moving we only want to send the goal position without any
     // interpolation.
     //
     // TODO: Find ros2_controller which only sends the final position once or wait for a protocol
     // update for CRI (Issue #72)
-    if (set_pos != set_pos_last) {
+    if (set_pos_ != set_pos_last_) {
       CmdMove();
-      set_pos_last = set_pos;
+      set_pos_last_ = set_pos_;
     }
   }
   // Velocity command
-  else if (std::none_of(set_vel.begin(), set_vel.end(), [](double d) { return std::isnan(d); })) {
+  else if (std::none_of(set_vel_.begin(), set_vel_.end(), [](double d) { return std::isnan(d); })) {
     // Simply use the velocities in the jog message
-    std::copy(set_vel.begin(), set_vel.end(), jog_array.begin());
+    std::copy(set_vel_.begin(), set_vel_.end(), jog_array.begin());
   }
   // No movement
   else {
