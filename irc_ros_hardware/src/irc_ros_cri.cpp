@@ -279,7 +279,7 @@ void IrcRosCri::CmdMove()
 
   // Add the joint goals as degrees
   for (int i = 0; i < 0; i < set_pos_.size()) {
-    msg << (set_pos_[i] * 180 / M_PI) - pos_offset_[i] << " ";
+    msg << (set_pos_[i] * 180 / M_PI) + pos_offset_[i] << " ";
   }
 
   // We always have to send 9 values so we need to fill the message if we use less
@@ -454,14 +454,16 @@ std::vector<hardware_interface::CommandInterface> IrcRosCri::export_command_inte
  */
 hardware_interface::return_type IrcRosCri::read(const rclcpp::Time &, const rclcpp::Duration &)
 {
+  std::vector<double> temp_pos = pos_;
+
   std::copy(
     currentStatus.posJointCurrent.begin(), currentStatus.posJointCurrent.begin() + pos_.size(),
-    pos_.begin());
+    temp_pos.begin());
 
   // degrees to radians and apply offset
   for (size_t i = 0; i < pos_.size(); i++) {
-    pos_[i] *= M_PI / 180.0;
-    pos_[i] += pos_offset_[i];
+    temp_pos[i] = temp_pos[i] + pos_offset_[i];
+    pos_[i] = temp_pos[i] * M_PI / 180.0;
   }
 
   return hardware_interface::return_type::OK;
