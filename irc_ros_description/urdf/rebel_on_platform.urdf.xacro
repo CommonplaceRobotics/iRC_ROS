@@ -20,7 +20,7 @@
   <joint name="platform_to_rebel" type="fixed">
     <parent link="base_link" />
     <child link="rebel_1_base_link" />
-    <origin xyz="0.0 0.0 ${0.7-0.1}" rpy="0.0 0.0 ${-pi/6}" />
+    <origin xyz="0.0 0.0 ${0.7-0.1}" rpy="0.0 0.0 0.0" />
   </joint>
 </robot>
 

@@ -23,7 +23,7 @@
       <child link="${prefix}link_1"/>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0 0.144"/>
       <axis xyz="0 0 -1"/>
-      <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="2.16"/>
+      <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="${pi*45/180}"/>
     </joint>
     <link name="${prefix}link_1">
       <visual>
@@ -48,7 +48,8 @@
       <child link="${prefix}link_2"/>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0 0.130"/>
       <axis xyz="0 1 0"/>
-      <limit effort="330.0" lower="${-pi*2/3 + pi/6}" upper="${pi*2/3 + pi/6}" velocity="2.16"/>
+      <!-- pi*2/3 are the physical limits, but to avoid any collisions we set the actual limits lower -->
+      <limit effort="330.0" lower="${-pi*11/18 + pi/6}" upper="${pi*11/18 + pi/6}" velocity="${pi*45/180}"/>
     </joint>
     <link name="${prefix}link_2">
       <visual>
@@ -73,7 +74,8 @@
       <child link="${prefix}link_5"/>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.2384"/>
       <axis xyz="0 1 0"/>
-      <limit effort="330.0" lower="${-pi*2/3 + pi/6}" upper="${pi*2/3 + pi/6}" velocity="2.16"/>
+      <!-- pi*2/3 are the physical limits, but to avoid any collisions we set the actual limits lower -->
+      <limit effort="330.0" lower="${-pi*11/18 + pi/6}" upper="${pi*11/18 + pi/6}" velocity="${pi*45/180}"/>
     </joint>
     <link name="${prefix}link_5">
       <visual>
@@ -97,9 +99,10 @@
       <parent link="${prefix}link_5"/>
       <child link="${prefix}link_6"/>
       <!-- TODO The 0.03m offset are most likely caused by the mesh file (Issue 15) -->
+      <!-- The irc config file specifies a rotational offset of 65 degrees, if someone has access to a pre version please verify if that is correct -->
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0 ${0.149 - 0.03}"/>
       <axis xyz="0 0 1"/>
-      <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="2.16"/>
+      <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="${pi*45/180}"/>
     </joint>
     <link name="${prefix}link_6">
       <visual>
@@ -125,7 +128,7 @@
       <!-- TODO The 0.03m offset are most likely caused by the mesh file (Issue 15) -->
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0 ${0.14 + 0.03}"/>
       <axis xyz="0 1 0"/>
-      <limit effort="330.0" lower="${-pi*19/36}" upper="${pi*19/36}" velocity="2.16"/>
+      <limit effort="330.0" lower="${-pi*19/36}" upper="${pi*19/36}" velocity="${pi*45/180}"/>
     </joint>
     <link name="${prefix}link_7">
       <visual>
@@ -151,7 +154,7 @@
         <child link="${prefix}link_8"/>
         <origin rpy="0.0 0.0 0.0" xyz="0.0 0 0.1208"/>
         <axis xyz="0 0 1"/>
-        <limit effort="330.0" velocity="2.16"/>
+        <limit effort="330.0" velocity="${pi*45/180}"/>
       </joint> 
     </xacro:if>
     <xacro:unless value="${continuous_last_joint}">
@@ -160,7 +163,7 @@
         <child link="${prefix}link_8"/>
         <origin rpy="0.0 0.0 0.0" xyz="0.0 0 0.1208"/>
         <axis xyz="0 0 1"/>
-        <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="2.16"/>
+        <limit effort="330.0" lower="${-pi*179/180}" upper="${pi*179/180}" velocity="${pi*45/180}"/>
       </joint>
     </xacro:unless>
     <link name="link_8">
