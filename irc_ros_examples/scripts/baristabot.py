@@ -66,11 +66,6 @@ class MoveItInterface:
         self.pose_cup_pickup.pose.position.y = 0.0
         self.pose_cup_pickup.pose.position.z = 0.30
         self.pose_cup_pickup.pose.orientation.w = 1.0
-        # TODO: Change orientation once the gripper coordinate systems are fixed
-        # self.pose_cup_pickup.pose.orientation.w = 0.707
-        # self.pose_cup_pickup.pose.orientation.x = 0.0
-        # self.pose_cup_pickup.pose.orientation.y = 0.707
-        # self.pose_cup_pickup.pose.orientation.z = 0.0
 
         self.pose_cup_pickup_offset = PoseStamped()
         self.pose_cup_pickup_offset.header.frame_id = self.frame_id
@@ -78,10 +73,6 @@ class MoveItInterface:
         self.pose_cup_pickup_offset.pose.position.y = 0.0
         self.pose_cup_pickup_offset.pose.position.z = 0.40
         self.pose_cup_pickup_offset.pose.orientation.w = 1.0
-        # self.pose_cup_pickup_offset.pose.orientation.w = 0.707
-        # self.pose_cup_pickup_offset.pose.orientation.x = 0.0
-        # self.pose_cup_pickup_offset.pose.orientation.y = 0.707
-        # self.pose_cup_pickup_offset.pose.orientation.z = 0.0
 
         self.pose_transport = PoseStamped()
         self.pose_transport.header.frame_id = self.frame_id
@@ -89,10 +80,6 @@ class MoveItInterface:
         self.pose_transport.pose.position.y = 0.0
         self.pose_transport.pose.position.z = 0.35
         self.pose_transport.pose.orientation.w = 1.0
-        # self.pose_transport.pose.orientation.w = 0.707
-        # self.pose_transport.pose.orientation.x = 0.0
-        # self.pose_transport.pose.orientation.y = 0.707
-        # self.pose_transport.pose.orientation.z = 0.0
 
         self.pose_coffee_maker = PoseStamped()
         self.pose_coffee_maker.header.frame_id = self.frame_id
@@ -100,10 +87,6 @@ class MoveItInterface:
         self.pose_coffee_maker.pose.position.y = 0.0
         self.pose_coffee_maker.pose.position.z = 0.36
         self.pose_coffee_maker.pose.orientation.w = 1.0
-        # self.pose_coffee_maker.pose.orientation.w = 0.707
-        # self.pose_coffee_maker.pose.orientation.x = 0.0
-        # self.pose_coffee_maker.pose.orientation.y = 0.707
-        # self.pose_coffee_maker.pose.orientation.z = 0.0
 
         # Position slightly in front and above of the cup placement position
         self.pose_coffee_maker_offset = copy.deepcopy(self.pose_coffee_maker)
