@@ -36,13 +36,13 @@
     <link name="${prefix}gripper_base">
       <visual>
         <geometry>
-          <mesh filename="package://irc_ros_description/meshes/gripper_schmalz_ecbpmi/Joint0.dae"/>
+          <mesh filename="file://$(find irc_ros_description)/meshes/gripper_schmalz_ecbpmi/Joint0.dae"/>
         </geometry>
         <origin rpy="0.0 0.0 ${pi/2}" xyz="0.07 0.0 0.0"/>
       </visual>
       <collision>
         <geometry>
-          <mesh filename="package://irc_ros_description/meshes/gripper_schmalz_ecbpmi/Joint0Coll.dae"/>
+          <mesh filename="file://$(find irc_ros_description)/meshes/gripper_schmalz_ecbpmi/Joint0Coll.dae"/>
         </geometry>
         <origin rpy="0.0 0.0 0.0" xyz="0.07 0.0 0.0"/>
       </collision>

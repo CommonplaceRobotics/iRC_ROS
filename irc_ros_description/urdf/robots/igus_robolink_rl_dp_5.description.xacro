@@ -5,12 +5,12 @@
     <link name="${prefix}base_link">
       <visual>
         <geometry>
-          <mesh filename="package://irc_ros_description/meshes/igus_robolink_rl_dp_5/Joint0.dae"/>
+          <mesh filename="file://$(find irc_ros_description)/meshes/igus_robolink_rl_dp_5/Joint0.dae"/>
         </geometry>
       </visual>
       <collision>
         <geometry>
-          <mesh filename="package://irc_ros_description/meshes/igus_robolink_rl_dp_5/Joint0Coll.dae"/>
+          <mesh filename="file://$(find irc_ros_description)/meshes/igus_robolink_rl_dp_5/Joint0Coll.dae"/>
         </geometry>
       </collision>
       <inertial>
@@ -28,13 +28,13 @@
     <link name="${prefix}link_1">
       <visual>
         <geometry>
-          <mesh filename="package://irc_ros_description/meshes/igus_robolink_rl_dp_5/Joint1.dae"/>
+          <mesh filename="file://$(find irc_ros_description)/meshes/igus_robolink_rl_dp_5/Joint1.dae"/>
         </geometry>
         <origin rpy="0 0 0" xyz="0 0 0"/>
       </visual>
       <collision>
         <geometry>
-          <mesh filename="package://irc_ros_description/meshes/igus_robolink_rl_dp_5/Joint1Coll.dae"/>
+          <mesh filename="file://$(find irc_ros_description)/meshes/igus_robolink_rl_dp_5/Joint1Coll.dae"/>
         </geometry>
         <origin rpy="0 0 0" xyz="0 0 0"/>
       </collision>
@@ -53,13 +53,13 @@
     <link name="${prefix}link_2">
       <visual>
         <geometry>
-          <mesh filename="package://irc_ros_description/meshes/igus_robolink_rl_dp_5/Joint2.dae"/>
+          <mesh filename="file://$(find irc_ros_description)/meshes/igus_robolink_rl_dp_5/Joint2.dae"/>
         </geometry>
         <origin rpy="0 0 0" xyz="0 0 0"/>
       </visual>
       <collision>
         <geometry>
-          <mesh filename="package://irc_ros_description/meshes/igus_robolink_rl_dp_5/Joint2Coll.dae"/>
+          <mesh filename="file://$(find irc_ros_description)/meshes/igus_robolink_rl_dp_5/Joint2Coll.dae"/>
         </geometry>
         <origin rpy="0 0 0" xyz="0 0 0"/>
       </collision>
@@ -78,13 +78,13 @@
     <link name="${prefix}link_5">
       <visual>
         <geometry>
-          <mesh filename="package://irc_ros_description/meshes/igus_robolink_rl_dp_5/Joint3.dae"/>
+          <mesh filename="file://$(find irc_ros_description)/meshes/igus_robolink_rl_dp_5/Joint3.dae"/>
         </geometry>
         <origin rpy="0 0 0" xyz="0 0 0"/>
       </visual>
       <collision>
         <geometry>
-          <mesh filename="package://irc_ros_description/meshes/igus_robolink_rl_dp_5/Joint3Coll.dae"/>
+          <mesh filename="file://$(find irc_ros_description)/meshes/igus_robolink_rl_dp_5/Joint3Coll.dae"/>
         </geometry>
         <origin rpy="0 0 0" xyz="0 0 0"/>
       </collision>
@@ -103,13 +103,13 @@
     <link name="${prefix}link_6">
       <visual>
         <geometry>
-          <mesh filename="package://irc_ros_description/meshes/igus_robolink_rl_dp_5/Joint4.dae"/>
+          <mesh filename="file://$(find irc_ros_description)/meshes/igus_robolink_rl_dp_5/Joint4.dae"/>
         </geometry>
         <origin rpy="0 0 0" xyz="0 0 0"/>
       </visual>
       <collision>
         <geometry>
-          <mesh filename="package://irc_ros_description/meshes/igus_robolink_rl_dp_5/Joint4Coll.dae"/>
+          <mesh filename="file://$(find irc_ros_description)/meshes/igus_robolink_rl_dp_5/Joint4Coll.dae"/>
         </geometry>
         <origin rpy="0 0 0" xyz="0 0 0"/>
       </collision>
@@ -139,13 +139,13 @@
     <link name="${prefix}link_7">
       <visual>
         <geometry>
-          <mesh filename="package://irc_ros_description/meshes/igus_robolink_rl_dp_5/Joint5.dae"/>
+          <mesh filename="file://$(find irc_ros_description)/meshes/igus_robolink_rl_dp_5/Joint5.dae"/>
         </geometry>
         <origin rpy="0 0 0" xyz="0 0 0"/>
       </visual>
       <collision>
         <geometry>
-          <mesh filename="package://irc_ros_description/meshes/igus_robolink_rl_dp_5/Joint5Coll.dae"/>
+          <mesh filename="file://$(find irc_ros_description)/meshes/igus_robolink_rl_dp_5/Joint5Coll.dae"/>
         </geometry>
         <origin rpy="0 0 0" xyz="0 0 0"/>
       </collision>
