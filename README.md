@@ -37,6 +37,8 @@ In case you want to add your own kinematics please take a look at `irc_ros_descr
 ## Requirements
 This project will only run under linux. One of the main issues is the use of linux sockets for interfacing with the hardware. If an adequate, open source and multi-platform alternative exists, it might be possible for the community to replace the linux-only parts.
 
+**[Note: There appear to be issues using CycloneDDS and the digital IO modules together. If you run into problems please consider using a different implementation](https://github.com/CommonplaceRobotics/iRC_ROS/issues/105)**
+
 General requirements:
  - Ubuntu 22.04 (Recommended)
  - Compiler with C++17 support, e.g. a semi-recent gcc install
