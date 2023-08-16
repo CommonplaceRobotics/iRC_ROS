@@ -18,6 +18,7 @@
   <test_depend>ament_lint_common</test_depend>
 
   <depend>irc_ros_msgs</depend>
+  <depend>irc_ros_moveit_config</depend>
   <depend>moveit_ros_planning_interface</depend>
   <depend>moveit_core</depend>
   <depend>moveit_msgs</depend>

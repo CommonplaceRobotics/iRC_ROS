@@ -10,7 +10,7 @@
   <url type="repository">https://github.com/CommonplaceRobotics/iRC_ROS</url>
   <author email="fer@cpr-robots.com">Felix Reuter</author>
 
-  <exec_depend>rviz</exec_depend>
+  <exec_depend>rviz2</exec_depend>
   <exec_depend>urdf</exec_depend>
   <exec_depend>xacro</exec_depend>
    
