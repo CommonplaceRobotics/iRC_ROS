@@ -20,7 +20,7 @@
   <depend>controller_interface</depend>
   <depend>hardware_interface</depend>
   <depend>rclcpp_lifecyle</depend>
-  <depend>rviz</depend>
+  <depend>rviz2</depend>
   <depend>ros2_control</depend>
   <depend>ira_laser_tools</depend>
   <depend>nav2_common</depend>
