@@ -20,7 +20,6 @@
   <depend>controller_interface</depend>
   <depend>hardware_interface</depend>
   <depend>rclcpp_lifecyle</depend>
-  <depend>rviz</depend>
   <depend>ros2_control</depend>
   <depend>pluginlib</depend>
   <depend>irc_ros_msgs</depend>
