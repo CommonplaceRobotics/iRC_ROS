@@ -25,6 +25,9 @@
   <depend>ira_laser_tools</depend>
   <depend>nav2_common</depend>
 
+  <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>joint_trajectory_controller</exec_depend>
   <exec_depend>ros2_controllers_test_nodes</exec_depend>
   <exec_depend>irc_ros_hardware</exec_depend>
   <exec_depend>irc_ros_description</exec_depend>
