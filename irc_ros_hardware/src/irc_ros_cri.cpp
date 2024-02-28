@@ -315,7 +315,6 @@ hardware_interface::CallbackReturn IrcRosCri::on_init(const hardware_interface::
   }
   
   new_msg = true;
-  lastCMDstamp = std::chrono::system_clock::now();
   for (const hardware_interface::ComponentInfo & joint : info.joints) {
     // TODO: Checks
 
@@ -543,7 +542,7 @@ hardware_interface::return_type IrcRosCri::read(const rclcpp::Time &, const rclc
   // {
   //   platform_dig_in_[0] = true;
   // }
-
+  std::lock_guard<std::mutex> lock(statusLock);
   if(platform_dig_in_.size() >= 1)
   {
     errorState.parse(currentStatus.errorJoints.at(0));
@@ -608,7 +607,7 @@ hardware_interface::return_type IrcRosCri::write(const rclcpp::Time &, const rcl
       std::copy(set_vel_platform_.begin(), set_vel_platform_.end(), jog_array.begin());
   }
   //enable / reset
-
+  std::lock_guard<std::mutex> lock(statusLock);
   if (platform_dig_in_.size() > 1)
   {
     if ((int)platform_dig_out_[2] != currMotionType)
@@ -628,8 +627,6 @@ hardware_interface::return_type IrcRosCri::write(const rclcpp::Time &, const rcl
             rclcpp::get_logger("iRC_ROS"), "Enable Motors!"
           );
           Command(cri_keywords::COMMAND_ENABLE);
-          lastCMDstamp = std::chrono::system_clock::now();
-
           new_msg = false;
         }
       }
@@ -641,7 +638,6 @@ hardware_interface::return_type IrcRosCri::write(const rclcpp::Time &, const rcl
             rclcpp::get_logger("iRC_ROS"), "Disable Motors!"
           );
           Command(cri_keywords::COMMAND_DISABLE);
-          lastCMDstamp = std::chrono::system_clock::now();
           new_msg = false;
         }
 
@@ -652,7 +648,6 @@ hardware_interface::return_type IrcRosCri::write(const rclcpp::Time &, const rcl
             rclcpp::get_logger("iRC_ROS"), "Reset!"
           );
         Command(cri_keywords::COMMAND_RESET);
-        lastCMDstamp = std::chrono::system_clock::now();
         new_msg = false;
         reset_ = platform_dig_out_[1];
       }

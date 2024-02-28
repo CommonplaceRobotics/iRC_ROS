@@ -49,6 +49,8 @@ private:
   std::mutex counterLock;
   std::mutex aliveLock;
 
+  std::mutex statusLock;
+
   // Read joint position values
   std::vector<double> pos_;  // [rad]
   std::vector<double> vel_;  // Not yet implemented! [rad/s]
