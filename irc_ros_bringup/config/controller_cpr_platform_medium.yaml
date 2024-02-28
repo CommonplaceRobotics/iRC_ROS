@@ -6,7 +6,40 @@
       type: joint_state_broadcaster/JointStateBroadcaster
 
     cpr_platform_controller:
-      type: diff_drive_controller/DiffDriveController
+        type: diff_drive_controller/DiffDriveController
+
+    dio_controller:
+      type: irc_ros_controllers/DIOController
+
+
+# <namespace>/dio_controller:
+#   ros__parameters:
+#     digital_inputs: 
+#       - <prefix>enable/digital_input_enable
+#       - <prefix>reset/digital_input_reset
+
+#     digital_outputs:
+#       - <prefix>enable/digital_output_enable
+#       - <prefix>reset/digital_output_reset
+<namespace>/dio_controller:
+  ros__parameters:
+    digital_inputs: 
+      - <prefix>dio_base/digital_input_0
+      - <prefix>dio_base/digital_input_1
+      - <prefix>dio_base/digital_input_2
+      - <prefix>dio_base/digital_input_3
+      - <prefix>dio_base/digital_input_4
+      - <prefix>dio_base/digital_input_5
+      - <prefix>dio_base/digital_input_6
+
+    digital_outputs:
+      - <prefix>dio_base/digital_output_0
+      - <prefix>dio_base/digital_output_1
+      - <prefix>dio_base/digital_output_2
+      - <prefix>dio_base/digital_output_3
+      - <prefix>dio_base/digital_output_4
+      - <prefix>dio_base/digital_output_5
+      - <prefix>dio_base/digital_output_6
 
 <namespace>/cpr_platform_controller:
   ros__parameters:
@@ -39,3 +72,4 @@
     # See if it is possible to change the rviz behaviour as TwistStamped is 
     # becoming the new standard
     use_stamped_vel: false
+

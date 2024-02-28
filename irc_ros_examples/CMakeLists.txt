@@ -21,47 +21,21 @@ find_package(tf2_geometry_msgs REQUIRED)
 
 include_directories(include)
 
-add_executable(pick_and_place
-  src/pick_and_place.cpp
-)
+add_executable(keyboard_ctrl
+               src/keyboard_control.cpp
+               )    
 
-add_executable(pick_and_place_vacuum
-  src/pick_and_place_vacuum.cpp
-)
 
-target_include_directories(pick_and_place PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
 
 ament_target_dependencies(
-  pick_and_place
-  "moveit_ros_planning_interface"
+  keyboard_ctrl
   "rclcpp"
   irc_ros_msgs
-)
-
-ament_target_dependencies(
-  pick_and_place_vacuum
-  "moveit_ros_planning_interface"
-  "rclcpp"
-  irc_ros_msgs
-  tf2_ros
-  tf2_geometry_msgs
 )
 
 # Install C++ executables
 install(
-  TARGETS pick_and_place pick_and_place_vacuum
-  DESTINATION lib/${PROJECT_NAME}
-)
-
-# Install Python modules
-ament_python_install_package(${PROJECT_NAME})
-
-# Install Python executables
-install(PROGRAMS
-  scripts/nav2_simple_commander_example.py
-  scripts/baristabot.py
+  TARGETS keyboard_ctrl
   DESTINATION lib/${PROJECT_NAME}
 )
 

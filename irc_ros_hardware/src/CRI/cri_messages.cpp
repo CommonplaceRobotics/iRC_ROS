@@ -44,8 +44,8 @@ MessageType CriMessage::GetMessageType(const std::string & msg)
     return message_type_map.at(typeString);
   }
 
-  RCLCPP_ERROR(
-    rclcpp::get_logger("iRC_ROS::CRI"), "Unknown message type: \"%s\"", typeString.c_str());
+  // RCLCPP_ERROR(
+  //   rclcpp::get_logger("iRC_ROS::CRI"), "Unknown message type: \"%s\"", typeString.c_str());
   return MessageType::UNKNOWN;
 }
 
@@ -73,15 +73,25 @@ void CriMessage::FillArray(std::array<T, N> & array, const std::string & spaceSe
     }
 
     std::string value = spaceSeparatedValues.substr(begin, end - begin);
+    try
+    {
+      if (std::is_same<float, T>::value) {
+        array.at(idx) = std::stof(value);
+      }
 
-    if (std::is_same<float, T>::value) {
-      array.at(idx) = std::stof(value);
+      if (std::is_same<int, T>::value) {
+        array.at(idx) = std::stoi(value);
+      }
+
+    }catch(std::invalid_argument)
+    {
+      RCLCPP_FATAL(
+        rclcpp::get_logger("CRI ERROR"), "Value: %s", value.c_str()
+      );
+      throw;
     }
 
-    if (std::is_same<int, T>::value) {
-      array.at(idx) = std::stoi(value);
-    }
-
+    
     begin = spaceSeparatedValues.find(" ", end);
     end = spaceSeparatedValues.find(" ", begin + 1);
     idx++;
@@ -89,6 +99,9 @@ void CriMessage::FillArray(std::array<T, N> & array, const std::string & spaceSe
 
   std::string value = spaceSeparatedValues.substr(begin);
 
+  // RCLCPP_INFO(
+  //   rclcpp::get_logger("iRC_ROS::CRI"), "value ERr: %s", value.c_str()
+  // );
   if (std::is_same<float, T>::value) {
     array.at(idx) = std::stof(value);
   }
@@ -162,7 +175,7 @@ std::string CriMessage::VectorToString(std::vector<T> & vector)
 
 Status::Status(const std::string & messageString) : CriMessage(MessageType::STATUS)
 {
-  // RCLCPP_INFO(rclcpp::get_logger("iRC_ROS::CRI"), "%s", messageString.c_str());
+  // RCLCPP_INFO(rclcpp::get_logger("iRC_ROS::CRI:MESSAGE"), "%s", messageString.c_str());
 
   std::string::size_type modeStart = messageString.find(cri_keywords::STATUS_MODE);
   std::string::size_type posJointSetPointStart =
@@ -233,16 +246,20 @@ Status::Status(const std::string & messageString) : CriMessage(MessageType::STAT
   std::string errorJointsString = errorString.substr(errorSummaryEnd + 1);
 
   mode = GetMode(modeString);
+
   FillArray(posJointSetPoint, posJointSetPointString);
   FillArray(posJointCurrent, posJointCurrentString);
   FillArray(posCartRobot, posCartRobotString);
   FillArray(posCartPlattform, posCartPlattformString);
+  
   overrideValue = std::stof(overrideValueString);
   digital_in = std::stoi(dinString);    // TODO: Process further to actual meaning
   digital_out = std::stoi(doutString);  // TODO: Process further to actual meaning
   eStop = std::stoi(eStopString);       // TODO: Process further to actual meaning
   supply = std::stoi(supplyString);
   currentall = std::stoi(currentallString);
+
+
   FillArray(currentjoints, currentjointsString);
   // errorSummary already set above.
   FillArray(errorJoints, errorJointsString);  // TODO: Process further to actual meaning
@@ -299,7 +316,7 @@ void Status::Print()
  */
 Mode Status::GetMode(const std::string & modeString)
 {
-  RCLCPP_DEBUG(rclcpp::get_logger("iRC_ROS::CRI"), "Converting Mode %s", modeString.c_str());
+  // RCLCPP_INFO(rclcpp::get_logger("iRC_ROS::CRI"), "Converting Mode %s", modeString.c_str());
 
   static const std::map<std::string, Mode> mode_map = {
     {"joint", Mode::JOINT},       {"cartbase", Mode::CARTBASE}, {"carttool", Mode::CARTTOOL},
@@ -320,8 +337,8 @@ Mode Status::GetMode(const std::string & modeString)
 
 Kinstate Status::GetKinstate(const std::string & kinstateString)
 {
-  RCLCPP_DEBUG(
-    rclcpp::get_logger("iRC_ROS::CRI"), "Converting Kinstate %s", kinstateString.c_str());
+  // RCLCPP_INFO(
+  //   rclcpp::get_logger("iRC_ROS::CRI"), "Converting Kinstate %s", kinstateString.c_str());
   int kinstateInt = std::stoi(kinstateString);
 
   // TODO: How to handle unknown states?

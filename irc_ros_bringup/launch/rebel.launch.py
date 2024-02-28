@@ -105,10 +105,22 @@ def generate_launch_description():
 
     hardware_protocol_arg = DeclareLaunchArgument(
         "hardware_protocol",
-        default_value="cprcanv2",
+        default_value="cri",
         choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
         description="Which hardware protocol or mock hardware should be used",
     )
+    launch_dashboard_controller = DeclareLaunchArgument(
+        "launch_dashboard_controller",
+        default_value="false",
+        choices=["0", "1", "false", "true", "False", "True"],
+    )
+
+    launch_dio_controller = DeclareLaunchArgument(
+        "launch_dio_controller",
+        default_value="true",
+        choices=["0", "1", "false", "true", "False", "True"],
+    )
+
 
     namespace = LaunchConfiguration("namespace")
     prefix = LaunchConfiguration("prefix")
@@ -207,11 +219,18 @@ def generate_launch_description():
         arguments=["joint_state_broadcaster", "-c", controller_manager_name],
     )
 
+    # robot_controller_node = Node(
+    #     package="controller_manager",
+    #     executable="spawner",
+    #     namespace=namespace,
+    #     arguments=["joint_trajectory_controller", "-c", controller_manager_name],
+    # )
+
     robot_controller_node = Node(
         package="controller_manager",
         executable="spawner",
         namespace=namespace,
-        arguments=["joint_trajectory_controller", "-c", controller_manager_name],
+        arguments=["joint_velocity_controller", "-c", controller_manager_name],
     )
 
     irc_ros_bringup_launch_dir = PathJoinSubstitution(
@@ -262,7 +281,7 @@ def generate_launch_description():
     # Dont delay start of the following nodes after `joint_state_broadcaster` as the EventHandler
     # causes issues with LaunchConfigurations
     description.add_action(robot_controller_node)
-    description.add_action(additional_controllers)
+    # description.add_action(additional_controllers)
 
     # UI nodes
     description.add_action(rviz_node)

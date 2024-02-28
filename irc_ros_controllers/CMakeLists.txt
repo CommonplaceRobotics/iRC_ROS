@@ -25,6 +25,9 @@ set(INCLUDE_DEPENDS
   pluginlib
   rclcpp
   rclcpp_lifecycle
+  geometry_msgs
+  rcpputils
+  realtime_tools
 )
 
 include_directories(include)
@@ -33,6 +36,7 @@ add_library(${PROJECT_NAME} SHARED
   src/dashboard_controller.cpp
   src/dio_controller.cpp
   src/schmalz_ecbpmi_controller.cpp
+  src/platform_controller.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -44,6 +48,7 @@ ament_target_dependencies(${PROJECT_NAME}
 )
 
 pluginlib_export_plugin_description_file(controller_interface dashboard_controller.xml)
+pluginlib_export_plugin_description_file(controller_interface platform_controller.xml)
 pluginlib_export_plugin_description_file(controller_interface dio_controller.xml)
 pluginlib_export_plugin_description_file(controller_interface schmalz_ecbpmi_controller.xml)
 

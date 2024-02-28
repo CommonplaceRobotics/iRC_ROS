@@ -12,7 +12,6 @@
 #include <vector>
 
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
-#include "irc_ros_hardware/CRI/cri_keywords.hpp"
 #include "irc_ros_hardware/common/errorstate.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/state.hpp"
@@ -58,17 +57,9 @@ void IrcRosCri::AliveThreadFunction()
     for (int i = jog_array.size(); i < 9; i++) {
       msg << 0.0f << " ";
     }
-
     msg << "CRIEND" << std::endl;
 
-    // This seems unnecessary, if any weird communication behaviour occurs
-    // then it might have been there for a reason. Else remove this in a
-    // future release
-    //{
-    // std::lock_guard<std::mutex> lockGuard(aliveLock);
-
     crisocket.SendMessage(msg.str());
-    //}
 
     std::this_thread::sleep_for(std::chrono::milliseconds(aliveWaitMs));
   }
@@ -84,26 +75,29 @@ void IrcRosCri::MessageThreadFunction()
     if (crisocket.HasMessage()) {
       std::string msg = crisocket.GetMessage();
 
-      //RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "%s", msg.c_str());
       cri_messages::MessageType type = cri_messages::CriMessage::GetMessageType(msg);
-
-      //RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Type: %d", type);
 
       switch (type) {
         case cri_messages::MessageType::STATUS: {
-          cri_messages::Status status = cri_messages::Status(msg);
-          // RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "SET: %f", status.posJointSetPoint.front());
-          // RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "IS:  %f", status.posJointCurrent.front());
-
-          currentStatus = status;
-          ProcessStatus(currentStatus);
+          try{
+            cri_messages::Status status = cri_messages::Status(msg);
+            currentStatus = status;
+            ProcessStatus(currentStatus);
+          }
+          catch(std::invalid_argument)
+          {
+            RCLCPP_FATAL(
+              rclcpp::get_logger("CRI ERROR"), "Exception in MessageThreadFunction! Message received: %s", msg.c_str()
+            );
+            throw;
+          }
+                 
           break;
         }
 
         case cri_messages::MessageType::MESSAGE: {
           cri_messages::Message message = cri_messages::Message(msg);
           // Not sure if the ROS node should display these?
-          //RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "MESSAGE: %s", message.message.c_str());
           break;
         }
 
@@ -234,9 +228,12 @@ void IrcRosCri::ProcessStatus(const cri_messages::Status & status)
   }
 
   if (currentErrorJoints != lastErrorJoints) {
+
+    new_msg = true;
     // loop through the 6 joint errors
     ErrorState errorState;
 
+    //int noErrCnt = 0;
     for (unsigned int i = 0; i < 6; i++) {
       int errorJoint = currentErrorJoints.at(i);
       if (errorJoint != lastErrorJoints.at(i)) {
@@ -246,13 +243,13 @@ void IrcRosCri::ProcessStatus(const cri_messages::Status & status)
           RCLCPP_ERROR(
             rclcpp::get_logger("iRC_ROS"), "Joint %i Error: [%s]", i,
             errorState.str_verbose().c_str());
-        } else {
+        } else 
+        {
           RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "Joint %i Error: Cleaned", i);
         }
       }
     }
   }
-
   lastKinstate = currentKinstate;
   lastErrorJoints = currentErrorJoints;
 }
@@ -263,6 +260,13 @@ void IrcRosCri::ProcessStatus(const cri_messages::Status & status)
  */
 void IrcRosCri::GetReferencingInfo() { Command(std::string("GetReferencingInfo")); }
 
+
+
+void IrcRosCri::CmdChangeJogMode(int modeIdx)
+{
+  std::string command = motionModes[modeIdx];
+  Command(command);
+}
 /**
   *  @brief Sends the positions from the set_pos vector to the CRI controller.
   */
@@ -309,7 +313,9 @@ hardware_interface::CallbackReturn IrcRosCri::on_init(const hardware_interface::
     std::string ip = info_.hardware_parameters.at("ip");
     crisocket.SetIp(ip);
   }
-
+  
+  new_msg = true;
+  lastCMDstamp = std::chrono::system_clock::now();
   for (const hardware_interface::ComponentInfo & joint : info.joints) {
     // TODO: Checks
 
@@ -333,10 +339,30 @@ hardware_interface::CallbackReturn IrcRosCri::on_init(const hardware_interface::
     pos_offset_.push_back(cri_joint_offset);
   }
 
+  
   for (const hardware_interface::ComponentInfo & gpio : info.gpios) {
-    digital_in_double_.push_back(0.0f);
-    digital_out_double_.push_back(0.0f);
+
+    if (gpio.name == "dio_base")
+    {
+      digital_in_double_.push_back(0.0f);
+      digital_out_double_.push_back(0.0f);
+    }
+
+    if (gpio.name == "platform")
+    { 
+      set_vel_platform_ = {0.0f, 0.0f, 0.0f};
+      vel_platform_ = {0.0f, 0.0f, 0.0f};
+      
+      platform_dig_in_ = {0.0f, 0.0f, 0.0f};
+      platform_dig_out_ = {0.0f, 0.0f, 0.0f};
+    }
   }
+
+  while(jog_array.size() < set_vel_platform_.size())
+  {
+    jog_array.push_back(0.0f);
+  }
+
   if (jog_array.size() > 9) {
     RCLCPP_ERROR(
       rclcpp::get_logger("iRC_ROS"),
@@ -349,6 +375,7 @@ hardware_interface::CallbackReturn IrcRosCri::on_init(const hardware_interface::
     rclcpp::get_logger("iRC_ROS"), "Detected %lu joints in the urdf file", jog_array.size());
   return hardware_interface::CallbackReturn::SUCCESS;
 }
+
 hardware_interface::CallbackReturn IrcRosCri::on_activate(
   const rclcpp_lifecycle::State & previous_state)
 {
@@ -361,8 +388,6 @@ hardware_interface::CallbackReturn IrcRosCri::on_activate(
   // std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
   Command(cri_keywords::COMMAND_CONNECT);
-  Command(cri_keywords::COMMAND_RESET);
-  Command(cri_keywords::COMMAND_ENABLE);
 
   continueAlive = true;
   aliveThread = std::thread(&IrcRosCri::AliveThreadFunction, this);
@@ -410,13 +435,28 @@ std::vector<hardware_interface::StateInterface> IrcRosCri::export_state_interfac
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &vel_[i]));
   }
+  RCLCPP_INFO(
+    rclcpp::get_logger("iRC_ROS::CRI"), "Number of joint state-interfaces: %ld", state_interfaces.size()
+  );
   // TODO: DIO specific state_interfaces
   int counter = 0;
   for (auto && gpio : info_.gpios) {
-    for (auto && si : gpio.state_interfaces) {
-      state_interfaces.emplace_back(
-        hardware_interface::StateInterface(gpio.name, si.name, &digital_in_double_[counter]));
-      counter++;
+    
+    if (gpio.name == "dio_base" || gpio.name == "dio_arm")
+    { 
+      for (auto && si : gpio.state_interfaces) {
+        state_interfaces.emplace_back(
+          hardware_interface::StateInterface(gpio.name, si.name, &digital_in_double_[counter]));
+        counter++;
+      }
+    }
+    if (gpio.name == "platform")
+    { 
+      state_interfaces.emplace_back(gpio.name, "is_enabled", &platform_dig_in_[0]);
+      state_interfaces.emplace_back(gpio.name, "is_reset", &platform_dig_in_[1]);
+      state_interfaces.emplace_back(gpio.name, "forward_vel", &vel_platform_[0]);
+      state_interfaces.emplace_back(gpio.name, "lateral_vel", &vel_platform_[1]);
+      state_interfaces.emplace_back(gpio.name, "angular_vel", &vel_platform_[2]); 
     }
   }
 
@@ -427,24 +467,43 @@ std::vector<hardware_interface::CommandInterface> IrcRosCri::export_command_inte
 {
   std::vector<hardware_interface::CommandInterface> command_interfaces;
 
+
   for (int i = 0; i < info_.joints.size(); i++) {
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
       info_.joints[i].name, hardware_interface::HW_IF_POSITION, &set_pos_[i]));
 
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
       info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &set_vel_[i]));
+
   }
 
-  // DIO specific state_interfaces
-  int counter = 0;
+    // DIO specific command_interfaces
   for (auto && gpio : info_.gpios) {
-    //   // Support multiple command interfaces here, but the modules dont support that yet
-    for (auto && ci : gpio.command_interfaces) {
-      command_interfaces.emplace_back(
-        hardware_interface::CommandInterface(gpio.name, ci.name, &digital_out_double_[counter]));
-      counter++;
+      // Support multiple command interfaces here, but the modules dont support that yet
+    if (gpio.name == "platform"){
+
+      command_interfaces.emplace_back(gpio.name, "enable", &platform_dig_out_[0]);
+      command_interfaces.emplace_back(gpio.name, "reset", &platform_dig_out_[1]);
+      command_interfaces.emplace_back(gpio.name, "setMotionType", &platform_dig_out_[2]);
+      command_interfaces.emplace_back(gpio.name, "forward_cmd", &set_vel_platform_[0]);
+      command_interfaces.emplace_back(gpio.name, "lateral_cmd", &set_vel_platform_[1]);
+      command_interfaces.emplace_back(gpio.name, "angular_cmd", &set_vel_platform_[2]);
+    }
+    
+    if (gpio.name == "dio_base" || gpio.name == "dio_arm")
+    { 
+      int counter = 0;
+      for (auto && ci : gpio.command_interfaces) {
+        command_interfaces.emplace_back(
+          hardware_interface::CommandInterface(gpio.name, ci.name, &digital_out_double_[counter]));
+        counter++;
+      }
     }
   }
+
+  RCLCPP_INFO(
+    rclcpp::get_logger("iRC_ROS::CRI"), "Number of joint command-interfaces: %ld", command_interfaces.size());
+  
 
   return command_interfaces;
 }
@@ -466,6 +525,38 @@ hardware_interface::return_type IrcRosCri::read(const rclcpp::Time &, const rclc
     pos_[i] = temp_pos[i] * M_PI / 180.0;
   }
 
+  // Find if motors are enabled
+  ErrorState errorState;
+  // int errCount = 0;
+  // for (int i = 0; i<6; i++)
+  // { 
+  //   errorState.parse(currentStatus.errorJoints.at(i));
+  //   if (errorState.mne)
+  //   {
+  //     enabled_ = false;
+  //     platform_dig_in_[0] = false;
+  //     break;
+  //   }
+  //   errCount++;
+  // }
+  // if (errCount == 6)
+  // {
+  //   platform_dig_in_[0] = true;
+  // }
+
+  if(platform_dig_in_.size() >= 1)
+  {
+    errorState.parse(currentStatus.errorJoints.at(0));
+    if (errorState.mne)
+    {
+      platform_dig_in_[0] = false;
+    }
+    else 
+    {
+      platform_dig_in_[0] = true;
+    }
+  }
+
   return hardware_interface::return_type::OK;
 }
 
@@ -481,7 +572,8 @@ hardware_interface::return_type IrcRosCri::write(const rclcpp::Time &, const rcl
   // If more than one set_... var is not NaN reset them all and wait for ros2 control to send a new goal.
   if (
     std::none_of(set_pos_.begin(), set_pos_.end(), [](double d) { return std::isnan(d); }) &&
-    std::none_of(set_vel_.begin(), set_vel_.end(), [](double d) { return std::isnan(d); })) {
+    std::none_of(set_vel_.begin(), set_vel_.end(), [](double d) { return std::isnan(d); })) 
+  {
     std::fill(set_pos_.begin(), set_pos_.end(), std::numeric_limits<double>::quiet_NaN());
     std::fill(set_vel_.begin(), set_vel_.end(), std::numeric_limits<double>::quiet_NaN());
   }
@@ -509,6 +601,63 @@ hardware_interface::return_type IrcRosCri::write(const rclcpp::Time &, const rcl
     std::fill(jog_array.begin(), jog_array.end(), 0.0f);
   }
 
+  //******************************************PLATFORM COMMANDS***************************************************
+  //Platform Movement
+  if (currMotionType == 0 && std::none_of(set_vel_platform_.begin(), set_vel_platform_.end(), [](double d) {return std::isnan(d);}))
+  {
+      std::copy(set_vel_platform_.begin(), set_vel_platform_.end(), jog_array.begin());
+  }
+  //enable / reset
+
+  if (platform_dig_in_.size() > 1)
+  {
+    if ((int)platform_dig_out_[2] != currMotionType)
+    {
+      Command(cri_keywords::COMMAND_DISABLE);
+      CmdChangeJogMode((int)platform_dig_out_[2]);
+      currMotionType = (int) platform_dig_out_[2];
+    }
+    if (new_msg)
+    {
+      if (!platform_dig_in_[0])
+      {
+        if (platform_dig_out_[0] > 0.0)
+        {
+
+          RCLCPP_INFO(
+            rclcpp::get_logger("iRC_ROS"), "Enable Motors!"
+          );
+          Command(cri_keywords::COMMAND_ENABLE);
+          lastCMDstamp = std::chrono::system_clock::now();
+
+          new_msg = false;
+        }
+      }
+      else
+      {
+        if (platform_dig_out_[0] < 1.0)
+        {
+          RCLCPP_INFO(
+            rclcpp::get_logger("iRC_ROS"), "Disable Motors!"
+          );
+          Command(cri_keywords::COMMAND_DISABLE);
+          lastCMDstamp = std::chrono::system_clock::now();
+          new_msg = false;
+        }
+
+      }  
+      if (reset_ != platform_dig_out_[1])
+      {
+        RCLCPP_INFO(
+            rclcpp::get_logger("iRC_ROS"), "Reset!"
+          );
+        Command(cri_keywords::COMMAND_RESET);
+        lastCMDstamp = std::chrono::system_clock::now();
+        new_msg = false;
+        reset_ = platform_dig_out_[1];
+      }
+    }
+  }
   return hardware_interface::return_type::OK;
 }
 

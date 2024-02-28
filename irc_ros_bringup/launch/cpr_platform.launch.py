@@ -46,6 +46,7 @@ def generate_launch_description():
         ]
     )
 
+
     namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value="",
@@ -65,7 +66,7 @@ def generate_launch_description():
     )
     use_rviz_arg = DeclareLaunchArgument(
         "use_rviz",
-        default_value="true",
+        default_value="false",
         choices=["0", "1", "false", "true", "False", "True"],
         description="Whether to start rviz with the launch file",
     )
@@ -76,14 +77,14 @@ def generate_launch_description():
     )
     use_rqt_robot_steering_arg = DeclareLaunchArgument(
         "use_rqt_robot_steering",
-        default_value="true",
+        default_value="false",
         choices=["0", "1", "false", "true", "False", "True"],
         description="Whether to start RqtRobotSteering with the launch file",
     )
     platform_name_arg = DeclareLaunchArgument(
         "platform_name",
-        default_value="cpr_platform_medium",
-        choices=["cpr_platform_medium"],
+        default_value="cpr_platform_mini",
+        choices=["cpr_platform_medium", "cpr_platform_mini"],
         description="The product name of the mobile platform",
     )
     platform_urdf_arg = DeclareLaunchArgument(
@@ -104,7 +105,7 @@ def generate_launch_description():
     )
     hardware_protocol_arg = DeclareLaunchArgument(
         "hardware_protocol",
-        default_value="cprcanv2",
+        default_value="cri",
         choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
         description="Which hardware protocol or mock hardware should be used",
     )
@@ -140,6 +141,22 @@ def generate_launch_description():
         ]
     )
 
+    # external_dio_controllers_file = PathJoinSubstitution(
+    #     [
+    #         FindPackageShare("irc_ros_bringup"),
+    #         "config",
+    #         "controller_dio_module.yaml",
+    #     ]
+    # )
+
+    # external_dio_controllers = ReplaceString(
+    #     source_file=external_dio_controllers_file,
+    #     replacements={
+    #         "<namespace>": namespace,
+    #         "<prefix>": prefix,
+    #     }
+    # )
+
     # Node declarations:
     robot_state_pub = Node(
         package="robot_state_publisher",
@@ -168,8 +185,10 @@ def generate_launch_description():
         namespace=namespace,
         parameters=[
             {"robot_description": robot_description},
-            platform_controller_config,
+            platform_controller_config           
         ],
+        # prefix=["gdbserver localhost:3000"],
+
     )
     joint_state_broadcaster = Node(
         package="controller_manager",
@@ -183,7 +202,25 @@ def generate_launch_description():
         executable="spawner",
         namespace=namespace,
         arguments=["cpr_platform_controller", "-c", controller_manager_name],
+        # prefix=["gdbserver localhost:3000"],
+        # output="screen",
+        # emulate_tty=True
     )
+#,  '--ros-args' '--log-level', 'debug'
+    irc_ros_bringup_launch_dir = PathJoinSubstitution(
+    [
+        FindPackageShare("irc_ros_bringup"),
+        "launch",
+    ]
+    )
+
+    
+    additional_controllers = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [irc_ros_bringup_launch_dir, "/additional_controllers_pltfrm.launch.py"]
+        ),
+    )
+
 
     rviz_node = Node(
         package="rviz2",
@@ -200,13 +237,19 @@ def generate_launch_description():
         condition=IfCondition(use_rqt_robot_steering),
     )
 
-    # Sick S300 Laser scanners
-    irc_ros_bringup_launch_dir = PathJoinSubstitution(
-        [
-            FindPackageShare("irc_ros_bringup"),
-            "launch",
-        ]
+
+    keyboard_ctrl_node = Node(
+        package="irc_ros_examples",
+        executable="keyboard_ctrl",
+        name="keyboard_ctrl",
+        arguments=["-c"],
+        # prefix=["gnome-terminal --command"],
+        # prefix=["xterm -e"],
+        #  output="screen",
     )
+    
+    # Sick S300 Laser scanners
+
 
     sicks300_2_stack = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -282,6 +325,7 @@ def generate_launch_description():
     description.add_action(use_rviz_arg)
     description.add_action(rviz_file_arg)
     description.add_action(use_rqt_robot_steering_arg)
+    
     description.add_action(platform_urdf_arg)
     description.add_action(platform_controller_config_arg)
     description.add_action(use_laserscanners_arg)
@@ -289,19 +333,26 @@ def generate_launch_description():
 
     # Robot nodes
     description.add_action(robot_state_pub)
-    description.add_action(joint_state_pub)
+    #######Auskommentiert da Platform keine Joints mehr hat; wenn arm auf platform wieder hinzufügen #####
+    # description.add_action(joint_state_pub)
 
     # ROS2 Control nodes
     description.add_action(control_node)
-    description.add_action(joint_state_broadcaster)
+    #######Auskommentiert da Platform keine Joints mehr hat; wenn arm auf platform wieder hinzufügen #####
+    # description.add_action(joint_state_broadcaster)
     # Dont delay start of the following nodes after `joint_state_broadcaster` as the EventHandler
     # causes issues with LaunchConfigurations
     description.add_action(robot_controller_node)
+    # description.add_action(additional_controllers)
+
 
     # UI nodes
     description.add_action(rviz_node)
     description.add_action(rqt_robot_steering_node)
+    #description.add_action(rqt_service_caller_node)
+    
 
+    #description.add_action(keyboard_ctrl_node)    
     # Laser scan front
     description.add_action(sicks300_2_stack)
 

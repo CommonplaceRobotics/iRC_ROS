@@ -1,0 +1,9 @@
+<library path="irc_ros_controllers">
+  <class name="irc_ros_controllers/PlatformController"
+         type="irc_ros_controllers::PlatformController"
+         base_class_type="controller_interface::ControllerInterface">
+    <description>
+        Controller for sending cartesian velocities
+    </description>
+  </class>
+</library>

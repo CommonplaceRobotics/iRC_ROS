@@ -21,6 +21,11 @@
   <depend>example_interfaces</depend>
   <depend>irc_ros_msgs</depend>
   <depend>irc_ros_hardware</depend>
+  
+  <depend>backward_ros</depend>
+  <depend>geometry_msgs</depend>
+  <depend>rcpputils</depend>
+  <depend>realtime_tools</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

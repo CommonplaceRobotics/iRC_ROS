@@ -1,0 +1,110 @@
+<namespace>/controller_manager:
+  ros__parameters:
+    update_rate: 100 # 100Hz for CAN and 10Hz for CRI
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    cpr_platform_controller:
+      type: irc_ros_controllers/PlatformController
+
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    # joint_trajectory_controller:
+    #   type: joint_trajectory_controller/JointTrajectoryController
+
+    joint_velocity_controller:
+      type: velocity_controllers/JointGroupVelocityController
+
+    dio_controller:
+      type: irc_ros_controllers/DIOController
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+<namespace>/joint_velocity_controller:
+  ros__parameters:
+    joints:
+      - <prefix>joint1
+      - <prefix>joint2
+      - <prefix>joint3
+      - <prefix>joint4
+      - <prefix>joint5
+      - <prefix>joint6
+
+<namespace>/dio_controller:
+  ros__parameters:
+    digital_inputs: 
+      - <prefix>dio_arm/digital_input_0
+      - <prefix>dio_arm/digital_input_1
+      - <prefix>dio_base/digital_input_0
+      - <prefix>dio_base/digital_input_1
+      - <prefix>dio_base/digital_input_2
+      - <prefix>dio_base/digital_input_3
+      - <prefix>dio_base/digital_input_4
+      - <prefix>dio_base/digital_input_5
+      - <prefix>dio_base/digital_input_6
+
+    digital_outputs:
+      - <prefix>dio_arm/digital_output_0
+      - <prefix>dio_arm/digital_output_1
+      - <prefix>dio_base/digital_output_0
+      - <prefix>dio_base/digital_output_1
+      - <prefix>dio_base/digital_output_2
+      - <prefix>dio_base/digital_output_3
+      - <prefix>dio_base/digital_output_4
+      - <prefix>dio_base/digital_output_5
+      - <prefix>dio_base/digital_output_6
+
+<namespace>/cpr_platform_controller:
+  ros__parameters:
+  
+    curr_vels:
+      - <prefix>platform/forward_vel
+      - <prefix>platform/lateral_vel
+      - <prefix>platform/angular_vel
+
+    cmd_vels:
+      - <prefix>platform/forward_cmd
+      - <prefix>platform/lateral_cmd
+      - <prefix>platform/angular_cmd
+    
+    digital_inputs:
+      - <prefix>platform/is_enabled
+      - <prefix>platform/is_reset
+
+    digital_outputs:
+      - <prefix>platform/enable
+      - <prefix>platform/reset
+      - <prefix>platform/setMotionType
+      
+    platform_width: 0.320
+    platform_length: 0.300
+
+
+    odom_frame_id: <prefix>odom
+    base_frame_id: <prefix>base_link
+
+    enable_odom_tf: true    
+
+    wheel_radius: 0.07457 # Measured, should be 0.07308 according to the CPRog settings
+
+    command_interfaces:
+      - velocity
+
+    state_interfaces:
+      - position
+      - velocity
+
+    state_publish_rate: 100.0 # Defaults to 50
+    action_monitor_rate: 100.0 # Defaults to 20
+
+    open_loop_control: true
+    allow_partial_joints_goal: true
+
+    position_feedback: false
+    open_loop: true
+    # TODO: Goal_pose commands from Rviz2 send Twist instead of TwistStamped
+    # See if it is possible to change the rviz behaviour as TwistStamped is 
+    # becoming the new standard
+    use_stamped_vel: false

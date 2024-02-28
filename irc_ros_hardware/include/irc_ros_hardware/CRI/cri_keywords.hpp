@@ -48,8 +48,11 @@ const std::string COMMAND_RESET = "Reset";
 const std::string COMMAND_ENABLE = "Enable";
 const std::string COMMAND_DISABLE = "Disable";
 const std::string COMMAND_DISCONNECT = "Disconnect";
+
 const std::string COMMAND_MOTIONTYPEJOINT = "MotionTypeJoint";
 const std::string COMMAND_MOTIONTYPECARTBASE = "MotionTypeCartBase";
+const std::string COMMAND_MOTIONTYPECARTTOOL = "MotionTypeCartTool";
+const std::string COMMAND_MOTIONTYPEPLATFORM = "MotionTypePlatform";
 
 const std::string CONFIG_GETKINEMATICLIMITS = "GetKinematicLimits";
 const std::string CONFIG_GETKINEMATICLIMITS_ANSWER = "KinematicLimits";

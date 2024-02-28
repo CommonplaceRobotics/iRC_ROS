@@ -20,7 +20,7 @@ def generate_launch_description():
     )
     use_rviz_arg = DeclareLaunchArgument(
         "use_rviz",
-        default_value="true",
+        default_value="false",
         choices=["0", "1", "false", "true", "False", "True"],
         description="Whether to start rviz with the launch file",
     )
@@ -31,20 +31,20 @@ def generate_launch_description():
     )
     use_rqt_robot_steering_arg = DeclareLaunchArgument(
         "use_rqt_robot_steering",
-        default_value="true",
+        default_value="false",
         choices=["0", "1", "false", "true", "False", "True"],
         description="Whether to start RqtRobotSteering with the launch file",
     )
     use_laserscanners_arg = DeclareLaunchArgument(
         "use_laserscanners",
-        default_value="true",
+        default_value="false",
         choices=["0", "1", "false", "true", "False", "True"],
         description="Whether to launch the laserscanner specific nodes",
     )
 
     hardware_protocol_arg = DeclareLaunchArgument(
         "hardware_protocol",
-        default_value="cprcanv2",
+        default_value="cri",
         choices=["mock_hardware", "gazebo", "cprcanv2", "cri"],
         description="Which hardware protocol or mock hardware should be used",
     )
@@ -61,12 +61,12 @@ def generate_launch_description():
                 ),
                 launch_arguments={
                     "namespace": "/rebel_1",
-                    "prefix": "rebel_1_",
+                    "prefix": "",
                     "controller_manager_name": "/rebel_1/controller_manager",
                     "gripper": "none",
                     "use_rviz": "false",
                     "launch_dashboard_controller": "false",
-                    "launch_dio_controller": "false",
+                    "launch_dio_controller": "true",
                 }.items(),
             )
         ]
@@ -80,11 +80,13 @@ def generate_launch_description():
                 ),
                 launch_arguments={
                     "namespace": "/platform_1",
-                    "prefix": "platform_1_",
+                    "prefix": "",
                     "launch_dashboard_controller": "false",
                     "launch_dio_controller": "false",
                     "use_rviz": "false",
-                    "use_rqt_robot_steering": "true",
+                    "use_rqt_robot_steering": "false",
+                    "hardware_protocol": "cri",
+                    "platform_name": "cpr_platform_mini",
                 }.items(),
             )
         ]

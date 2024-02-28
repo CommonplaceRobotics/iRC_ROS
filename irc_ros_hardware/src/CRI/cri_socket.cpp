@@ -87,9 +87,9 @@ void CriSocket::SeparateMessages(const char * msg)
     end = std::strstr(msg, cri_keywords::END.c_str());
 
     if (end == nullptr || (start != nullptr && end > start)) {
-      RCLCPP_ERROR(
-        rclcpp::get_logger("iRC_ROS::CRI"),
-        "There was a partial robot message, but could not find the end of it in the next message.");
+      // RCLCPP_ERROR(
+      //   rclcpp::get_logger("iRC_ROS::CRI"),
+      //   "There was a partial robot message, but could not find the end of it in the next message.");
     } else {
       // TODO: Test if the following line has been broken by C array to std::array
       std::string result1(fragmentBuffer.front(), fragmentLength);
@@ -97,7 +97,10 @@ void CriSocket::SeparateMessages(const char * msg)
 
       {
         std::lock_guard<std::mutex> lockGuard(messageLock);
+
         unprocessedMessages.push_front(result1 + result2);
+
+        //fragmentBuffer = {0};
       }
     }
 

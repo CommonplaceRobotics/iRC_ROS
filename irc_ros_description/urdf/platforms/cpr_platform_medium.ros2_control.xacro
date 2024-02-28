@@ -24,6 +24,43 @@
 
       <xacro:din_rail_module name="${prefix}joint_wheel_1" can_id="0x18" gear_scale="33.33" continuous_joint="true" />
       <xacro:din_rail_module name="${prefix}joint_wheel_2" can_id="0x28" gear_scale="-33.33" continuous_joint="true" />
+    
+      <!-- Added for Dio Control for enable/reset -->
+      <gpio name="${prefix}dio_base">
+        <param name="can_id">0x70</param>
+        <command_interface name="digital_output_0" data_type="bool" />
+        <command_interface name="digital_output_1" data_type="bool" />
+        <command_interface name="digital_output_2" data_type="bool" />
+        <command_interface name="digital_output_3" data_type="bool" />
+        <command_interface name="digital_output_4" data_type="bool" />
+        <command_interface name="digital_output_5" data_type="bool" />
+        <command_interface name="digital_output_6" data_type="bool" />
+        <state_interface name="digital_input_0" data_type="bool" />
+        <state_interface name="digital_input_1" data_type="bool" />
+        <state_interface name="digital_input_2" data_type="bool" />
+        <state_interface name="digital_input_3" data_type="bool" />
+        <state_interface name="digital_input_4" data_type="bool" />
+        <state_interface name="digital_input_5" data_type="bool" />
+        <state_interface name="digital_input_6" data_type="bool" />
+      </gpio>
+
+      <!-- <gpio name="${prefix}enable">
+        <command_interface name="digital_output_enable" data_type="bool" /> 
+        <state_interface name="digital_input_enable" data_type="bool" />
+      </gpio>
+
+      <gpio name="${prefix}reset">
+        <command_interface name="digital_output_reset" data_type="bool" /> 
+        <state_interface name="digital_input_reset" data_type="bool" />
+      </gpio> -->
+      <!-- <gpio name="${prefix}dio_arm">
+        <param name="can_id">0x80</param>
+        <command_interface name="digital_output_0" data_type="bool" />
+        <command_interface name="digital_output_1" data_type="bool" />
+        <state_interface name="digital_input_0" data_type="bool" />
+        <state_interface name="digital_input_1" data_type="bool" />
+      </gpio> -->
+
     </ros2_control>
   </xacro:macro>
 </robot>

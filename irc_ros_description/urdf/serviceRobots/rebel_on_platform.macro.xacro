@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="rebel_on_platform" >
+
+  <xacro:include filename="$(find irc_ros_description)/urdf/serviceRobots/rebel_on_platform.description.xacro" />
+  <xacro:include filename="$(find irc_ros_description)/urdf/serviceRobots/rebel_on_platform.ros2_control.xacro" />
+  
+  <xacro:macro name="rebel_on_platform" params="prefix hardware_protocol continuous_last_joint rebel_version">
+      <xacro:rebel_on_platform_description prefix="${prefix}" continuous_last_joint="${continuous_last_joint}" />
+      <xacro:rebel_on_platform_ros2_control prefix="${prefix}" hardware_protocol="${hardware_protocol}" continuous_last_joint="${continuous_last_joint}" />
+  </xacro:macro>
+</robot>

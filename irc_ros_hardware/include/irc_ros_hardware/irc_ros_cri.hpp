@@ -6,7 +6,13 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <queue>
+#include <chrono> 
 
+#include "geometry_msgs/msg/twist.hpp"
+#include "rclcpp/rclcpp.hpp"
+
+#include "CRI/cri_keywords.hpp"
 #include "CRI/cri_messages.hpp"
 #include "CRI/cri_socket.hpp"
 #include "hardware_interface/system_interface.hpp"
@@ -37,6 +43,8 @@ private:
   std::thread messageThread;
   int aliveWaitMs;
 
+  bool new_msg;
+  
   int cmd_counter;
   std::mutex counterLock;
   std::mutex aliveLock;
@@ -49,6 +57,33 @@ private:
   std::vector<double> set_pos_;  // [rad]
   std::vector<double> set_pos_last_;
   std::vector<double> set_vel_;  // percentage of the maximum speed
+
+  int currMotionType = 0;
+  std::array<std::string, 4> motionModes = {cri_keywords::COMMAND_MOTIONTYPEPLATFORM,
+                                            cri_keywords::COMMAND_MOTIONTYPECARTBASE, 
+                                            cri_keywords::COMMAND_MOTIONTYPECARTTOOL,
+                                            cri_keywords::COMMAND_MOTIONTYPEJOINT};
+
+
+  double enabled_;
+  double set_enabled_;
+
+  double reset_;
+  double set_reset_;
+
+  std::chrono::time_point<std::chrono::system_clock> lastCMDstamp; 
+
+  //Platform specific
+  std::vector<double> set_vel_platform_;
+  std::vector<double> vel_platform_;
+  std::vector<double> platform_dig_in_;
+  std::vector<double> platform_dig_out_;
+
+  //For platform no controller is necessary; directly subscribe to twist messages
+  // bool subscriber_is_active_ = false;
+  // rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr velocity_command_subscriber_ = nullptr;
+
+  // std::queue<geometry_msgs::msg::Twist> previous_commands_;
 
   // Used to counteract the offsets in EmbeddedCtrl, read from .ros2_control.xacro files
   std::vector<double> pos_offset_;  // [rad]
@@ -70,6 +105,8 @@ private:
   void Command(const std::string &);
   void GetConfig(const std::string &);
 
+  // void SetMotionType(const std::string &);
+
   void GetReferencingInfo();
 
   // Function to react to specific status values, to display warnings, error messages, etc.
@@ -79,6 +116,8 @@ private:
   double move_velocity = 50.0f;
   void CmdMove();
   void CmdDout();
+
+  void CmdChangeJogMode(int modeIdx);
 
 public:
   IrcRosCri();
