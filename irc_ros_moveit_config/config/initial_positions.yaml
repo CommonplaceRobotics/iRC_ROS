@@ -1,9 +1,0 @@
-# Default initial positions for igus_rebel_6dof's ros2_control fake system
-
-initial_positions:
-  <prefix>joint1: 0
-  <prefix>joint2: 0
-  <prefix>joint3: 0
-  <prefix>joint4: 0
-  <prefix>joint5: 0
-  <prefix>joint6: 0

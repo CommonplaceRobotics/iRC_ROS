@@ -32,13 +32,6 @@ add_library( ${PROJECT_NAME} SHARED
   src/irc_ros_cri.cpp
   src/CRI/cri_socket.cpp
   src/CRI/cri_messages.cpp
-  src/irc_ros_can.cpp
-  src/CAN/module.cpp
-  src/CAN/joint.cpp
-  src/CAN/digital_io.cpp
-  src/CAN/can_message.cpp
-  src/CAN/can_interface.cpp
-  src/CAN/can_socket.cpp
 )
 
 target_include_directories( ${PROJECT_NAME} PRIVATE
