@@ -36,6 +36,10 @@
         
         <state_interface name="is_enabled" data_type="double" />
         <state_interface name="is_reset" data_type="double" />
+
+        <state_interface name="PlatformPositionX" data_type="double" />
+        <state_interface name="PlatformPositionY" data_type="double" />
+        <state_interface name="PlatformRotationZ" data_type="double" />
       </gpio>
               <!-- Include the joint module macro -->
       

@@ -193,7 +193,7 @@ void IrcRosCri::ProcessStatus(const cri_messages::Status & status)
   cri_messages::Kinstate currentKinstate = status.kinstate;
   std::array<int, 16> currentErrorJoints = status.errorJoints;
 
-  // TODO: Cleanup
+ // TODO: Cleanup
   if (lastKinstate != currentKinstate) {
     if (lastKinstate != cri_messages::Kinstate::NO_ERROR) {
       RCLCPP_INFO(
@@ -354,6 +354,7 @@ hardware_interface::CallbackReturn IrcRosCri::on_init(const hardware_interface::
       
       platform_dig_in_ = {0.0f, 0.0f, 0.0f};
       platform_dig_out_ = {0.0f, 0.0f, 0.0f};
+      posCartPlatform_.resize(3, 0.0);
     }
   }
 
@@ -455,7 +456,11 @@ std::vector<hardware_interface::StateInterface> IrcRosCri::export_state_interfac
       state_interfaces.emplace_back(gpio.name, "is_reset", &platform_dig_in_[1]);
       state_interfaces.emplace_back(gpio.name, "forward_vel", &vel_platform_[0]);
       state_interfaces.emplace_back(gpio.name, "lateral_vel", &vel_platform_[1]);
-      state_interfaces.emplace_back(gpio.name, "angular_vel", &vel_platform_[2]); 
+      state_interfaces.emplace_back(gpio.name, "angular_vel", &vel_platform_[2]);
+
+      state_interfaces.emplace_back(gpio.name, "PlatformPositionX", &posCartPlatform_[0]);
+      state_interfaces.emplace_back(gpio.name, "PlatformPositionY", &posCartPlatform_[1]);
+      state_interfaces.emplace_back(gpio.name, "PlatformRotationZ", &posCartPlatform_[2]); 
     }
   }
 
@@ -524,6 +529,11 @@ hardware_interface::return_type IrcRosCri::read(const rclcpp::Time &, const rclc
     pos_[i] = temp_pos[i] * M_PI / 180.0;
   }
 
+  std::vector<double> temp_pos_pltf = posCartPlatform_;
+
+  std::copy(currentStatus.posCartPlattform.begin(), currentStatus.posCartPlattform.begin() + temp_pos_pltf.size(), 
+            temp_pos_pltf.begin());
+  
   // Find if motors are enabled
   ErrorState errorState;
   // int errCount = 0;
@@ -615,6 +625,9 @@ hardware_interface::return_type IrcRosCri::write(const rclcpp::Time &, const rcl
       Command(cri_keywords::COMMAND_DISABLE);
       CmdChangeJogMode((int)platform_dig_out_[2]);
       currMotionType = (int) platform_dig_out_[2];
+      RCLCPP_INFO(
+            rclcpp::get_logger("iRC_ROS"), "Change MotionType to: %s!", motionModes[currMotionType].c_str()
+      );
     }
     if (new_msg)
     {

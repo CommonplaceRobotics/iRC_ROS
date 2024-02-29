@@ -80,7 +80,8 @@ private:
   std::vector<double> vel_platform_;
   std::vector<double> platform_dig_in_;
   std::vector<double> platform_dig_out_;
-
+  std::vector<double> posCartPlatform_;
+  
   //For platform no controller is necessary; directly subscribe to twist messages
   // bool subscriber_is_active_ = false;
   // rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr velocity_command_subscriber_ = nullptr;

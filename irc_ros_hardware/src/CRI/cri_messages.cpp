@@ -206,6 +206,7 @@ Status::Status(const std::string & messageString) : CriMessage(MessageType::STAT
       rclcpp::get_logger("iRC_ROS::CRI"), "Bad parsing error for message \"%s\"",
       messageString.c_str());
     return;
+  
   }
 
   std::string modeString = ParseMessageString(

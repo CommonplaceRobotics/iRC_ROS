@@ -29,11 +29,13 @@ private:
   std::mutex socketWriteLock;
   std::mutex connectionLock;
   std::mutex messageLock;
+  
+  std::string oldMsg;
   int maxUnprocessedMessages;
   int listCheckWaitMs;
 
   bool connectionNeeded;
-  static const int bufferSize = 4096;
+  static const int bufferSize = 400 * 1024;
 
   std::array<char, bufferSize> fragmentBuffer;
   int fragmentLength;
