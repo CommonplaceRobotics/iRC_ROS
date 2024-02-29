@@ -57,7 +57,7 @@ def generate_launch_description():
         [
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(
-                    [irc_ros_bringup_launch_dir, "/rebel_debug.launch.py"]
+                    [irc_ros_bringup_launch_dir, "/rebel.launch.py"]
                 ),
                 launch_arguments={
                     "namespace": "/rebel_1",
@@ -76,7 +76,7 @@ def generate_launch_description():
         [
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(
-                    [irc_ros_bringup_launch_dir, "/cpr_platform.launch.py"]
+                    [irc_ros_bringup_launch_dir, "/cpr_platform_debug.launch.py"]
                 ),
                 launch_arguments={
                     "namespace": "/platform_1",

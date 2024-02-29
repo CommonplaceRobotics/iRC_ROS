@@ -211,7 +211,7 @@ private:
 
                 Enable();    
             }
-            if (ch == 'd')
+            if (ch == 'w')
             {   
                 m_mutex.lock();
                 lin_x = 0.0;
