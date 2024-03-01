@@ -53,6 +53,9 @@ Module info and control is done via the dashboard found in the `irc_ros_dashboar
     
 ### Movement commands
 The [CPRCAN V2 startup sequence](https://cpr-robots.com/download/CAN/CPR_CAN_Protocol_V2_UserGuide_en.pdf) combined with the desire to easily switch between position, velocity and torque control is integrated with an internal state that depends on the claimed interfaces. Only one of the interfaces may be used at the same time.
+### Cartesian Commands
+- Cartesian velocity for robot arm
+- Cartesian velocity for platform 
 
 ### State machine
 These are the current plans and/or statii of the different state machines. Once these are tested with all different hardware combinations these diagrams should be redone in a nicer design.
