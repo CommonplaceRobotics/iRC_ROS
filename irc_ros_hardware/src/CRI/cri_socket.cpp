@@ -82,29 +82,33 @@ void CriSocket::SeparateMessages(const char * msg)
   const char * start;
   const char * end = msg;
 
-  if (fragmentLength != 0) {
-    start = std::strstr(msg, cri_keywords::START.c_str());
-    end = std::strstr(msg, cri_keywords::END.c_str());
+  //Dont try to recombine fragmented msgs, because usually result is not sensible
+  // if (fragmentLength != 0) {
+  //   start = std::strstr(msg, cri_keywords::START.c_str());
+  //   end = std::strstr(msg, cri_keywords::END.c_str());
 
-    if (end == nullptr || (start != nullptr && end > start)) {
-      std::string result1(fragmentBuffer.front(), fragmentLength);
-      RCLCPP_ERROR(
-        rclcpp::get_logger("iRC_ROS::CRI"),
-        "There was a partial robot message: %s, %s", msg, result1.c_str());
-    } else {
-      // TODO: Test if the following line has been broken by C array to std::array
-      std::string result1(fragmentBuffer.front(), fragmentLength);
-      std::string result2(msg, end - msg);
+  //   if (end == nullptr || (start != nullptr && end > start)) {
+  //     std::string result1(fragmentBuffer.front(), fragmentLength);
+  //     RCLCPP_ERROR(
+  //       rclcpp::get_logger("iRC_ROS::CRI"),
+  //       "Could not find end of CRI-Message. Discard!");
+  //   } else {
+  //     // TODO: Test if the following line has been broken by C array to std::array
+  //     std::string result1(fragmentBuffer.front(), fragmentLength);
+  //     std::string result2(msg, end - msg);
+  //     RCLCPP_INFO(rclcpp::get_logger("iRC_ROS::CRI"), "msg0: %s + msg1: %s", result1.c_str(), result2.c_str());
 
-      {
-        std::lock_guard<std::mutex> lockGuard(messageLock);
+  //     {
+  //       std::lock_guard<std::mutex> lockGuard(messageLock);
 
-        unprocessedMessages.push_front(result1 + result2);
-      }
-    }
-    fragmentBuffer = {0};
-    fragmentLength = 0;
-  }
+  //       unprocessedMessages.push_front(result1 + result2);
+
+        
+  //     }
+  //   }
+  //   // fragmentBuffer = {0};
+  //   fragmentLength = 0;
+  // }
 
   while (true) {
     start = std::strstr(end, cri_keywords::START.c_str());
@@ -117,21 +121,21 @@ void CriSocket::SeparateMessages(const char * msg)
 
     if (end == nullptr) {
       // Found a start without end.
-      const char * remainingStart = start + cri_keywords::START.size();
-      const char * remainingEnd = std::strchr(remainingStart, '\0');
+      // const char * remainingStart = start + cri_keywords::START.size();
+      // const char * remainingEnd = std::strchr(remainingStart, '\0');
 
-      oldMsg = std::string(msg);
+      // oldMsg = std::string(msg);
 
-      if (remainingEnd != nullptr) {
-        fragmentLength = remainingEnd - remainingStart;
+      // if (remainingEnd != nullptr) {
+      //   fragmentLength = remainingEnd - remainingStart;
 
-        for (int i = 0; i < fragmentLength; i++) {
-          fragmentBuffer[i] = *(remainingStart + i);
-        }
-      } else {
-        RCLCPP_ERROR(
-          rclcpp::get_logger("iRC_ROS::CRI"), "Socket read was not null-terminated, somehow.");
-      }
+      //   for (int i = 0; i < fragmentLength; i++) {
+      //     fragmentBuffer[i] = *(remainingStart + i);
+      //   }
+      // } else {
+      //   RCLCPP_ERROR(
+      //     rclcpp::get_logger("iRC_ROS::CRI"), "Socket read was not null-terminated, somehow.");
+      // }
 
       break;
     }
@@ -145,6 +149,8 @@ void CriSocket::SeparateMessages(const char * msg)
     }
   }
 }
+
+
 
 void CriSocket::ReceiveThreadFunction()
 {
@@ -167,6 +173,8 @@ void CriSocket::ReceiveThreadFunction()
         connectionNeeded = true;
       } else {
         SeparateMessages(buffer);
+        //Clear buffer
+        std::fill_n(buffer, bufferSize, '\0');
       }
     }
 

@@ -73,25 +73,35 @@ void CriMessage::FillArray(std::array<T, N> & array, const std::string & spaceSe
     }
 
     std::string value = spaceSeparatedValues.substr(begin, end - begin);
-    try
-    {
+    
       if (std::is_same<float, T>::value) {
-        array.at(idx) = std::stof(value);
+        try
+        {
+          array.at(idx) = std::stof(value);
+        }
+        catch(std::invalid_argument)
+        {
+          RCLCPP_FATAL(
+            rclcpp::get_logger("CRI ERROR"), "Value: %s", value.c_str()
+          );
+          throw;
+        }
       }
 
       if (std::is_same<int, T>::value) {
-        array.at(idx) = std::stoi(value);
+        try
+        {
+          array.at(idx) = std::stoi(value);
+        }
+        catch(std::invalid_argument)
+        {
+          RCLCPP_FATAL(
+            rclcpp::get_logger("CRI ERROR"), "Value: %s", value.c_str()
+          );
+          throw;
+        }
       }
-
-    }catch(std::invalid_argument)
-    {
-      RCLCPP_FATAL(
-        rclcpp::get_logger("CRI ERROR"), "Value: %s", value.c_str()
-      );
-      throw;
-    }
-
-    
+      
     begin = spaceSeparatedValues.find(" ", end);
     end = spaceSeparatedValues.find(" ", begin + 1);
     idx++;
@@ -103,11 +113,31 @@ void CriMessage::FillArray(std::array<T, N> & array, const std::string & spaceSe
   //   rclcpp::get_logger("iRC_ROS::CRI"), "value ERr: %s", value.c_str()
   // );
   if (std::is_same<float, T>::value) {
-    array.at(idx) = std::stof(value);
+    try
+    {
+      array.at(idx) = std::stoi(value);
+    }
+    catch(std::invalid_argument)
+    {
+      RCLCPP_FATAL(
+        rclcpp::get_logger("CRI ERROR"), "Value: %s", value.c_str()
+      );
+      throw;
+    }
   }
 
   if (std::is_same<int, T>::value) {
-    array.at(idx) = std::stoi(value);
+    try
+    {
+      array.at(idx) = std::stoi(value);
+    }
+    catch(std::invalid_argument)
+    {
+      RCLCPP_FATAL(
+        rclcpp::get_logger("CRI ERROR"), "Value: %s", value.c_str()
+      );
+      throw;
+    }
   }
 }
 
@@ -121,11 +151,31 @@ void CriMessage::FillVector(std::vector<T> & vector, const std::string & spaceSe
     std::string value = spaceSeparatedValues.substr(begin, end - begin);
 
     if (std::is_same<float, T>::value) {
-      vector.push_back(std::stof(value));
+      try
+      {
+        vector.push_back(stof(value));
+      }
+      catch(std::invalid_argument)
+      {
+        RCLCPP_FATAL(
+          rclcpp::get_logger("CRI ERROR"), "Value: %s", value.c_str()
+        );
+        throw;
+      }
     }
 
     if (std::is_same<int, T>::value) {
-      vector.push_back(std::stoi(value));
+      try
+      {
+        vector.push_back(stoi(value));
+      }
+      catch(std::invalid_argument)
+      {
+        RCLCPP_FATAL(
+          rclcpp::get_logger("CRI ERROR"), "Value: %s", value.c_str()
+        );
+        throw;
+      }
     }
 
     begin = spaceSeparatedValues.find(" ", end);
@@ -135,11 +185,31 @@ void CriMessage::FillVector(std::vector<T> & vector, const std::string & spaceSe
   std::string value = spaceSeparatedValues.substr(begin);
 
   if (std::is_same<float, T>::value) {
-    vector.push_back(std::stof(value));
+    try
+    {
+      vector.push_back(stof(value));
+    }
+    catch(std::invalid_argument)
+    {
+      RCLCPP_FATAL(
+        rclcpp::get_logger("CRI ERROR"), "Value: %s", value.c_str()
+      );
+      throw;
+    }
   }
 
   if (std::is_same<int, T>::value) {
-    vector.push_back(std::stoi(value));
+    try
+    {
+      vector.push_back(stoi(value));
+    }
+    catch(std::invalid_argument)
+    {
+      RCLCPP_FATAL(
+        rclcpp::get_logger("CRI ERROR"), "Value: %s", value.c_str()
+      );
+      throw;
+    }
   }
 }
 
@@ -249,18 +319,84 @@ Status::Status(const std::string & messageString) : CriMessage(MessageType::STAT
   mode = GetMode(modeString);
 
   FillArray(posJointSetPoint, posJointSetPointString);
-  FillArray(posJointCurrent, posJointCurrentString);
-  FillArray(posCartRobot, posCartRobotString);
-  FillArray(posCartPlattform, posCartPlattformString);
   
-  overrideValue = std::stof(overrideValueString);
-  digital_in = std::stoi(dinString);    // TODO: Process further to actual meaning
-  digital_out = std::stoi(doutString);  // TODO: Process further to actual meaning
-  eStop = std::stoi(eStopString);       // TODO: Process further to actual meaning
-  supply = std::stoi(supplyString);
-  currentall = std::stoi(currentallString);
+  
+  FillArray(posJointCurrent, posJointCurrentString);
+  
+  
+  FillArray(posCartRobot, posCartRobotString);
+  
+  
+  FillArray(posCartPlattform, posCartPlattformString);
+  try
+  {
+      overrideValue = std::stof(overrideValueString);
+  }
+  catch(std::invalid_argument)
+  {
+    RCLCPP_FATAL(
+      rclcpp::get_logger("CRI ERROR"), "Value: %s", overrideValueString.c_str()
+    );
+    throw;
+  }
+  
+  try
+  {
+      digital_in = std::stoi(dinString);
+  }
+  catch(std::invalid_argument)
+  {
+    RCLCPP_FATAL(
+      rclcpp::get_logger("CRI ERROR"), "Value: %s", dinString.c_str()
+    );
+    throw;
+  }
+  try
+  {
+      digital_out = std::stoi(doutString);  // TODO: Process further to actual meaning
+  }
+  catch(std::invalid_argument)
+  {
+    RCLCPP_FATAL(
+      rclcpp::get_logger("CRI ERROR"), "Value: %s", doutString.c_str()
+    );
+    throw;
+  }
+  try
+  {
+      eStop = std::stoi(eStopString);       // TODO: Process further to actual meaning
+  }
+  catch(std::invalid_argument)
+  {
+    RCLCPP_FATAL(
+      rclcpp::get_logger("CRI ERROR"), "Value: %s", eStopString.c_str()
+    );
+    throw;
+  }
+  try
+  {
+      supply = std::stoi(supplyString);
+  }
+  catch(std::invalid_argument)
+  {
+    RCLCPP_FATAL(
+      rclcpp::get_logger("CRI ERROR"), "Value: %s", supplyString.c_str()
+    );
+    throw;
+  }
 
-
+  try
+  {
+    currentall = std::stoi(currentallString);
+  }
+  catch(std::invalid_argument)
+  {
+    RCLCPP_FATAL(
+      rclcpp::get_logger("CRI ERROR"), "Value: %s", currentallString.c_str()
+    );
+    throw;
+  }
+  
   FillArray(currentjoints, currentjointsString);
   // errorSummary already set above.
   FillArray(errorJoints, errorJointsString);  // TODO: Process further to actual meaning
@@ -340,10 +476,21 @@ Kinstate Status::GetKinstate(const std::string & kinstateString)
 {
   // RCLCPP_INFO(
   //   rclcpp::get_logger("iRC_ROS::CRI"), "Converting Kinstate %s", kinstateString.c_str());
-  int kinstateInt = std::stoi(kinstateString);
+  try
+  {
+    int kinstateInt = std::stoi(kinstateString);
+    // TODO: How to handle unknown states?
+    auto kinstate = static_cast<Kinstate>(kinstateInt);
+  }
+  catch(std::invalid_argument)
+  {
+    RCLCPP_FATAL(
+          rclcpp::get_logger("CRI ERROR"), "Value: %s", kinstateString.c_str()
+    );
+    throw;
+  }
 
-  // TODO: How to handle unknown states?
-  auto kinstate = static_cast<Kinstate>(kinstateInt);
+  
 
   return kinstate;
 }

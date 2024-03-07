@@ -356,6 +356,12 @@ hardware_interface::CallbackReturn IrcRosCri::on_init(const hardware_interface::
       platform_dig_out_ = {0.0f, 0.0f, 0.0f};
       posCartPlatform_.resize(3, 0.0);
     }
+
+    if (gpio.name == "rebel")
+    {
+      set_cart_vel_rebel_.resize(6, 0.0);
+    }
+
   }
 
   while(jog_array.size() < set_vel_platform_.size())
@@ -462,6 +468,8 @@ std::vector<hardware_interface::StateInterface> IrcRosCri::export_state_interfac
       state_interfaces.emplace_back(gpio.name, "PlatformPositionY", &posCartPlatform_[1]);
       state_interfaces.emplace_back(gpio.name, "PlatformRotationZ", &posCartPlatform_[2]); 
     }
+
+    
   }
 
   return state_interfaces;
@@ -503,6 +511,18 @@ std::vector<hardware_interface::CommandInterface> IrcRosCri::export_command_inte
         counter++;
       }
     }
+
+    if (gpio.name == "rebel")
+    {
+      command_interfaces.emplace_back(gpio.name, "lin_x", &set_cart_vel_rebel_[0]);
+      command_interfaces.emplace_back(gpio.name, "lin_y", &set_cart_vel_rebel_[1]);
+      command_interfaces.emplace_back(gpio.name, "lin_z", &set_cart_vel_rebel_[2]);
+
+      command_interfaces.emplace_back(gpio.name, "rot_x", &set_cart_vel_rebel_[3]);
+      command_interfaces.emplace_back(gpio.name, "rot_y", &set_cart_vel_rebel_[4]);
+      command_interfaces.emplace_back(gpio.name, "rot_z", &set_cart_vel_rebel_[5]);
+    }
+
   }
 
   RCLCPP_INFO(
@@ -601,7 +621,8 @@ hardware_interface::return_type IrcRosCri::write(const rclcpp::Time &, const rcl
     }
   }
   // Velocity command
-  else if (std::none_of(set_vel_.begin(), set_vel_.end(), [](double d) { return std::isnan(d); })) {
+  else if (std::none_of(set_vel_.begin(), set_vel_.end(), [](double d) { return std::isnan(d); }) &&
+            currMotionType == 3) {
     // Simply use the velocities in the jog message
     std::copy(set_vel_.begin(), set_vel_.end(), jog_array.begin());
   }
@@ -610,6 +631,16 @@ hardware_interface::return_type IrcRosCri::write(const rclcpp::Time &, const rcl
     std::fill(jog_array.begin(), jog_array.end(), 0.0f);
   }
 
+  if(std::none_of(set_cart_vel_rebel_.begin(), set_cart_vel_rebel_.end(), [](double d) { return std::isnan(d); }))
+  { 
+    if (currMotionType == 1 || currMotionType == 2)
+    { 
+      std::copy(set_cart_vel_rebel_.begin(), set_cart_vel_rebel_.end(), jog_array.begin());
+    }
+  }
+
+
+  
   //******************************************PLATFORM COMMANDS***************************************************
   //Platform Movement
   if (currMotionType == 0 && std::none_of(set_vel_platform_.begin(), set_vel_platform_.end(), [](double d) {return std::isnan(d);}))
