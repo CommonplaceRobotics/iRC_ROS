@@ -77,7 +77,15 @@
       - <prefix>platform/enable
       - <prefix>platform/reset
       - <prefix>platform/setMotionType
-      
+    
+    cartesian_velocity_cmd:
+      - <prefix>rebel/lin_x
+      - <prefix>rebel/lin_y
+      - <prefix>rebel/lin_z
+      - <prefix>rebel/rot_x
+      - <prefix>rebel/rot_y
+      - <prefix>rebel/rot_z
+
     platform_width: 0.320
     platform_length: 0.300
 

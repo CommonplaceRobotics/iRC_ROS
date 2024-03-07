@@ -32,7 +32,12 @@ namespace irc_ros_controllers
             conf_names.emplace_back(name);
         }
         
-        for (std::string name : commandedTwist)
+        for (std::string name : commandedTwist_pltf)
+        {
+            conf_names.emplace_back(name);
+        }
+        
+        for (std::string name : commandedTwist_arm)
         {
             conf_names.emplace_back(name);
         }
@@ -72,6 +77,36 @@ namespace irc_ros_controllers
                 continue;
             }
             if(ci.get_name() == "platform/angular_cmd")
+            {
+                ci.set_value(cmd.angular.z);
+                continue;
+            }
+            if(ci.get_name() == "rebel/lin_x")
+            {   
+                ci.set_value(cmd.linear.x);
+                continue;
+            }
+            if(ci.get_name() == "rebel/lin_y")
+            {
+                ci.set_value(cmd.linear.y);
+                continue;
+            }
+            if(ci.get_name() == "rebel/lin_z")
+            {
+                ci.set_value(cmd.linear.z);
+                continue;
+            }
+            if(ci.get_name() == "rebel/rot_x")
+            {
+                ci.set_value(cmd.angular.x);
+                continue;
+            }
+            if(ci.get_name() == "rebel/rot_y")
+            {
+                ci.set_value(cmd.angular.y);
+                continue;
+            }
+            if(ci.get_name() == "rebel/rot_z")
             {
                 ci.set_value(cmd.angular.z);
             }
@@ -119,7 +154,9 @@ namespace irc_ros_controllers
     {
         std::string name = get_node()->get_name();
         get_node()->get_parameter("curr_vels", currentTwist);
-        get_node()->get_parameter("cmd_vels", commandedTwist);
+        get_node()->get_parameter("cmd_vels", commandedTwist_pltf);
+
+        get_node()->get_parameter("cartesian_velocity_cmd", commandedTwist_arm);
 
         get_node()->get_parameter("digital_inputs", digital_inputs);
         get_node()->get_parameter("digital_outputs", digital_outputs);

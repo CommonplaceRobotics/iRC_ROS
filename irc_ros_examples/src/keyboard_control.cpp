@@ -142,7 +142,7 @@ private:
     {
         while(rclcpp::ok())
         {
-            if (motionType == 0)
+            if (motionType <= 2)
             {
                 PublishTwist();
             }
@@ -276,9 +276,9 @@ private:
             m_mutex.lock();
             if (ch == 'a')
             {   
-                if (motionType == 0)
+                if (motionType <= 2)
                 {   
-                    lin_x += 0.5;
+                    lin_x += 0.1;
                 }
                 else
                 {   
@@ -288,9 +288,9 @@ private:
             }   
             if (ch == 's')
             {
-                if (motionType == 0)
+                if (motionType <= 2)
                 {
-                    lin_y += 0.5;
+                    lin_y += 0.1;
                 }
                 else
                 {
@@ -299,9 +299,9 @@ private:
             }
             if (ch == 'd')
             {   
-                if (motionType == 0)
+                if (motionType <= 2)
                 {
-                    lin_z += 0.5;
+                    lin_z += 0.1;
                 }
                 else
                 {
@@ -310,9 +310,9 @@ private:
             }
             if (ch == 'f')
             {
-                if (motionType == 0)
+                if (motionType <= 2)
                 {
-                    rot_x += 0.5;
+                    rot_x += 0.1;
                 }
                 else
                 {
@@ -321,9 +321,9 @@ private:
             }
             if (ch == 'g')
             {
-                if (motionType == 0)
+                if (motionType <= 2)
                 {
-                    rot_y += 0.5;
+                    rot_y += 0.1;
                 }
                 else
                 {
@@ -333,9 +333,9 @@ private:
 
             if (ch == 'h')
             {
-                if (motionType == 0)
+                if (motionType <= 2)
                 {
-                    rot_z += 0.5;
+                    rot_z += 0.1;
                 }
                 else
                 {
@@ -345,9 +345,9 @@ private:
 //*************************************NEGATIVE MOVEMENT COMMANDS***********************************
             if (ch == 'y')
             {   
-                if (motionType == 0)
+                if (motionType <= 2)
                 {
-                    lin_x -= 0.5;
+                    lin_x -= 0.1;
                 }
                 else
                 {
@@ -356,9 +356,9 @@ private:
             }   
             if (ch == 'x')
             {
-                if (motionType == 0)
+                if (motionType <= 2)
                 {
-                    lin_y -= 0.5;
+                    lin_y -= 0.1;
                 }
                 else
                 {
@@ -368,9 +368,9 @@ private:
             //lateral
             if (ch == 'c')
             {   
-                if (motionType == 0)
+                if (motionType <= 2)
                 {
-                    lin_z -= 0.5;
+                    lin_z -= 0.1;
                 }
                 else
                 {
@@ -379,9 +379,9 @@ private:
             }
             if (ch == 'v')
             {
-                if (motionType == 0)
+                if (motionType <= 2)
                 {
-                    rot_x -= 0.5;
+                    rot_x -= 0.1;
                 }
                 else
                 {
@@ -391,9 +391,9 @@ private:
             //rotation
             if (ch == 'b')
             {
-                if (motionType == 0)
+                if (motionType <= 2)
                 {
-                    rot_y -= 0.5;
+                    rot_y -= 0.1;
                 }
                 else
                 {
@@ -403,9 +403,9 @@ private:
 
             if (ch == 'n')
             {
-                if (motionType == 0)
+                if (motionType <= 2)
                 {
-                    rot_z -= 0.5;
+                    rot_z -= 0.1;
                 }
                 else
                 {

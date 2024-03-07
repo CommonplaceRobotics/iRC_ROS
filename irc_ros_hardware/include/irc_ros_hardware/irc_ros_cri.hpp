@@ -82,6 +82,9 @@ private:
   std::vector<double> platform_dig_out_;
   std::vector<double> posCartPlatform_;
   
+  //Cartesian Commands for Robot arm
+  std::vector<double> set_cart_vel_rebel_;
+
   //For platform no controller is necessary; directly subscribe to twist messages
   // bool subscriber_is_active_ = false;
   // rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr velocity_command_subscriber_ = nullptr;

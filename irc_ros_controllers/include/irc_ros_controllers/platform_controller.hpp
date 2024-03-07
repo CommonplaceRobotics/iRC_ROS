@@ -62,8 +62,10 @@ void set_motiontype_sub_callback(const irc_ros_msgs::msg::DioIntCommand & comman
 
 std::queue<geometry_msgs::msg::Twist> previous_commands_; 
 
-std::vector<std::string> commandedTwist;
+std::vector<std::string> commandedTwist_pltf;
 std::vector<std::string> currentTwist;
+
+std::vector<std::string> commandedTwist_arm;
 
 std::vector<std::string> digital_inputs;
 std::vector<std::string> digital_outputs;
