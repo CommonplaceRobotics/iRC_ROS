@@ -26,6 +26,8 @@
         <command_interface name="forward_cmd" data_type="double" />
         <command_interface name="lateral_cmd" data_type="double" />
         <command_interface name="angular_cmd" data_type="double" />
+        
+        
         <state_interface name="forward_vel" data_type="double" />
         <state_interface name="lateral_vel" data_type="double" />
         <state_interface name="angular_vel" data_type="double" />
@@ -79,6 +81,15 @@
         <state_interface name="digital_input_1" data_type="bool" />
       </gpio>
       
+      <gpio name="${prefix}rebel">
+        <command_interface name="lin_x" data_type="double" />
+        <command_interface name="lin_y" data_type="double" />
+        <command_interface name="lin_z" data_type="double" />
+        <command_interface name="rot_x" data_type="double" />
+        <command_interface name="rot_y" data_type="double" />
+        <command_interface name="rot_z" data_type="double" />
+      </gpio> 
+
     </ros2_control>
   </xacro:macro>
 </robot>
