@@ -61,6 +61,9 @@ private:
   std::array<int, 16> lastErrorJoints;
   std::string kinstateMessage;
 
+  // CRI version: -1 if unknown, 16 for iRC/TinyCtrl V13, 17 for iRC/Core V14
+  int criVersion = -1;
+
   // Thread functions
   void AliveThreadFunction();
   void MessageThreadFunction();

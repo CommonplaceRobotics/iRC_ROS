@@ -32,10 +32,14 @@ MessageType CriMessage::GetMessageType(const std::string & msg)
     {cri_keywords::TYPE_CONFIG, MessageType::CONFIG},
     {cri_keywords::TYPE_INFO, MessageType::INFO},
     {cri_keywords::TYPE_CMDACK, MessageType::CMDACK},
+    //{cri_keywords::TYPE_CMDERROR, MessageType::CMDERROR},
     {cri_keywords::TYPE_EXECACK, MessageType::EXECACK},
     {cri_keywords::TYPE_EXECPAUSE, MessageType::EXECPAUSE},
     {cri_keywords::TYPE_EXECEND, MessageType::EXECEND},
     {cri_keywords::TYPE_EXECPAUSE, MessageType::EXECPAUSE},
+    {cri_keywords::TYPE_LOGMSG, MessageType::LOGMSG},
+    {cri_keywords::TYPE_USERFRAMES, MessageType::USERFRAMES},
+    {cri_keywords::TYPE_VARIABLES, MessageType::VARIABLES},
   };
 
   auto it = message_type_map.find(typeString);
@@ -160,7 +164,7 @@ std::string CriMessage::VectorToString(std::vector<T> & vector)
   return msg.str();
 }
 
-Status::Status(const std::string & messageString) : CriMessage(MessageType::STATUS)
+Status::Status(const std::string & messageString, int criVersion) : CriMessage(MessageType::STATUS)
 {
   // RCLCPP_INFO(rclcpp::get_logger("iRC_ROS::CRI"), "%s", messageString.c_str());
 
@@ -238,8 +242,20 @@ Status::Status(const std::string & messageString) : CriMessage(MessageType::STAT
   FillArray(posCartRobot, posCartRobotString);
   FillArray(posCartPlattform, posCartPlattformString);
   overrideValue = std::stof(overrideValueString);
-  digital_in = std::stoi(dinString);    // TODO: Process further to actual meaning
-  digital_out = std::stoi(doutString);  // TODO: Process further to actual meaning
+  switch (criVersion)
+  {
+  default:
+  case 16:
+      // FIXME (MAB): DIO have 64 bit but only 32 bit are read here!
+      digital_in = std::stoi(dinString);    // TODO: Process further to actual meaning
+      digital_out = std::stoi(doutString);  // TODO: Process further to actual meaning
+      break;
+  case 17:
+      // FIXME (MAB): DIO have 64 bit but only 32 bit are read here!
+      digital_in = std::stoi(dinString, nullptr, 16);    // TODO: Process further to actual meaning
+      digital_out = std::stoi(doutString, nullptr, 16);  // TODO: Process further to actual meaning
+      break;
+  }
   eStop = std::stoi(eStopString);       // TODO: Process further to actual meaning
   supply = std::stoi(supplyString);
   currentall = std::stoi(currentallString);
@@ -349,6 +365,10 @@ Info::Info(const std::string & messageString) : CriMessage(MessageType::INFO)
   std::string::size_type infoStart =
     messageString.find(cri_keywords::TYPE_INFO) + cri_keywords::TYPE_INFO.size() + 1;
   info = messageString.substr(infoStart);
+
+  if (info.find("Version") != std::string::npos) {
+      sscanf(info.c_str(), "Version %*s %d", &criVersion);
+  }
 }
 
 ConfigType Config::GetConfigType(const std::string & msg)

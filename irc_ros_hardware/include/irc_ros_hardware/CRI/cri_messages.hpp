@@ -34,10 +34,14 @@ enum class MessageType {
   CONFIG,
   INFO,
   CMDACK,
+  CMDERROR,
   EXECACK,
   EXECPAUSE,
   EXECEND,
   EXECERROR,
+  LOGMSG,
+  USERFRAMES,
+  VARIABLES,
   UNKNOWN = 1000
 };
 
@@ -109,7 +113,7 @@ public:
   std::array<int, 16> errorJoints;
   Kinstate kinstate;
 
-  explicit Status(const std::string &);
+  explicit Status(const std::string & messageString, int criVersion = -1);
   Status();
   void Print();
 
@@ -140,6 +144,8 @@ public:
   explicit Info(const std::string &);
 
   std::string info;
+  // CRI version: -1 if not defined in this message, 16 for iRC/TinyCtrl V13, 17 for iRC/Core V14
+  int criVersion = -1;
 };
 
 class Config : public CriMessage

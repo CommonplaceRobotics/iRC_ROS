@@ -91,7 +91,7 @@ void IrcRosCri::MessageThreadFunction()
 
       switch (type) {
         case cri_messages::MessageType::STATUS: {
-          cri_messages::Status status = cri_messages::Status(msg);
+          cri_messages::Status status = cri_messages::Status(msg, criVersion);
           // RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "SET: %f", status.posJointSetPoint.front());
           // RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "IS:  %f", status.posJointCurrent.front());
 
@@ -131,6 +131,7 @@ void IrcRosCri::MessageThreadFunction()
 
         case cri_messages::MessageType::INFO: {
           cri_messages::Info info = cri_messages::Info(msg);
+          if (info.criVersion != -1) criVersion = info.criVersion;
           RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "INFO: %s", info.info.c_str());
           break;
         }

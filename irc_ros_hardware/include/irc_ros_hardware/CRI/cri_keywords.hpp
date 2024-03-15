@@ -27,6 +27,9 @@ const std::string TYPE_EXECACK = "EXECACK";
 const std::string TYPE_EXECPAUSE = "EXECPAUSE";
 const std::string TYPE_EXECEND = "EXECEND";
 const std::string TYPE_EXECERROR = "EXECERROR";
+const std::string TYPE_LOGMSG = "LOGMSG";
+const std::string TYPE_USERFRAMES = "USERFRAMES";
+const std::string TYPE_VARIABLES = "VARIABLES";
 
 const std::string STATUS_MODE = "MODE";
 const std::string STATUS_POSJOINTSETPOINT = "POSJOINTSETPOINT";
