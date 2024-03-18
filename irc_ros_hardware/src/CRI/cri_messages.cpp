@@ -40,6 +40,7 @@ MessageType CriMessage::GetMessageType(const std::string & msg)
     {cri_keywords::TYPE_LOGMSG, MessageType::LOGMSG},
     {cri_keywords::TYPE_USERFRAMES, MessageType::USERFRAMES},
     {cri_keywords::TYPE_VARIABLES, MessageType::VARIABLES},
+    {cri_keywords::TYPE_CMDERROR, MessageType::CMDERROR}
   };
 
   auto it = message_type_map.find(typeString);

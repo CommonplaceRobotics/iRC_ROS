@@ -128,7 +128,6 @@ void IrcRosCri::MessageThreadFunction()
 
           break;
         }
-
         case cri_messages::MessageType::INFO: {
           cri_messages::Info info = cri_messages::Info(msg);
           if (info.criVersion != -1) criVersion = info.criVersion;
@@ -139,6 +138,11 @@ void IrcRosCri::MessageThreadFunction()
         case cri_messages::MessageType::EXECACK: {
           RCLCPP_INFO(rclcpp::get_logger("iRC_ROS"), "EXECACK received");
           break;
+        }
+        case cri_messages::MessageType::CMDERROR: 
+        {   
+            RCLCPP_ERROR(rclcpp::get_logger("iRC_ROS"), "CMDERROR: %s", msg.c_str());
+            break;
         }
       }
     }
