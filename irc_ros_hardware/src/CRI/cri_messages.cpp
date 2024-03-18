@@ -36,6 +36,7 @@ MessageType CriMessage::GetMessageType(const std::string & msg)
     {cri_keywords::TYPE_EXECPAUSE, MessageType::EXECPAUSE},
     {cri_keywords::TYPE_EXECEND, MessageType::EXECEND},
     {cri_keywords::TYPE_EXECPAUSE, MessageType::EXECPAUSE},
+    {cri_keywords::TYPE_CMDERROR, MessageType::CMDERROR}
   };
 
   auto it = message_type_map.find(typeString);

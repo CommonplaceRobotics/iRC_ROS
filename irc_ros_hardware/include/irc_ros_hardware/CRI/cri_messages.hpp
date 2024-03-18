@@ -38,6 +38,7 @@ enum class MessageType {
   EXECPAUSE,
   EXECEND,
   EXECERROR,
+  CMDERROR,
   UNKNOWN = 1000
 };
 
