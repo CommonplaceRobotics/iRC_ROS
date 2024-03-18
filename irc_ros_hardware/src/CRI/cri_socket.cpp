@@ -148,10 +148,13 @@ void CriSocket::ReceiveThreadFunction()
   char buffer[bufferSize] = {0};
 
   while (continueReceive) {
+    
+      
     if (connectionNeeded) {
       MakeConnection();
     }
 
+    std::fill_n(buffer, bufferSize, '\0');
     int valread = read(sock, buffer, bufferSize);
 
     if (!IsSocketOk()) {
