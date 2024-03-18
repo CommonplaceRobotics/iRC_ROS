@@ -144,6 +144,10 @@ void IrcRosCri::MessageThreadFunction()
             RCLCPP_ERROR(rclcpp::get_logger("iRC_ROS"), "CMDERROR: %s", msg.c_str());
             break;
         }
+        case cri_messages::MessageType::CYCLESTAT: 
+        {   
+            break;
+        }
       }
     }
   }
