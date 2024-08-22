@@ -144,10 +144,10 @@ void IrcRosCri::MessageThreadFunction()
             RCLCPP_ERROR(rclcpp::get_logger("iRC_ROS"), "CMDERROR: %s", msg.c_str());
             break;
         }
-        case cri_messages::MessageType::CYCLESTAT: 
+        /*case cri_messages::MessageType::CYCLESTAT: 
         {   
             break;
-        }
+        }*/
       }
     }
   }
@@ -336,7 +336,7 @@ hardware_interface::CallbackReturn IrcRosCri::on_init(const hardware_interface::
     } else {
       RCLCPP_WARN(
         rclcpp::get_logger("iRC_ROS"),
-        "No cri_joint_offset specified for joint %s, using default value of %lf", joint.name,
+        "No cri_joint_offset specified for joint %s, using default value of %lf", joint.name.c_str(),
         cri_joint_offset);
     }
     pos_offset_.push_back(cri_joint_offset);
