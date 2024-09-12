@@ -246,7 +246,8 @@ Status::Status(const std::string & messageString, int criVersion) : CriMessage(M
   overrideValue = std::stof(overrideValueString);
   switch (criVersion)
   {
-  default:
+  case -1:
+      RCLCPP_WARN(rclcpp::get_logger("irc_ros_cri::cri_messages::Status"), "CriVersion not set! Cannot read DIOs!");
   case 16:
       // FIXME (MAB): DIO have 64 bit but only 32 bit are read here!
       digital_in = std::stoi(dinString);    // TODO: Process further to actual meaning
@@ -257,6 +258,10 @@ Status::Status(const std::string & messageString, int criVersion) : CriMessage(M
       digital_in = std::stoi(dinString, nullptr, 16);    // TODO: Process further to actual meaning
       digital_out = std::stoi(doutString, nullptr, 16);  // TODO: Process further to actual meaning
       break;
+    default:
+        //wenn Status string vor INFO string geparsed wird hat criversion noch ungültigen wert
+        //und dios werden falsch gelesen
+        break;
   }
   eStop = std::stoi(eStopString);       // TODO: Process further to actual meaning
   supply = std::stoi(supplyString);

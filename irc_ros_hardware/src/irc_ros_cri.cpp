@@ -70,6 +70,11 @@ void IrcRosCri::AliveThreadFunction()
     crisocket.SendMessage(msg.str());
     //}
 
+    if(criVersion ==-1)
+    {
+        Command("GetVersion");
+    }
+
     std::this_thread::sleep_for(std::chrono::milliseconds(aliveWaitMs));
   }
 
