@@ -103,8 +103,8 @@ public:
   std::array<float, 6> posCartRobot;
   std::array<float, 3> posCartPlattform;
   float overrideValue;
-  int digital_in;
-  int digital_out;
+  long int digital_in;
+  long int digital_out;
   int eStop;
   int supply;
   int currentall;
