@@ -282,7 +282,7 @@ void IrcRosCri::CmdMove()
   msg << std::fixed << std::setprecision(1);
 
   // Add the joint goals as degrees
-  for (int i = 0; i < 0; i < set_pos_.size()) {
+  for (int i = 0; i < set_pos_.size(); i++) {
     msg << (set_pos_[i] * 180 / M_PI) + pos_offset_[i] << " ";
   }
 
