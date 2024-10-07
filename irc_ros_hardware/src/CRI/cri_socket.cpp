@@ -43,16 +43,18 @@ void CriSocket::MakeConnection()
   // at the same time.
   std::lock_guard<std::mutex> lockGuard(connectionLock);
 
+  
   while (connectionNeeded) {
     sock = 0;
     struct sockaddr_in serv_addr;
-
+    RCLCPP_INFO(rclcpp::get_logger("irc_ros_cri::cri_socket"), "Trying to connect on: %s:%d", ip.c_str(), port);
+    
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
       RCLCPP_ERROR(rclcpp::get_logger("iRC_ROS::CRI"), "Socket creation error.");
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       continue;
     }
-
+    
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(port);
 
