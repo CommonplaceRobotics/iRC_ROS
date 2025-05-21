@@ -1,5 +1,7 @@
 # igus Robot Control with ROS2 Humble
 
+**This repository is deprecated! [Please check our Wiki for new ROS packages](https://wiki.cpr-robots.com/index.php/ROS_packages)!**
+
 **This is an early beta version. The code WILL change in the near future and is not intended for any serious work right now. If you still use it be cautious when running it on your hardware and know that updating this package may break your running setup!**
 
 **Be very careful when using a Robolink DP 5 or other robots which need to be referenced on startup, as this feature is currently broken for the controllers used in those!**
